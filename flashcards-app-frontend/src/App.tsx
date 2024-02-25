@@ -50,7 +50,7 @@ export default function App() {
 
   useEffect(() => {
     fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, 0, 20);
-  }, [filter]);
+  }, [filter, isAuthenticated]);
 
   const filteredFlashcards = useMemo(() => {
     return flashcards.filter(flashcard => {
