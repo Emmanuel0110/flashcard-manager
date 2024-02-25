@@ -1,0 +1,327 @@
+body {
+  
+}
+.App {
+  text-align: center;
+  color:darkgrey;
+  background-color: #282c34;
+}
+
+.buttonHeader {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+#form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+#container{
+  display: grid;
+  grid: "navbar navbar"
+        "leftSideMenu mainPannel" 1fr
+        /170px; 
+  height: 100vh;
+}
+
+#navbar{
+  grid-area: navbar;
+}
+
+.navb{
+  background-color: #282c34;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+#leftSideMenu{
+  grid-area: leftSideMenu;
+  background-color: #303f9f;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  height: 100%;
+  padding: 10px;
+}
+
+#leftSideMenu > div {
+  cursor: pointer;
+  color: white;
+  padding: 6px;
+  font-weight: 600;
+  display: flex;
+  gap: 10px;
+}
+
+#leftSideMenu > div:hover {
+  cursor: pointer;
+  background-color: #3f51b5;
+  padding: 6px;
+  font-weight: 600;
+}
+
+.selected {
+  width: 5px;
+  background-color: rgb(131, 150, 236);
+}
+
+.unselected{
+  width: 5px;
+}
+
+#mainPannel{
+  grid-area: mainPannel;
+  background-color: #f8f8f8;
+  height: 100%;
+  overflow: auto;
+}
+
+#mainArea {
+  height: 100%;
+}
+
+#loginForm{
+  width: 18em;
+  margin: 20px auto;
+}
+
+#registerForm{
+  width: 18em;
+  margin: 20px auto;
+}
+
+.form-control{
+  margin-bottom: 10px;
+}
+
+.navButton{
+  padding: 5px 10px 10px 5px;
+  color: rgb(153, 153, 153);
+}
+
+.navButton:hover{
+  padding: 5px 10px 10px 5px;
+  color: #FAFAFA;
+  cursor: pointer;
+  /* text-decoration: none; */
+}
+
+.form-label{
+  margin-top: 10px;
+}
+
+#searchAreaInput{
+  width: 20em;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+#searchArea{
+  margin: auto;
+  display: flex;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  height: 40px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+.line:hover {
+  display: flex;
+  justify-content: space-between;
+  height: 40px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.3) 1.95px 1.95px 2.6px;
+}
+
+.lineTitle{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+.lineTitle.hasBeenRead{
+  font-weight: 400;
+}
+
+#flashcardList {
+  height: 100%;
+  /* overflow: auto; */
+  padding: 10px;
+}
+
+#flashcardList .line {
+  cursor: pointer;
+}
+
+#flashcard {
+  padding: 10px;
+  display: grid;
+  grid: "previous middle next"
+        /60px 1fr 60px;
+}
+
+#middle{
+  grid-area: middle;
+}
+
+#previous{
+  grid-area: previous;
+  position: relative;  
+}
+
+#next{
+  grid-area: next;
+  position: relative;
+}
+
+#flashcard #question, #flashcard #answer {
+  padding: 10px;
+  margin-bottom: 20px;
+  height: 200px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+#previousArrow {
+  position: absolute;
+  top: 190px;
+  right: 20px;
+  cursor: pointer;
+  mask: url(./images/circle-chevron-left-solid.svg); /*https://fontawesome.com/license*/
+  background: #303f9f;
+  width: 40px;
+  height: 40px;
+  mask-repeat: no-repeat;
+  background-position: center;
+}
+
+#nextArrow {
+  position: absolute;
+  top: 190px;
+  left: 20px;
+  cursor: pointer;
+  mask: url(./images/circle-chevron-right-solid.svg); /*https://fontawesome.com/license*/
+  background: #303f9f;
+  width: 40px;
+  height: 40px;
+  mask-repeat: no-repeat;
+  background-position: center;
+}
+
+.lineOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.subscribe {
+  cursor: pointer;
+  mask: url(./images/notifications_active_FILL0_wght400_GRAD0_opsz24.svg); /*google icons*/
+  background: #8a8a8a;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  mask-repeat: no-repeat;
+  background-position: center;
+}
+
+.subscribed {
+  background: orange;
+}
+
+.edit {
+  cursor: pointer;
+  mask: url(./images/edit_FILL0_wght400_GRAD0_opsz24.svg); /*google icons*/
+  background: #8a8a8a;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  mask-repeat: no-repeat;
+  background-position: center;
+}
+.delete {
+  cursor: pointer;
+  mask: url(./images/delete_FILL0_wght400_GRAD0_opsz24.svg); /*google icons*/
+  background: #8a8a8a;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  mask-repeat: no-repeat;
+  background-position: center;
+}
+
+#answerButtons {
+  display: flex;
+  justify-content: space-around;
+}
+
+#flashcardForm {
+  padding: 10px;
+}
+
+#flashCardComponent {
+  padding: 10px;
+}
+
+.infiniteScrollComponent {
+  height: 100%;
+  overflow: auto;
+}
