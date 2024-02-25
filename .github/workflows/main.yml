@@ -25,11 +25,11 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }}
         port: 22
         script: |
-          cd /home/manu/apps/flashcards
+          cd /home/manu/apps/flashcard-manager
           git pull origin main
           git status
-          cd frontend
+          cd flashcard-manager-frontend
           npm run build
-          cp -a build/. ../backend/public/
+          cp -a build/. ../flashcard-manager-backend/public/
           npm install --only=prod
           pm2 restart flashcards
