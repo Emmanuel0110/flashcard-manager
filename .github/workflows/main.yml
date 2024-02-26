@@ -28,7 +28,7 @@ jobs:
           cd /home/manu/apps/flashcard-manager
           git pull origin main
           git status
-          cd flashcard-app-frontend
+          cd flashcards-app-frontend
           npm run build
           cp -a build/. ../flashcards-app-backend/public/
           npm install --only=prod
