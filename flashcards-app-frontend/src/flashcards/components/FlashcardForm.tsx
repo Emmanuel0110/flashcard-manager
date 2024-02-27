@@ -24,7 +24,6 @@ export const useSaveAsNewFlashcard = () => {
 };
 
 export const useEditFlashcard = () => {
-  const navigate = useNavigate();
   const { setFlashcards } = useContext(ConfigContext);
   return (infos: Partial<Flashcard>) => {
     edit(infos)
@@ -34,7 +33,6 @@ export const useEditFlashcard = () => {
             return flashcard._id === updatedFlashcard._id ? updatedFlashcard : flashcard;
           })
         );
-        navigate("/flashcards/" + updatedFlashcard._id);
       })
       .catch((err: Error) => {
         console.log(err);

@@ -25,7 +25,9 @@ export const fetchMoreFlashcards = (url: string, setFlashcards : Dispatch<SetSta
       .then((data: any) => {
         setFlashcards((flashcards) => {
           return data.reduce((acc: Flashcard[], value: any) => {
-            value = {...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : null}
+            console.log(value.nextReviewDate);
+            console.log(new Date(value.nextReviewDate));
+            value = {...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined}
             var index: number = acc.findIndex(flashcard => flashcard._id === value._id);
             if (index === -1) {
               return [...acc, value];

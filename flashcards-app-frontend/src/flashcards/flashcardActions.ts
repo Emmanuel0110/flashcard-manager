@@ -19,7 +19,7 @@ export const deleteRemoteFlashcard = async (flashcardId: string) => {
 export const subscribeToRemoteFlashcard = async (flashcard: Flashcard) => {
   const body = JSON.stringify({
     hasBeenRead: flashcard.hasBeenRead,
-    nextReviewDate: flashcard.nextReviewDate == null ? new Date() : null,
+    nextReviewDate: flashcard.nextReviewDate ? null : new Date(),
   });
   return customFetch(url + "userflashcardinfo/" + flashcard._id, { method: "PUT", headers: authHeaders(), body });
 };

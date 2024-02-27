@@ -34,7 +34,7 @@ app.use(function (req, res, next) {
 app.get("/api/flashcards", auth, (req, res) => {
   const filter = req.query.filter;
   if (filter === "Draft" || filter === "To be validated" || filter === "Published") {
-    UserFlashcardInfoModel.find({ author: req.user._id, nextReviewDate: { $lt: new Date() } }).then(
+    UserFlashcardInfoModel.find({ author: req.user._id }).then(
       (userFlashcardInfos) => {
         const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
         FlashcardModel.find({ status: filter, ...otherFilter })
@@ -143,7 +143,7 @@ app.put("/api/userflashcardinfo/:id", auth, function (req, res) {
     {
       $set: {
         hasBeenRead: req.body.hasBeenRead || false,
-        nextReviewDate: req.body.nextReviewDate ? new Date(req.body.hasBeenRead) : undefined,
+        nextReviewDate: req.body.nextReviewDate ? new Date(req.body.nextReviewDate) : undefined,
       },
     },
   ];
