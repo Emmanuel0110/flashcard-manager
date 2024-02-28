@@ -25,8 +25,6 @@ export const fetchMoreFlashcards = (url: string, setFlashcards : Dispatch<SetSta
       .then((data: any) => {
         setFlashcards((flashcards) => {
           return data.reduce((acc: Flashcard[], value: any) => {
-            console.log(value.nextReviewDate);
-            console.log(new Date(value.nextReviewDate));
             value = {...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined}
             var index: number = acc.findIndex(flashcard => flashcard._id === value._id);
             if (index === -1) {
@@ -51,15 +49,16 @@ export default function App() {
   const [filter, setFilter] = useState("Published");
 
   useEffect(() => {
-    fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, 0, 20);
-  }, [filter, isAuthenticated]);
+    fetchMoreFlashcards(url + "flashcards?filter=" + filter + (searchFilter !== "" ? ("&searchFilter=" + searchFilter) : ""), setFlashcards, 0, 20);
+  }, [filter, searchFilter, isAuthenticated]);
 
   const filteredFlashcards = useMemo(() => {
     return flashcards.filter(flashcard => {
-      return (filter === "Draft" && flashcard.status === "Draft") ||
+      return ((filter === "Draft" && flashcard.status === "Draft") ||
       (filter === "To be validated" && flashcard.status === "To be validated") ||
       (filter === "Published" && flashcard.status === "Published") ||
-      (filter === "To be reviewed" && flashcard.nextReviewDate instanceof Date && flashcard.nextReviewDate.getTime() <= new Date().getTime());
+      (filter === "To be reviewed" && flashcard.nextReviewDate instanceof Date && flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
+      (searchFilter === "" || flashcard.title.toLowerCase().includes(searchFilter.toLowerCase()));
     });
   }, [flashcards, filter]);
 

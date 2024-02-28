@@ -325,3 +325,19 @@ button:focus {
   height: 100%;
   overflow: auto;
 }
+
+#cancelFilterForSearch {
+  cursor: pointer;
+  mask: url('./images/filter_alt_off_FILL0_wght400_GRAD0_opsz24.svg'); /*google icons*/
+  background: #848383;
+  background-size: cover;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-position: center;
+  vertical-align: middle;
+  margin-right: 5px;
+  position: absolute;
+  right: 5px;
+  top: 2px;
+}

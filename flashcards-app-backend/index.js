@@ -32,12 +32,14 @@ app.use(function (req, res, next) {
 });
 
 app.get("/api/flashcards", auth, (req, res) => {
-  const filter = req.query.filter;
+  const {filter, searchFilter} = req.query;
   if (filter === "Draft" || filter === "To be validated" || filter === "Published") {
     UserFlashcardInfoModel.find({ author: req.user._id }).then(
       (userFlashcardInfos) => {
+        const search = searchFilter ? { $text: { $search: searchFilter } } : {};
+        console.log(search);
         const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
-        FlashcardModel.find({ status: filter, ...otherFilter })
+        FlashcardModel.find({ status: filter, ...search, ...otherFilter })
           .sort("-creationDate")
           .skip(parseInt(req.query.skip) || 0)
           .limit(parseInt(req.query.limit) || 20)
@@ -177,6 +179,7 @@ const flashcardSchema = new Schema({
   creationDate: Date,
   status: String,
 });
+flashcardSchema.index({ title: 'text'});
 export const FlashcardModel = model("Flashcard", flashcardSchema);
 
 const userFlashcardInfoSchema = new Schema({
