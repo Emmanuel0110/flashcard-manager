@@ -34,7 +34,7 @@ app.use(function (req, res, next) {
 app.get("/api/flashcards", auth, (req, res) => {
   const {filter, searchFilter} = req.query;
   if (filter === "Draft" || filter === "To be validated" || filter === "Published") {
-    UserFlashcardInfoModel.find({ author: req.user._id }).then(
+    UserFlashcardInfoModel.find({ user: req.user._id }).then(
       (userFlashcardInfos) => {
         const search = searchFilter ? { $text: { $search: searchFilter } } : {};
         console.log(search);
@@ -59,7 +59,7 @@ app.get("/api/flashcards", auth, (req, res) => {
       }
     );
   } else if (filter === "To be reviewed") {
-    UserFlashcardInfoModel.find({ author: req.user._id, nextReviewDate: { $lt: new Date() } }).then(
+    UserFlashcardInfoModel.find({ user: req.user._id, nextReviewDate: { $lt: new Date() } }).then(
       (userFlashcardInfos) => {
         FlashcardModel.find({ _id: userFlashcardInfos.map((el) => el.flashcard) })
           .populate("author", "username")

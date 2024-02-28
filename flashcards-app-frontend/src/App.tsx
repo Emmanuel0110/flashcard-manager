@@ -60,7 +60,7 @@ export default function App() {
       (filter === "To be reviewed" && flashcard.nextReviewDate instanceof Date && flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
       (searchFilter === "" || flashcard.title.toLowerCase().includes(searchFilter.toLowerCase()));
     });
-  }, [flashcards, filter]);
+  }, [flashcards, filter, searchFilter]);
 
   return (
     <ConfigContext.Provider
