@@ -338,6 +338,17 @@ button:focus {
   vertical-align: middle;
   margin-right: 5px;
   position: absolute;
-  right: 5px;
+  right: 0px;
   top: 2px;
+}
+
+#searchAreaContainer {
+  position: relative;
+  padding: 2px 28px 2px 2px;
+  background: white;
+  border-radius: 5px;
+}
+
+#searchAreaContainer input {
+  border: none;
 }

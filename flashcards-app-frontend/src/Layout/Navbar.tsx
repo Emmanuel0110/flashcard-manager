@@ -24,7 +24,7 @@ function Navbar() {
   return (
     <div id="navbar" className="navb">
       <div id="searchArea">
-        <div style={{ position: "relative" }}>
+        <div id="searchAreaContainer">
           <input
             id="searchAreaInput"
             type="text"
