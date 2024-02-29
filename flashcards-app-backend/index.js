@@ -58,7 +58,7 @@ app.get("/api/flashcards", auth, (req, res) => {
           });
       }
     );
-  } else if (filter === "To be reviewed") {
+  } else if (filter === "My favorites") {
     UserFlashcardInfoModel.find({ user: req.user._id, nextReviewDate: { $lt: new Date() } }).then(
       (userFlashcardInfos) => {
         FlashcardModel.find({ _id: userFlashcardInfos.map((el) => el.flashcard) })

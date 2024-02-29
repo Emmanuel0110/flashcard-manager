@@ -57,7 +57,7 @@ export default function App() {
       return ((filter === "Draft" && flashcard.status === "Draft") ||
       (filter === "To be validated" && flashcard.status === "To be validated") ||
       (filter === "Published" && flashcard.status === "Published") ||
-      (filter === "To be reviewed" && flashcard.nextReviewDate instanceof Date && flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
+      (filter === "My favorites" && flashcard.nextReviewDate instanceof Date && flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
       (searchFilter === "" || flashcard.title.toLowerCase().includes(searchFilter.toLowerCase()));
     });
   }, [flashcards, filter, searchFilter]);

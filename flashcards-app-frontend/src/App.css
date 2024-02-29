@@ -274,7 +274,7 @@ button:focus {
 
 .subscribe {
   cursor: pointer;
-  mask: url(./images/notifications_active_FILL0_wght400_GRAD0_opsz24.svg); /*google icons*/
+  mask: url(./images/star-regular.svg); /*google icons*/
   background: #8a8a8a;
   margin: auto;
   width: 24px;

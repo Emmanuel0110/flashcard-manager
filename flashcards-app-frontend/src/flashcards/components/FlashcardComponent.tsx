@@ -53,7 +53,7 @@ export default function FlashcardComponent() {
   }, [flashcardId]);
 
   useEffect(() => {
-    setAnswerVisible(filter === "Draft" || filter === "To be validated");
+    setAnswerVisible(filter !== "My favorites");
   }, [flashcardId]);
 
   const currentIndex = useMemo(
@@ -156,7 +156,7 @@ export default function FlashcardComponent() {
         {flashcard?.status === "Draft" && <Button onClick={submitForValidation}>Submit for validation</Button>}
         {flashcard?.status === "To be validated" && <Button onClick={publish}>Publish</Button>}
         {flashcard?.status === "Published" && (
-          <Button onClick={(e) => subscribeToFlashcard(e, flashcard)}>{flashcard.nextReviewDate instanceof Date ? "Unsubscribe" : "Subscribe"}</Button>
+          <Button onClick={(e) => subscribeToFlashcard(e, flashcard)}>{flashcard.nextReviewDate instanceof Date ? "Remove from favorites" : "Add to favorites"}</Button>
         )}
       </div>
       <div id="flashcard">
@@ -165,7 +165,7 @@ export default function FlashcardComponent() {
           {answerVisible ? (
             <>
               <div id="answer" dangerouslySetInnerHTML={{ __html: flashcard?.answer || "" }} />
-              {filter == "To be reviewed" && (
+              {filter == "My favorites" && (
                 <div id="answerButtons">
                   <Button onClick={() => reviewIn(1, "day")} style={{ backgroundColor: "#75beff", border: "none" }}>
                     I forgot <br /> +1day

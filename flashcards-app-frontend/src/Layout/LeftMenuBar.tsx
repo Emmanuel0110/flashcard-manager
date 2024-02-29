@@ -41,12 +41,12 @@ function LeftMenuBar() {
       </div>
       <div
         onClick={() => {
-          setFilter("To be reviewed");
+          setFilter("My favorites");
           navigate("/flashcards");
         }}
       >
-        <div className={filter === "To be reviewed" ? "selected" : "unselected"}></div>
-        <div>To be reviewed</div>
+        <div className={filter === "My favorites" ? "selected" : "unselected"}></div>
+        <div>My favorites</div>
       </div>
       <div id="githubIconArea">
         <a href="https://github.com/Emmanuel0110/flashcard-manager">
