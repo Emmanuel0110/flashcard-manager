@@ -352,3 +352,23 @@ button:focus {
 #searchAreaContainer input {
   border: none;
 }
+
+#githubIconArea{
+  position: absolute;
+  padding: 8px 8px;
+  height: 50px;
+  bottom: 0;
+  left: 0;
+}
+
+
+.githubIcon{
+  cursor: pointer;
+  mask: url(./images/github-mark-white.svg);
+  background: rgb(255, 255, 255);
+  width: 39px;
+  height: 100%;
+  mask-repeat: no-repeat;
+  background-position: center;
+  float: right;
+}

@@ -48,6 +48,11 @@ function LeftMenuBar() {
         <div className={filter === "To be reviewed" ? "selected" : "unselected"}></div>
         <div>To be reviewed</div>
       </div>
+      <div id="githubIconArea">
+        <a href="https://github.com/Emmanuel0110/flashcard-manager">
+          <div className="githubIcon"></div>
+        </a>
+      </div>
     </div>
   );
 }
