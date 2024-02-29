@@ -7,7 +7,7 @@ interface InfiniteScrollComponentProps {
 }
 
 const InfiniteScrollComponent: React.FC<InfiniteScrollComponentProps> = ({skip, callback, children }) => {
-  const LIMIT = 20;
+  const LIMIT = 30;
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     var { scrollHeight, scrollTop, clientHeight } = e.target as HTMLDivElement;
     const bottom = scrollHeight - scrollTop === clientHeight;

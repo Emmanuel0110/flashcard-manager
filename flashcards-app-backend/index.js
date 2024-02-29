@@ -42,7 +42,7 @@ app.get("/api/flashcards", auth, (req, res) => {
         FlashcardModel.find({ status: filter, ...search, ...otherFilter })
           .sort("-creationDate")
           .skip(parseInt(req.query.skip) || 0)
-          .limit(parseInt(req.query.limit) || 20)
+          .limit(parseInt(req.query.limit) || 30)
           .populate("author", "username")
           .lean()
           .then((flashcards) => {
