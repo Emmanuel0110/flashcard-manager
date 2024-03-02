@@ -14,11 +14,13 @@ export default function FlashcardComponent() {
     setFlashcards,
     user,
     filter,
+    setFilter,
   }: {
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
     user: User;
     filter: string;
+    setFilter: Dispatch<SetStateAction<string>>;
   } = useContext(ConfigContext);
   const [answerVisible, setAnswerVisible] = useState(filter === "Draft" || filter === "To be validated");
   const navigate = useNavigate();
@@ -43,9 +45,9 @@ export default function FlashcardComponent() {
       });
     }
     if (!hasNextFlashcard()) {
-      fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, flashcards.length, 20);
+      fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, flashcards.length, 30);
     }
-    document.addEventListener("keydown", handleKeyDown, true);
+    document.addEventListener("keydown", handleKeyDown, true); // TODO: only one time on component mount
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -53,7 +55,7 @@ export default function FlashcardComponent() {
   }, [flashcardId]);
 
   useEffect(() => {
-    setAnswerVisible(filter !== "My favorites");
+    setAnswerVisible(filter !== "To be reviewed");
   }, [flashcardId]);
 
   const currentIndex = useMemo(
@@ -74,11 +76,28 @@ export default function FlashcardComponent() {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    const key = e.key;
-    if (key === "ArrowLeft") {
-      goToPreviousFlashcard();
-    } else if (key === "ArrowRight") {
-      goToNextFlashcard();
+    switch (e.key) {
+      case "ArrowLeft":
+        goToPreviousFlashcard();
+        break;
+      case "ArrowRight":
+        goToNextFlashcard();
+        break;
+      case "Enter":
+        if (!answerVisible) {
+          setAnswerVisible(true);
+        }
+        break;
+      case "1":
+        reviewIn(1, "day");
+        break;
+      case "2":
+        reviewIn(1, "week");
+        break;
+      case "3":
+        reviewIn(1, "month");
+        break;
+      default:
     }
   };
 
@@ -131,7 +150,10 @@ export default function FlashcardComponent() {
     }
     if (hasNextFlashcard()) {
       goToNextFlashcard();
-    } else navigate("/flashcards/");
+    } else {
+      setFilter("My favorites");
+      navigate("/flashcards/");
+    }
   };
 
   let options = [];
@@ -156,7 +178,9 @@ export default function FlashcardComponent() {
         {flashcard?.status === "Draft" && <Button onClick={submitForValidation}>Submit for validation</Button>}
         {flashcard?.status === "To be validated" && <Button onClick={publish}>Publish</Button>}
         {flashcard?.status === "Published" && (
-          <Button onClick={(e) => subscribeToFlashcard(e, flashcard)}>{flashcard.nextReviewDate instanceof Date ? "Remove from favorites" : "Add to favorites"}</Button>
+          <Button onClick={(e) => subscribeToFlashcard(e, flashcard)}>
+            {flashcard.nextReviewDate instanceof Date ? "Remove from favorites" : "Add to favorites"}
+          </Button>
         )}
       </div>
       <div id="flashcard">
@@ -165,7 +189,7 @@ export default function FlashcardComponent() {
           {answerVisible ? (
             <>
               <div id="answer" dangerouslySetInnerHTML={{ __html: flashcard?.answer || "" }} />
-              {filter == "My favorites" && (
+              {filter == "To be reviewed" && (
                 <div id="answerButtons">
                   <Button onClick={() => reviewIn(1, "day")} style={{ backgroundColor: "#75beff", border: "none" }}>
                     I forgot <br /> +1day

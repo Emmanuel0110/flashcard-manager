@@ -4,11 +4,12 @@ import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
 import { useNavigate } from "react-router-dom";
 import { deleteRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
 import InfiniteScrollComponent from "../../utils/InfiniteScrollComponent";
+import { Button } from "react-bootstrap";
 
 export default function Flashcards({ filteredFlashcards }: { filteredFlashcards: Flashcard[] }) {
-  const { user, setFlashcards, filter } = useContext(ConfigContext);
+  const { user, setFlashcards, filter, setFilter } = useContext(ConfigContext);
   const navigate = useNavigate();
- 
+
   const openFlashcard = (id: string) => {
     navigate("/flashcards/" + id);
   };
@@ -42,6 +43,10 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
     });
   };
 
+  const startReview = () => {
+    setFilter("To be reviewed");
+  }
+
   return (
     <InfiniteScrollComponent
       skip={filteredFlashcards.length}
@@ -50,15 +55,22 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
       }
     >
       <div id="flashcardList">
+        {filter === "My favorites" && <div className="buttonHeader">
+           <Button onClick={startReview}>Start a review</Button>
+        </div>}
         {filteredFlashcards.map((flashcard, index) => (
           <div key={index} className="line" onClick={() => openFlashcard(flashcard._id)}>
             <div className={"lineTitle" + (flashcard.hasBeenRead ? " hasBeenRead" : "")}>{flashcard.title}</div>
             <div className="lineOptions">
               {(user._id === flashcard.author._id || flashcard.status === "Published") && (
-                <div
-                  className={"subscribe" + (flashcard.nextReviewDate instanceof Date ? " subscribed" : "")}
-                  onClick={(e) => subscribeToFlashcard(e, flashcard)}
-                ></div>
+                <>
+                  {flashcard.nextReviewDate instanceof Date &&
+                    flashcard.nextReviewDate.getTime() <= new Date().getTime() && <div className="review"></div>}
+                  <div
+                    className={"subscribe" + (flashcard.nextReviewDate instanceof Date ? " subscribed" : "")}
+                    onClick={(e) => subscribeToFlashcard(e, flashcard)}
+                  ></div>
+                </>
               )}
               {user._id === flashcard.author._id && (
                 <>

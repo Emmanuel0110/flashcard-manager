@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction, createContext, useEffect, useMemo, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "./App.css";
 import Register from "./auth/components/Register";
 import Layout from "./Layout/Layout";
@@ -20,26 +20,31 @@ if (process.env.NODE_ENV === "production") {
 
 export const ConfigContext = createContext(null as any);
 
-export const fetchMoreFlashcards = (url: string, setFlashcards : Dispatch<SetStateAction<Flashcard[]>>, skip: number, limit: number) => {
+export const fetchMoreFlashcards = (
+  url: string,
+  setFlashcards: Dispatch<SetStateAction<Flashcard[]>>,
+  skip: number,
+  limit: number
+) => {
   return customFetch(url + `&skip=${skip}&limit=${limit}`, { headers: authHeaders() })
-      .then((data: any) => {
-        setFlashcards((flashcards) => {
-          return data.reduce((acc: Flashcard[], value: any) => {
-            value = {...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined}
-            var index: number = acc.findIndex(flashcard => flashcard._id === value._id);
-            if (index === -1) {
-              return [...acc, value];
-            } else {
-              acc.splice(index, 1, value);
-              return [...acc];
-            }
-          }, flashcards);
-        });
-      })
-      .catch((err: Error) => {
-        console.log(err);
+    .then((data: any) => {
+      setFlashcards((flashcards) => {
+        return data.reduce((acc: Flashcard[], value: any) => {
+          value = { ...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined };
+          var index: number = acc.findIndex((flashcard) => flashcard._id === value._id);
+          if (index === -1) {
+            return [...acc, value];
+          } else {
+            acc.splice(index, 1, value);
+            return [...acc];
+          }
+        }, flashcards);
       });
-}
+    })
+    .catch((err: Error) => {
+      console.log(err);
+    });
+};
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null as boolean | null);
@@ -47,18 +52,31 @@ export default function App() {
   const [searchFilter, setSearchFilter] = useState("");
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
   const [filter, setFilter] = useState("Published");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchMoreFlashcards(url + "flashcards?filter=" + filter + (searchFilter !== "" ? ("&searchFilter=" + searchFilter) : ""), setFlashcards, 0, 20);
+    fetchMoreFlashcards(
+      url + "flashcards?filter=" + filter + (searchFilter !== "" ? "&searchFilter=" + searchFilter : ""),
+      setFlashcards,
+      0,
+      30
+    ).then(() => {
+      if (filter === "To be reviewed" && filteredFlashcards.length > 0) navigate("/flashcards/" + filteredFlashcards[0]._id);
+    });
   }, [filter, searchFilter, isAuthenticated]);
 
   const filteredFlashcards = useMemo(() => {
-    return flashcards.filter(flashcard => {
-      return ((filter === "Draft" && flashcard.status === "Draft") ||
-      (filter === "To be validated" && flashcard.status === "To be validated") ||
-      (filter === "Published" && flashcard.status === "Published") ||
-      (filter === "My favorites" && flashcard.nextReviewDate instanceof Date && flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
-      (searchFilter === "" || flashcard.title.toLowerCase().includes(searchFilter.toLowerCase()));
+    return flashcards.filter((flashcard) => {
+      return (
+        ((filter === "Draft" && flashcard.status === "Draft") ||
+          (filter === "To be validated" && flashcard.status === "To be validated") ||
+          (filter === "Published" && flashcard.status === "Published") ||
+          (filter === "My favorites" && flashcard.nextReviewDate instanceof Date) ||
+          (filter === "To be reviewed" &&
+            flashcard.nextReviewDate instanceof Date &&
+            flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
+        (searchFilter === "" || flashcard.title.toLowerCase().includes(searchFilter.toLowerCase()))
+      );
     });
   }, [flashcards, filter, searchFilter]);
 
