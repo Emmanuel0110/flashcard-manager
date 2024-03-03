@@ -189,6 +189,7 @@ export default function FlashcardComponent() {
           {answerVisible ? (
             <>
               <div id="answer" dangerouslySetInnerHTML={{ __html: flashcard?.answer || "" }} />
+              <div id="tags">{flashcard && flashcard.tags.map((tag) => <div className="tag">{"#" + tag.label}</div>)}</div>
               {filter == "To be reviewed" && (
                 <div id="answerButtons">
                   <Button onClick={() => reviewIn(1, "day")} style={{ backgroundColor: "#75beff", border: "none" }}>

@@ -2,13 +2,15 @@ import { url } from "../App";
 import { authHeaders, customFetch } from "../utils/http-helpers";
 import { Flashcard } from "../types";
 
-export const save = async ({ title, question, answer }: { title: string; question: string; answer: string }) => {
-  const body = JSON.stringify({ title, question, answer });
+export const saveNewFlashcard = async (args: Partial<Flashcard>) => {
+  const formattedArgs = {...args, tags: args.tags?.map(tag => tag._id)}
+  const body = JSON.stringify(formattedArgs);
   return customFetch(url + "flashcards", { method: "POST", headers: authHeaders(), body });
 };
 
 export const edit = async ({ _id, ...args }: Partial<Flashcard>) => {
-  const body = JSON.stringify(args);
+  const formattedArgs = {...args, tags: args.tags?.map(tag => tag._id)}
+  const body = JSON.stringify(formattedArgs);
   return customFetch(url + "flashcards/" + _id, { method: "PUT", headers: authHeaders(), body });
 };
 
@@ -31,4 +33,9 @@ export const editUserFlashcardInfo = async({_id, ...body}: any) => {
 export const readRemoteFlashcard = async (flashcard: Flashcard) => {
   const body = JSON.stringify({ hasBeenRead: true, nextReviewDate: flashcard.nextReviewDate });
   return customFetch(url + "userflashcardinfo/" + flashcard._id, { method: "PUT", headers: authHeaders(), body });
+};
+
+export const saveNewTag = async ({ label }: { label: string }) => {
+  const body = JSON.stringify({ label });
+  return customFetch(url + "tags", { method: "POST", headers: authHeaders(), body });
 };

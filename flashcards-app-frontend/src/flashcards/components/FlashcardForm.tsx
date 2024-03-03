@@ -1,18 +1,19 @@
 import "../../App.css";
 import { Editor } from "@tinymce/tinymce-react";
-import { useContext, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
-import { edit, save } from "../flashcardActions";
+import { edit, saveNewFlashcard, saveNewTag } from "../flashcardActions";
 import { ConfigContext } from "../../App";
-import { Flashcard } from "../../types";
+import { Flashcard, Tag } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
+import AutoComplete from "../../utils/Autocomplete";
 
 export const useSaveAsNewFlashcard = () => {
   const navigate = useNavigate();
   const { setFlashcards } = useContext(ConfigContext);
-  return (infos: { title: string; question: string; answer: string }) => {
-    save(infos)
+  return ({ _id, ...infos }: Partial<Flashcard>) => {
+    saveNewFlashcard(infos)
       .then(({ data: newFlashcard }) => {
         setFlashcards((flashcards: Flashcard[]) => [...flashcards, newFlashcard]);
         navigate("/flashcards/" + newFlashcard._id + "/edit");
@@ -43,38 +44,60 @@ export const useEditFlashcard = () => {
 export default function FlashcardForm() {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
+  const [localTags, setLocalTags] = useState([] as Tag[]);
   const { flashcardId } = useParams();
-  const { filteredFlashcards: flashcards } = useContext(ConfigContext);
+  const {
+    filteredFlashcards: flashcards,
+    tags,
+    setTags,
+  }: {
+    filteredFlashcards: Flashcard[];
+    tags: Tag[];
+    setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  } = useContext(ConfigContext);
   const saveAsNewFlashcard = useSaveAsNewFlashcard();
   const editFlashcard = useEditFlashcard();
 
   const flashcard: Flashcard | undefined = useMemo(() => {
     return flashcards.find((flashcard: Flashcard) => flashcard._id === flashcardId);
-  }, [flashcards]);
+  }, [flashcards, flashcardId]);
+
+  useEffect(() => {
+    flashcard && setLocalTags(flashcard.tags);
+  }, [flashcardId]);
 
   const saveOrEditFlashcard = () => {
     if (questionRef.current && answerRef.current) {
       const title = questionRef.current.getContent({ format: "text" });
       const question = questionRef.current.getContent();
       const answer = answerRef.current.getContent();
+      const tags = localTags;
       if (flashcard) {
-        editFlashcard({ _id: flashcard._id, title, question, answer });
+        editFlashcard({ _id: flashcard._id, title, question, answer, tags });
       } else {
-        saveAsNewFlashcard({ title, question, answer });
+        saveAsNewFlashcard({ title, question, answer, tags });
       }
     }
   };
+
+  const addTag = ({ _id, label }: { _id?: string; label?: string }) => {
+    if (_id && (!flashcard || !flashcard.tags.map((tag) => tag._id).includes(_id))) {
+      setLocalTags((localTags) => [...localTags, tags.find((tag: Tag) => tag._id === _id)!]);
+    } else if (label && !tags.map((tag) => tag.label).includes(label)) {
+      saveNewTag({ label }).then(({ data: tag }) => {
+        setTags((tags: Tag[]) => [...tags, tag]);
+        setLocalTags((localTags) => [...localTags, tag]);
+      });
+    }
+  };
+
+  const availableTags = tags.filter((tag) => !localTags.map((tag) => tag._id).includes(tag._id));
 
   return (
     <div id="flashcardForm">
       <div className="buttonHeader">
         <Button onClick={saveOrEditFlashcard}>Save</Button>
-        <Button
-          onClick={() =>
-            saveAsNewFlashcard({ title: flashcard!.title, question: flashcard!.question, answer: flashcard!.answer })
-          }
-          disabled={flashcardId === undefined}
-        >
+        <Button onClick={() => saveAsNewFlashcard(flashcard!)} disabled={flashcardId === undefined}>
           Save as new
         </Button>
       </div>
@@ -126,7 +149,25 @@ export default function FlashcardForm() {
             }}
           />
         </div>
-        <div id="tags"></div>
+        <div id="tags">
+          {localTags.map((tag, index) => (
+            <div
+              key={index}
+              onClick={() => setLocalTags((localTags) => localTags.filter((localTag) => localTag._id !== tag._id))}
+              className="tag"
+            >
+              {"#" + tag.label}
+            </div>
+          ))}
+          <div id="tagInput">
+            <AutoComplete
+              dropdownList={availableTags}
+              callback={addTag}
+              placeholder="Add a tag..."
+              placement="top-start"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

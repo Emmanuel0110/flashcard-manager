@@ -6,7 +6,7 @@ import Layout from "./Layout/Layout";
 import ProtectedRoute from "./ProtectedRoute";
 import Profile from "./Profile";
 import Login from "./auth/components/Login";
-import { Flashcard, User } from "./types";
+import { Flashcard, SearchFilter, Tag, User } from "./types";
 import FlashcardForm from "./flashcards/components/FlashcardForm";
 import Flashcards from "./flashcards/components/Flashcards";
 import FlashcardComponent from "./flashcards/components/FlashcardComponent";
@@ -19,6 +19,12 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export const ConfigContext = createContext(null as any);
+
+export const fetchTags = () => {
+  return customFetch(url + "tags", { headers: authHeaders() }).catch((err: Error) => {
+    console.log(err);
+  });
+};
 
 export const fetchMoreFlashcards = (
   url: string,
@@ -46,22 +52,45 @@ export const fetchMoreFlashcards = (
     });
 };
 
+export const emptyFilter: SearchFilter = { searchString: "", tag: undefined };
+export const someFilter = (searchFilter: SearchFilter): boolean =>
+  searchFilter.searchString !== "" || searchFilter.tag !== undefined;
+
+const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter) => {
+  const { searchString, tag } = searchFilter;
+  return (
+    (!searchString || flashcard.title.toLowerCase().includes(searchString.toLowerCase())) &&
+    (!tag || flashcard.tags.map((tag) => tag._id).includes(tag._id))
+  );
+};
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null as boolean | null);
   const [user, setUser] = useState(null as User | null);
-  const [searchFilter, setSearchFilter] = useState("");
+  const [searchFilter, setSearchFilter] = useState<SearchFilter>({ searchString: "", tag: undefined });
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
   const [filter, setFilter] = useState("Published");
+  const [tags, setTags] = useState([] as Tag[]);
   const navigate = useNavigate();
 
   useEffect(() => {
+    fetchTags().then((tags) => setTags(tags));
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const { searchString, tag } = searchFilter;
     fetchMoreFlashcards(
-      url + "flashcards?filter=" + filter + (searchFilter !== "" ? "&searchFilter=" + searchFilter : ""),
+      url +
+        "flashcards?filter=" +
+        filter +
+        (searchString ? "&searchString=" + searchString : "") +
+        (tag ? "&tagId=" + tag._id : ""),
       setFlashcards,
       0,
       30
     ).then(() => {
-      if (filter === "To be reviewed" && filteredFlashcards.length > 0) navigate("/flashcards/" + filteredFlashcards[0]._id);
+      if (filter === "To be reviewed" && filteredFlashcards.length > 0)
+        navigate("/flashcards/" + filteredFlashcards[0]._id);
     });
   }, [filter, searchFilter, isAuthenticated]);
 
@@ -75,7 +104,7 @@ export default function App() {
           (filter === "To be reviewed" &&
             flashcard.nextReviewDate instanceof Date &&
             flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
-        (searchFilter === "" || flashcard.title.toLowerCase().includes(searchFilter.toLowerCase()))
+        (!someFilter(searchFilter) || isFiltered(flashcard, searchFilter))
       );
     });
   }, [flashcards, filter, searchFilter]);
@@ -93,6 +122,8 @@ export default function App() {
         setUser,
         filter,
         setFilter,
+        tags,
+        setTags,
       }}
     >
       <Routes>

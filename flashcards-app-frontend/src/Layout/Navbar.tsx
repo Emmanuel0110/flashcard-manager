@@ -1,8 +1,9 @@
-import { ChangeEvent, useContext, useState } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { ConfigContext } from "../App";
-import { User } from "../types";
+import { ConfigContext, emptyFilter, someFilter } from "../App";
+import { SearchFilter, Tag, User } from "../types";
 import { logout } from "../auth/authActions";
+import AutoComplete from "../utils/Autocomplete";
 
 function Navbar() {
   const {
@@ -10,37 +11,33 @@ function Navbar() {
     searchFilter,
     setSearchFilter,
     setIsAuthenticated,
+    tags,
   }: {
     user: User;
-    searchFilter: string;
-    setSearchFilter: (arg: string) => void;
+    searchFilter: SearchFilter;
+    setSearchFilter: React.Dispatch<React.SetStateAction<SearchFilter>>;
     setIsAuthenticated: (arg: boolean) => void;
+    tags: Tag[];
   } = useContext(ConfigContext);
-  const [localSearchString, setLocalSearchString] = useState("");
 
-  const someFilter: boolean = searchFilter !== "";
-  const cancelFilter = () => setSearchFilter("");
+  const cancelFilter = () => setSearchFilter(emptyFilter);
+
+  const search = ({ _id, label }: { _id?: string; label?: string }) => {
+    if (_id) {
+      setSearchFilter({ ...searchFilter, tag: tags.find((tag) => tag._id === _id) });
+    } else if (label) {
+      setSearchFilter({ ...searchFilter, searchString: label });
+    }
+  };
 
   return (
     <div id="navbar" className="navb">
       <div id="searchArea">
         <div id="searchAreaContainer">
-          <input
-            id="searchAreaInput"
-            type="text"
-            placeholder="Search..."
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              setLocalSearchString(e.target.value);
-            }}
-            onKeyDown={(e: React.KeyboardEvent) => {
-              if (e.key === "Enter") {
-                setSearchFilter(localSearchString);
-                setLocalSearchString("");
-              }
-            }}
-            value={localSearchString}
-          />
-          {someFilter && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
+          <div id="searchAreaInput">
+            <AutoComplete dropdownList={tags} callback={search} placeholder="Search..." placement="bottom-start" />
+          </div>
+          {someFilter(searchFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
         </div>
       </div>
       <div id="nameLabel">{user?.username}</div>

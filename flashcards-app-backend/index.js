@@ -32,56 +32,60 @@ app.use(function (req, res, next) {
 });
 
 app.get("/api/flashcards", auth, (req, res) => {
-  const {filter, searchFilter} = req.query;
+  const { filter, searchString, tagId } = req.query;
   if (filter === "Draft" || filter === "To be validated" || filter === "Published") {
-    UserFlashcardInfoModel.find({ user: req.user._id }).then(
-      (userFlashcardInfos) => {
-        const search = searchFilter ? { $text: { $search: searchFilter } } : {};
-        console.log(search);
-        const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
-        FlashcardModel.find({ status: filter, ...search, ...otherFilter })
-          .sort("-creationDate")
-          .skip(parseInt(req.query.skip) || 0)
-          .limit(parseInt(req.query.limit) || 30)
-          .populate("author", "username")
-          .lean()
-          .then((flashcards) => {
-            res.send(
-              flashcards.map((flashcard) => {
-                const info =
-                  userFlashcardInfos.find((info) => {
-                    return info.flashcard.equals(flashcard._id);
-                  }) || {};
-                return { ...flashcard, hasBeenRead: info.hasBeenRead || false, nextReviewDate: info.nextReviewDate };
-              })
-            );
-          });
-      }
-    );
+    UserFlashcardInfoModel.find({ user: req.user._id }).then((userFlashcardInfos) => {
+      const stringSearch = searchString ? { $text: { $search: searchString } } : {};
+      const tagSearch = tagId ? { tags: { "$in" : [tagId]} } : {};
+      const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
+      FlashcardModel.find({ status: filter, ...stringSearch, ...tagSearch, ...otherFilter })
+        .sort("-creationDate")
+        .skip(parseInt(req.query.skip) || 0)
+        .limit(parseInt(req.query.limit) || 30)
+        .populate("author", "username")
+        .populate({
+          path: "tags",
+          populate: { path: "label" },
+        })
+        .lean()
+        .then((flashcards) => {
+          res.send(
+            flashcards.map((flashcard) => {
+              const info =
+                userFlashcardInfos.find((info) => {
+                  return info.flashcard.equals(flashcard._id);
+                }) || {};
+              return { ...flashcard, hasBeenRead: info.hasBeenRead || false, nextReviewDate: info.nextReviewDate };
+            })
+          );
+        });
+    });
   } else if (filter === "My favorites" || filter === "To be reviewed") {
-    UserFlashcardInfoModel.find({ user: req.user._id, nextReviewDate: filter === "To be reviewed" ? { $lt: new Date() } : { $exists: true, $ne: null } }).then(
-      (userFlashcardInfos) => {
-        FlashcardModel.find({ _id: userFlashcardInfos.map((el) => el.flashcard) })
-          .populate("author", "username")
-          .lean()
-          .then((flashcards) => {
-            res.send(
-              flashcards.map((flashcard) => {
-                const info =
-                  userFlashcardInfos.find((info) => {
-                    return info.flashcard.equals(flashcard._id);
-                  }) || {};
-                return { ...flashcard, hasBeenRead: info.hasBeenRead || false, nextReviewDate: info.nextReviewDate };
-              })
-            );
-          });
-      }
-    );
+    UserFlashcardInfoModel.find({
+      user: req.user._id,
+      nextReviewDate: filter === "To be reviewed" ? { $lt: new Date() } : { $exists: true, $ne: null },
+    }).then((userFlashcardInfos) => {
+      FlashcardModel.find({ _id: userFlashcardInfos.map((el) => el.flashcard) })
+        .populate("author", "username")
+        .populate("tags", "label")
+        .lean()
+        .then((flashcards) => {
+          res.send(
+            flashcards.map((flashcard) => {
+              const info =
+                userFlashcardInfos.find((info) => {
+                  return info.flashcard.equals(flashcard._id);
+                }) || {};
+              return { ...flashcard, hasBeenRead: info.hasBeenRead || false, nextReviewDate: info.nextReviewDate };
+            })
+          );
+        });
+    });
   }
 });
 
 app.post("/api/flashcards", auth, function (req, res) {
-  var newFlashcard = new FlashcardModel({
+  const newFlashcard = new FlashcardModel({
     _id: new mongoose.Types.ObjectId(),
     creationDate: new Date(),
     status: "Draft",
@@ -90,7 +94,8 @@ app.post("/api/flashcards", auth, function (req, res) {
   });
   newFlashcard
     .save()
-    .then((newElement) => newElement.populate("author", "username"))
+    .populate("author", "username")
+    .populate("tags", "label")
     .then((newElement) => {
       res.send({ data: newElement });
     })
@@ -114,7 +119,8 @@ app.put("/api/flashcards/:id", auth, function (req, res) {
   };
 
   FlashcardModel.findByIdAndUpdate(_id, newFlashcard, { returnDocument: "after" })
-    .then((updatedFlashcard) => updatedFlashcard.populate("author", "username"))
+    .populate("author", "username")
+    .populate("tags", "label")
     .then((updatedFlashcard) => {
       res.send({ data: updatedFlashcard });
     })
@@ -162,6 +168,39 @@ app.patch("/api/userflashcardinfo/:id", auth, function (req, res) {
   UserFlashcardInfoModel.updateOne(filter, req.body).then((data) => res.json({ success: true }));
 });
 
+app.get("/api/tags", auth, (req, res) => {
+  TagModel.find()
+    .limit(1000)
+    .then((tags) => res.send(tags));
+});
+
+app.post("/api/tags", auth, (req, res) => {
+  const newTag = new TagModel({
+    _id: new mongoose.Types.ObjectId(),
+    ...req.body,
+  });
+  newTag
+    .save()
+    .then((newElement) => {
+      res.send({ data: newElement });
+    })
+    .catch(function (err) {
+      console.log("save error ", err);
+      if (err.name === "MongoError" && err.code === 11000) {
+        res.json({ success: false, message: "already exists" });
+        return;
+      }
+      res.json({ success: false, message: "some error happened" });
+      return;
+    });
+});
+
+const tagSchema = new Schema({
+  _id: Schema.Types.ObjectId,
+  label: { type: String, required: true },
+});
+export const TagModel = model("Tag", tagSchema);
+
 const userSchema = new Schema({
   _id: Schema.Types.ObjectId,
   username: { type: String, required: true },
@@ -175,11 +214,11 @@ const flashcardSchema = new Schema({
   title: String,
   question: String,
   answer: String,
-  tags: [String],
+  tags: [{ type: Schema.Types.ObjectId, ref: "Tag", required: true }],
   creationDate: Date,
   status: String,
 });
-flashcardSchema.index({ title: 'text'});
+flashcardSchema.index({ title: "text" });
 export const FlashcardModel = model("Flashcard", flashcardSchema);
 
 const userFlashcardInfoSchema = new Schema({
@@ -199,7 +238,7 @@ mongoose.connect(
 );
 mongoose.Promise = Promise;
 
-var db = mongoose.connection;
+const db = mongoose.connection;
 db.on("error", function (e) {
   console.error("connection error:", e);
 });

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { deleteRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
 import InfiniteScrollComponent from "../../utils/InfiniteScrollComponent";
 import { Button } from "react-bootstrap";
+import FilterBar from "./FilterBar";
 
 export default function Flashcards({ filteredFlashcards }: { filteredFlashcards: Flashcard[] }) {
   const { user, setFlashcards, filter, setFilter } = useContext(ConfigContext);
@@ -45,7 +46,7 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
 
   const startReview = () => {
     setFilter("To be reviewed");
-  }
+  };
 
   return (
     <InfiniteScrollComponent
@@ -54,10 +55,13 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
         fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, skip, limit)
       }
     >
+      <FilterBar />
       <div id="flashcardList">
-        {filter === "My favorites" && <div className="buttonHeader">
-           <Button onClick={startReview}>Start a review</Button>
-        </div>}
+        {filter === "My favorites" && (
+          <div className="buttonHeader">
+            <Button onClick={startReview}>Start a review</Button>
+          </div>
+        )}
         {filteredFlashcards.map((flashcard, index) => (
           <div key={index} className="line" onClick={() => openFlashcard(flashcard._id)}>
             <div className={"lineTitle" + (flashcard.hasBeenRead ? " hasBeenRead" : "")}>{flashcard.title}</div>

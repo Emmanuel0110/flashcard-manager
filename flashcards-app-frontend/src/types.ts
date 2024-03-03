@@ -11,8 +11,18 @@ export interface Flashcard {
   title: string;
   question: string;
   answer: string;
-  tags: string[];
+  tags: Tag[];
   status: "Draft" | "To be validated" | "Published" | "Obsolete";
   nextReviewDate: Date | undefined;
   hasBeenRead: boolean;
+}
+
+export interface Tag {
+  _id: string;
+  label: string;
+}
+
+export interface SearchFilter {
+  searchString?: string;
+  tag?: Tag;
 }
