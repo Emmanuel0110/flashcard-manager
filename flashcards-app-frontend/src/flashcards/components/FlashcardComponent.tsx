@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
-import { Flashcard, User } from "../../types";
+import { Flashcard, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
 import { editUserFlashcardInfo, readRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
@@ -15,12 +15,16 @@ export default function FlashcardComponent() {
     user,
     filter,
     setFilter,
+    setSearchFilter,
+    tags,
   }: {
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
     user: User;
     filter: string;
     setFilter: Dispatch<SetStateAction<string>>;
+    setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
+    tags: Tag[];
   } = useContext(ConfigContext);
   const [answerVisible, setAnswerVisible] = useState(filter === "Draft" || filter === "To be validated");
   const navigate = useNavigate();
@@ -156,6 +160,11 @@ export default function FlashcardComponent() {
     }
   };
 
+  const searchTag = (tagId: string) => {
+    setSearchFilter(searchFilter => ({ ...searchFilter, tag: tags.find((tag) => tag._id === tagId) }));
+    navigate("/flashcards/");
+  }
+
   let options = [];
   if (flashcard?.author._id === user?._id) {
     options.push({
@@ -189,7 +198,7 @@ export default function FlashcardComponent() {
           {answerVisible ? (
             <>
               <div id="answer" dangerouslySetInnerHTML={{ __html: flashcard?.answer || "" }} />
-              <div id="tags">{flashcard && flashcard.tags.map((tag) => <div className="tag">{"#" + tag.label}</div>)}</div>
+              <div id="tags">{flashcard && flashcard.tags.map((tag) => <div className="tag" onClick={(e) => searchTag(tag._id)}>{"#" + tag.label}</div>)}</div>
               {filter == "To be reviewed" && (
                 <div id="answerButtons">
                   <Button onClick={() => reviewIn(1, "day")} style={{ backgroundColor: "#75beff", border: "none" }}>
