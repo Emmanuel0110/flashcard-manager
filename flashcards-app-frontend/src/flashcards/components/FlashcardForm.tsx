@@ -16,7 +16,7 @@ export const useSaveAsNewFlashcard = () => {
     saveNewFlashcard(infos)
       .then(({ data: newFlashcard }) => {
         setFlashcards((flashcards: Flashcard[]) => [...flashcards, newFlashcard]);
-        navigate("/flashcards/" + newFlashcard._id + "/edit");
+        navigate("/flashcards/" + newFlashcard._id);
       })
       .catch((err: Error) => {
         console.log(err);
@@ -55,6 +55,7 @@ export default function FlashcardForm() {
     tags: Tag[];
     setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   } = useContext(ConfigContext);
+  const navigate = useNavigate();
   const saveAsNewFlashcard = useSaveAsNewFlashcard();
   const editFlashcard = useEditFlashcard();
 
@@ -74,9 +75,11 @@ export default function FlashcardForm() {
       const tags = localTags;
       if (flashcard) {
         editFlashcard({ _id: flashcard._id, title, question, answer, tags });
+        navigate("/flashcards/" + flashcard._id);
       } else {
         saveAsNewFlashcard({ title, question, answer, tags });
       }
+
     }
   };
 
