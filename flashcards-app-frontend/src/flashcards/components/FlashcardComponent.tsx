@@ -161,9 +161,9 @@ export default function FlashcardComponent() {
   };
 
   const searchTag = (tagId: string) => {
-    setSearchFilter(searchFilter => ({ ...searchFilter, tag: tags.find((tag) => tag._id === tagId) }));
+    setSearchFilter((searchFilter) => ({ ...searchFilter, tag: tags.find((tag) => tag._id === tagId) }));
     navigate("/flashcards/");
-  }
+  };
 
   let options = [];
   if (flashcard?.author._id === user?._id) {
@@ -198,8 +198,17 @@ export default function FlashcardComponent() {
           {answerVisible ? (
             <>
               <div id="answer" dangerouslySetInnerHTML={{ __html: flashcard?.answer || "" }} />
-              <div id="tags">{flashcard && flashcard.tags.map((tag) => <div className="tag" onClick={(e) => searchTag(tag._id)}>{"#" + tag.label}</div>)}</div>
-              {filter == "To be reviewed" && (
+              {filter !== "To be reviewed" && (
+                <div id="tags">
+                  {flashcard &&
+                    flashcard.tags.map((tag) => (
+                      <div className="tag" onClick={(e) => searchTag(tag._id)}>
+                        {"#" + tag.label}
+                      </div>
+                    ))}
+                </div>
+              )}
+              {filter === "To be reviewed" && (
                 <div id="answerButtons">
                   <Button onClick={() => reviewIn(1, "day")} style={{ backgroundColor: "#75beff", border: "none" }}>
                     I forgot <br /> +1day

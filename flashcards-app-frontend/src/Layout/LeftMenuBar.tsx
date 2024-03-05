@@ -6,52 +6,61 @@ import { ConfigContext } from "../App";
 function LeftMenuBar() {
   const navigate = useNavigate();
   const { filter, setFilter } = useContext(ConfigContext);
+
+  const startReview = () => {
+    setFilter("To be reviewed");
+  };
   return (
     <div id="leftSideMenu">
-      <Button style={{ marginBottom: "6px" }} onClick={() => navigate("/flashcards/new")}>
-        New flashcard
-      </Button>
-
-      <div
-        onClick={() => {
-          setFilter("Published");
-          navigate("/flashcards");
-        }}
-      >
-        <div className={filter === "Published" ? "selected" : "unselected"}></div>
-        <div>All flashcards</div>
+      <div id="leftSideMenuItems">
+        <div>
+          <Button style={{ margin: "0px 10px 6px" }} onClick={() => navigate("/flashcards/new")}>
+            New flashcard
+          </Button>
+        </div>
+        <div id="filterSection">
+          <div
+            onClick={() => {
+              setFilter("Published");
+              navigate("/flashcards");
+            }}
+          >
+            <div className={filter === "Published" ? "selected" : "unselected"}></div>
+            <div>All flashcards</div>
+          </div>
+          <div
+            onClick={() => {
+              setFilter("Draft");
+              navigate("/flashcards");
+            }}
+          >
+            <div className={filter === "Draft" ? "selected" : "unselected"}></div>
+            <div>Drafts</div>
+          </div>
+          <div
+            onClick={() => {
+              setFilter("To be validated");
+              navigate("/flashcards");
+            }}
+          >
+            <div className={filter === "To be validated" ? "selected" : "unselected"}></div>
+            <div>To be validated</div>
+          </div>
+          <div
+            onClick={() => {
+              setFilter("My favorites");
+              navigate("/flashcards");
+            }}
+          >
+            <div className={filter === "My favorites" ? "selected" : "unselected"}></div>
+            <div>My favorites</div>
+          </div>
+        </div>
       </div>
-      <div
-        onClick={() => {
-          setFilter("Draft");
-          navigate("/flashcards");
-        }}
-      >
-        <div className={filter === "Draft" ? "selected" : "unselected"}></div>
-        <div>Drafts</div>
-      </div>
-      <div
-        onClick={() => {
-          setFilter("To be validated");
-          navigate("/flashcards");
-        }}
-      >
-        <div className={filter === "To be validated" ? "selected" : "unselected"}></div>
-        <div>To be validated</div>
-      </div>
-      <div
-        onClick={() => {
-          setFilter("My favorites");
-          navigate("/flashcards");
-        }}
-      >
-        <div className={filter === "My favorites" ? "selected" : "unselected"}></div>
-        <div>My favorites</div>
-      </div>
-      <div id="githubIconArea">
-        <a href="https://github.com/Emmanuel0110/flashcard-manager">
-          <div className="githubIcon"></div>
-        </a>
+      <div>
+        <Button id="startAReviewButton" variant="outline-primary" onClick={startReview}>
+          Start a review
+        </Button>
       </div>
     </div>
   );

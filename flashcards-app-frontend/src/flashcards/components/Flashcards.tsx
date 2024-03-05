@@ -44,10 +44,6 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
     });
   };
 
-  const startReview = () => {
-    setFilter("To be reviewed");
-  };
-
   return (
     <InfiniteScrollComponent
       skip={filteredFlashcards.length}
@@ -57,11 +53,6 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
     >
       <FilterBar />
       <div id="flashcardList">
-        {filter === "My favorites" && (
-          <div className="buttonHeader">
-            <Button onClick={startReview}>Start a review</Button>
-          </div>
-        )}
         {filteredFlashcards.map((flashcard, index) => (
           <div key={index} className="line" onClick={() => openFlashcard(flashcard._id)}>
             <div className={"lineTitle" + (flashcard.hasBeenRead ? " hasBeenRead" : "")}>{flashcard.title}</div>

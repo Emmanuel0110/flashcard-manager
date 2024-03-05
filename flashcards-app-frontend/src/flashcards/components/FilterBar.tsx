@@ -15,10 +15,7 @@ export default function FilterBar() {
     <>
       <ul id="filterList">
         {Object.entries(searchFilter)
-          .filter(([key, value]) => {
-            console.log();
-            return (key === "searchString" && value !== "") || (key === "tag" && value !== undefined);
-          }) // TODO : refactor
+          .filter(([key, value]) => (key === "searchString" && value !== "") || (key === "tag" && value !== undefined)) // TODO : refactor
           .map(([key, value]) => {
             return (
               <li className="filterItem">

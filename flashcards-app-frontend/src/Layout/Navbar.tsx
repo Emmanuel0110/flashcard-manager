@@ -32,6 +32,11 @@ function Navbar() {
 
   return (
     <div id="navbar" className="navb">
+      <div id="githubIconArea">
+        <a href="https://github.com/Emmanuel0110/flashcard-manager">
+          <div className="githubIcon"></div>
+        </a>
+      </div>
       <div id="searchArea">
         <div id="searchAreaContainer">
           <div id="searchAreaInput">
