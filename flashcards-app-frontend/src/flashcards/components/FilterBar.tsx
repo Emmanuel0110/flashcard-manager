@@ -16,11 +16,11 @@ export default function FilterBar() {
       <ul id="filterList">
         {Object.entries(searchFilter)
           .filter(([key, value]) => (key === "searchString" && value !== "") || (key === "tag" && value !== undefined)) // TODO : refactor
-          .map(([key, value]) => {
+          .map(([key, value], index) => {
             return (
-              <li className="filterItem">
+              <li key={index} className="filterItem">
                 {`${key === "searchString" ? value : key === "tag" ? "#" + value.label : ""}`}
-                <span
+                <div
                   className="filterClose"
                   onClick={(e: React.MouseEvent<HTMLSpanElement>) =>
                     setSearchFilter(
@@ -31,7 +31,7 @@ export default function FilterBar() {
                         : searchFilter
                     )
                   }
-                ></span>
+                ></div>
               </li>
             );
           })}

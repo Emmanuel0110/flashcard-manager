@@ -19,39 +19,19 @@ function LeftMenuBar() {
           </Button>
         </div>
         <div id="filterSection">
-          <div
-            onClick={() => {
-              setFilter("Published");
-              navigate("/flashcards");
-            }}
-          >
+          <div onClick={() => setFilter("Published")}>
             <div className={filter === "Published" ? "selected" : "unselected"}></div>
             <div>All flashcards</div>
           </div>
-          <div
-            onClick={() => {
-              setFilter("Draft");
-              navigate("/flashcards");
-            }}
-          >
+          <div onClick={() => setFilter("Draft")}>
             <div className={filter === "Draft" ? "selected" : "unselected"}></div>
             <div>Drafts</div>
           </div>
-          <div
-            onClick={() => {
-              setFilter("To be validated");
-              navigate("/flashcards");
-            }}
-          >
+          <div onClick={() => setFilter("To be validated")}>
             <div className={filter === "To be validated" ? "selected" : "unselected"}></div>
             <div>To be validated</div>
           </div>
-          <div
-            onClick={() => {
-              setFilter("My favorites");
-              navigate("/flashcards");
-            }}
-          >
+          <div onClick={() => setFilter("My favorites")}>
             <div className={filter === "My favorites" ? "selected" : "unselected"}></div>
             <div>My favorites</div>
           </div>

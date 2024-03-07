@@ -10,7 +10,8 @@ import { useEditFlashcard, useSaveAsNewFlashcard } from "./FlashcardForm";
 export default function FlashcardComponent() {
   const { flashcardId } = useParams();
   const {
-    filteredFlashcards: flashcards,
+    flashcards,
+    filteredFlashcards,
     setFlashcards,
     user,
     filter,
@@ -18,6 +19,7 @@ export default function FlashcardComponent() {
     setSearchFilter,
     tags,
   }: {
+    flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
     user: User;
@@ -63,20 +65,20 @@ export default function FlashcardComponent() {
   }, [flashcardId]);
 
   const currentIndex = useMemo(
-    () => flashcards.findIndex((flashcard: Flashcard) => flashcard._id === flashcardId),
-    [flashcards, flashcardId]
+    () => filteredFlashcards.findIndex((flashcard: Flashcard) => flashcard._id === flashcardId),
+    [filteredFlashcards, flashcardId]
   );
 
   const hasPreviousFlashcard = () => currentIndex > 0;
 
   const goToPreviousFlashcard = () => {
-    return hasPreviousFlashcard() && navigate("/flashcards/" + flashcards[currentIndex - 1]._id);
+    return hasPreviousFlashcard() && navigate("/flashcards/" + filteredFlashcards[currentIndex - 1]._id);
   };
 
-  const hasNextFlashcard = () => currentIndex !== -1 && currentIndex < flashcards.length - 1;
+  const hasNextFlashcard = () => currentIndex !== -1 && currentIndex < filteredFlashcards.length - 1;
 
   const goToNextFlashcard = () => {
-    return hasNextFlashcard() && navigate("/flashcards/" + flashcards[currentIndex + 1]._id);
+    return hasNextFlashcard() && navigate("/flashcards/" + filteredFlashcards[currentIndex + 1]._id);
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -162,7 +164,6 @@ export default function FlashcardComponent() {
 
   const searchTag = (tagId: string) => {
     setSearchFilter((searchFilter) => ({ ...searchFilter, tag: tags.find((tag) => tag._id === tagId) }));
-    navigate("/flashcards/");
   };
 
   let options = [];
@@ -201,8 +202,8 @@ export default function FlashcardComponent() {
               {filter !== "To be reviewed" && (
                 <div id="tags">
                   {flashcard &&
-                    flashcard.tags.map((tag) => (
-                      <div className="tag" onClick={(e) => searchTag(tag._id)}>
+                    flashcard.tags.map((tag, index) => (
+                      <div key={index} className="tag" onClick={(e) => searchTag(tag._id)}>
                         {"#" + tag.label}
                       </div>
                     ))}
@@ -233,6 +234,12 @@ export default function FlashcardComponent() {
           {options.length > 0 && <DotOptions obj={flashcard} options={options} />}
           {hasNextFlashcard() && <div id="nextArrow" onClick={goToNextFlashcard}></div>}
         </div>
+        <div
+                  className="pannelClose"
+                  onClick={(e: React.MouseEvent<HTMLSpanElement>) =>
+                    navigate("/flashcards")
+                  }
+                ></div>
       </div>
     </div>
   );

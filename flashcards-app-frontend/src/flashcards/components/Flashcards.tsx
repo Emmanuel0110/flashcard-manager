@@ -1,14 +1,15 @@
-import { useContext, useRef } from "react";
+import { useContext } from "react";
 import { Flashcard } from "../../types";
 import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { deleteRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
 import InfiniteScrollComponent from "../../utils/InfiniteScrollComponent";
-import { Button } from "react-bootstrap";
 import FilterBar from "./FilterBar";
+import useSplitPane from "../../utils/useSplitPane";
 
 export default function Flashcards({ filteredFlashcards }: { filteredFlashcards: Flashcard[] }) {
-  const { user, setFlashcards, filter, setFilter } = useContext(ConfigContext);
+  const { flashcardId } = useParams();
+  const { user, setFlashcards, filter } = useContext(ConfigContext);
   const navigate = useNavigate();
 
   const openFlashcard = (id: string) => {
@@ -44,39 +45,50 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
     });
   };
 
+  useSplitPane(["#left", "#right"], "horizontal", [50, 50], !!flashcardId);
+
   return (
-    <InfiniteScrollComponent
-      skip={filteredFlashcards.length}
-      callback={(skip: number, limit: number) =>
-        fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, skip, limit)
-      }
-    >
-      <FilterBar />
-      <div id="flashcardList">
-        {filteredFlashcards.map((flashcard, index) => (
-          <div key={index} className="line" onClick={() => openFlashcard(flashcard._id)}>
-            <div className={"lineTitle" + (flashcard.hasBeenRead ? " hasBeenRead" : "")}>{flashcard.title}</div>
-            <div className="lineOptions">
-              {(user._id === flashcard.author._id || flashcard.status === "Published") && (
-                <>
-                  {flashcard.nextReviewDate instanceof Date &&
-                    flashcard.nextReviewDate.getTime() <= new Date().getTime() && <div className="review"></div>}
-                  <div
-                    className={"subscribe" + (flashcard.nextReviewDate instanceof Date ? " subscribed" : "")}
-                    onClick={(e) => subscribeToFlashcard(e, flashcard)}
-                  ></div>
-                </>
-              )}
-              {user._id === flashcard.author._id && (
-                <>
-                  <div className="edit" onClick={(e) => editFlashcard(e, flashcard._id)}></div>
-                  <div className="delete" onClick={(e) => deleteFlashcard(e, flashcard._id)}></div>
-                </>
-              )}
-            </div>
+    <div id="splitContainer">
+      <div id="left">
+        <InfiniteScrollComponent
+          skip={filteredFlashcards.length}
+          callback={(skip: number, limit: number) =>
+            fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, skip, limit)
+          }
+        >
+          <FilterBar />
+          <div id="flashcardList">
+            {filteredFlashcards.map((flashcard, index) => (
+              <div key={index} className={"line" + (flashcard._id === flashcardId ? " selectedFlashcard" : "")} onClick={() => openFlashcard(flashcard._id)}>
+                <div className={"lineTitle" + (flashcard.hasBeenRead ? " hasBeenRead" : "")}>{flashcard.title}</div>
+                <div className="lineOptions">
+                  {(user._id === flashcard.author._id || flashcard.status === "Published") && (
+                    <>
+                      {flashcard.nextReviewDate instanceof Date &&
+                        flashcard.nextReviewDate.getTime() <= new Date().getTime() && <div className="review"></div>}
+                      <div
+                        className={"subscribe" + (flashcard.nextReviewDate instanceof Date ? " subscribed" : "")}
+                        onClick={(e) => subscribeToFlashcard(e, flashcard)}
+                      ></div>
+                    </>
+                  )}
+                  {user._id === flashcard.author._id && (
+                    <>
+                      <div className="edit" onClick={(e) => editFlashcard(e, flashcard._id)}></div>
+                      <div className="delete" onClick={(e) => deleteFlashcard(e, flashcard._id)}></div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </InfiniteScrollComponent>
       </div>
-    </InfiniteScrollComponent>
+      <div id="right">
+      <div id="openedFlashcard">
+        <Outlet/>
+      </div>
+      </div>
+    </div>
   );
 }

@@ -112,6 +112,7 @@ export default function App() {
   return (
     <ConfigContext.Provider
       value={{
+        flashcards,
         filteredFlashcards,
         setFlashcards,
         isAuthenticated,
@@ -150,9 +151,10 @@ export default function App() {
           }
         >
           <Route element={<Layout />}>
-            <Route path="flashcards" element={<Flashcards filteredFlashcards={filteredFlashcards} />} />
-            <Route path="flashcards/:flashcardId" element={<FlashcardComponent />} />
-            <Route path="flashcards/:flashcardId/edit" element={<FlashcardForm />} />
+            <Route path="flashcards" element={<Flashcards filteredFlashcards={filteredFlashcards} />}>
+              <Route path=":flashcardId" element={<FlashcardComponent />} />
+              <Route path=":flashcardId/edit" element={<FlashcardForm />} />
+            </Route>
             <Route path="flashcards/new" element={<FlashcardForm />} />
             <Route path="profile" element={<Profile />} />
             <Route

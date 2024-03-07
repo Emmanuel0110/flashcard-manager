@@ -185,15 +185,11 @@ button:focus {
 }
 
 .line:hover {
-  display: flex;
-  justify-content: space-between;
-  height: 40px;
-  background-color: white;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
-  align-items: center;
   box-shadow: rgba(0, 0, 0, 0.3) 1.95px 1.95px 2.6px;
+}
+
+.selectedFlashcard {
+  background-color: #ededed;
 }
 
 .lineTitle{
@@ -332,7 +328,9 @@ button:focus {
 }
 
 #flashCardComponent {
+  position: relative;
   padding: 10px;
+  height: 100%;
 }
 
 .infiniteScrollComponent {
@@ -487,4 +485,61 @@ button:focus {
 #startAReviewButton:hover {
   color: #007bff;
   background-color: #e7f4ff;
+}
+
+.gutter {
+  background-color: #eee;
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+  /* background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg=='); */
+  cursor: col-resize;
+}
+
+.gutter.gutter-vertical {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+  cursor: row-resize;
+}
+
+.split {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+#splitContainer {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+#left {
+  height: 100%;
+}
+
+#right {
+  height: 100%;
+}
+
+#openedFlashcard {
+  height: 100%;
+  overflow: auto;
+}
+
+.pannelClose{
+  cursor: pointer;
+  mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
+  background: rgb(151, 151, 151);
+  width: 3ch;
+  height: 3ch;
+  mask-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }

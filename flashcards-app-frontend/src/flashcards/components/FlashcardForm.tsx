@@ -47,11 +47,11 @@ export default function FlashcardForm() {
   const [localTags, setLocalTags] = useState([] as Tag[]);
   const { flashcardId } = useParams();
   const {
-    filteredFlashcards: flashcards,
+    flashcards,
     tags,
     setTags,
   }: {
-    filteredFlashcards: Flashcard[];
+    flashcards: Flashcard[];
     tags: Tag[];
     setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   } = useContext(ConfigContext);
