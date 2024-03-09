@@ -45,7 +45,7 @@ export default function FlashcardComponent() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [flashcardId]);
+  }, [flashcards, flashcardId]);
 
 
   useEffect(() => {
