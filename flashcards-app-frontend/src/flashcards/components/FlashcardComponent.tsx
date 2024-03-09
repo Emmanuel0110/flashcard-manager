@@ -13,6 +13,7 @@ export default function FlashcardComponent() {
     flashcards,
     filteredFlashcards,
     setFlashcards,
+    setOpenedFlashcards,
     user,
     filter,
     setFilter,
@@ -22,6 +23,7 @@ export default function FlashcardComponent() {
     flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
+    setOpenedFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
     user: User;
     filter: string;
     setFilter: Dispatch<SetStateAction<string>>;
@@ -72,13 +74,27 @@ export default function FlashcardComponent() {
   const hasPreviousFlashcard = () => currentIndex > 0;
 
   const goToPreviousFlashcard = () => {
-    return hasPreviousFlashcard() && navigate("/flashcards/" + filteredFlashcards[currentIndex - 1]._id);
+    if (hasPreviousFlashcard()) {
+      setOpenedFlashcards((openedFlashcards) =>
+        openedFlashcards.map((flashcard) =>
+          flashcard._id === flashcardId ? filteredFlashcards[currentIndex - 1] : flashcard
+        )
+      );
+      navigate("/flashcards/" + filteredFlashcards[currentIndex - 1]._id);
+    }
   };
 
   const hasNextFlashcard = () => currentIndex !== -1 && currentIndex < filteredFlashcards.length - 1;
 
   const goToNextFlashcard = () => {
-    return hasNextFlashcard() && navigate("/flashcards/" + filteredFlashcards[currentIndex + 1]._id);
+    if (hasNextFlashcard()) {
+      setOpenedFlashcards((openedFlashcards) =>
+        openedFlashcards.map((flashcard) =>
+          flashcard._id === flashcardId ? filteredFlashcards[currentIndex + 1] : flashcard
+        )
+      );
+      navigate("/flashcards/" + filteredFlashcards[currentIndex + 1]._id);
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -234,12 +250,9 @@ export default function FlashcardComponent() {
           {options.length > 0 && <DotOptions obj={flashcard} options={options} />}
           {hasNextFlashcard() && <div id="nextArrow" onClick={goToNextFlashcard}></div>}
         </div>
-        <div
-                  className="pannelClose"
-                  onClick={(e: React.MouseEvent<HTMLSpanElement>) =>
-                    navigate("/flashcards")
-                  }
-                ></div>
+        <div id="pannelCloseContainer" onClick={(e: React.MouseEvent<HTMLSpanElement>) => navigate("/flashcards")}>
+          <div className="pannelClose"></div>
+        </div>
       </div>
     </div>
   );

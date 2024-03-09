@@ -11,6 +11,7 @@ import FlashcardForm from "./flashcards/components/FlashcardForm";
 import Flashcards from "./flashcards/components/Flashcards";
 import FlashcardComponent from "./flashcards/components/FlashcardComponent";
 import { authHeaders, customFetch } from "./utils/http-helpers";
+import TabNav from "./Layout/TabNav";
 
 export let url = "/api/";
 
@@ -69,6 +70,7 @@ export default function App() {
   const [user, setUser] = useState(null as User | null);
   const [searchFilter, setSearchFilter] = useState<SearchFilter>({ searchString: "", tag: undefined });
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
+  const [openedFlashcards, setOpenedFlashcards] = useState([] as Flashcard[]);
   const [filter, setFilter] = useState("Published");
   const [tags, setTags] = useState([] as Tag[]);
   const navigate = useNavigate();
@@ -115,6 +117,8 @@ export default function App() {
         flashcards,
         filteredFlashcards,
         setFlashcards,
+        openedFlashcards,
+        setOpenedFlashcards,
         isAuthenticated,
         setIsAuthenticated,
         searchFilter,
@@ -152,8 +156,10 @@ export default function App() {
         >
           <Route element={<Layout />}>
             <Route path="flashcards" element={<Flashcards filteredFlashcards={filteredFlashcards} />}>
-              <Route path=":flashcardId" element={<FlashcardComponent />} />
-              <Route path=":flashcardId/edit" element={<FlashcardForm />} />
+              <Route element={<TabNav />}>
+                <Route path=":flashcardId" element={<FlashcardComponent />} />
+                <Route path=":flashcardId/edit" element={<FlashcardForm />} />
+              </Route>
             </Route>
             <Route path="flashcards/new" element={<FlashcardForm />} />
             <Route path="profile" element={<Profile />} />

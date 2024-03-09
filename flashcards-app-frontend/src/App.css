@@ -238,6 +238,7 @@ button:focus {
   border: 2px solid #eee;
   border-radius: 10px;
   background-color: #fff;
+  overflow: auto;
 }
 
 #previousArrow {
@@ -460,7 +461,6 @@ button:focus {
   cursor: pointer;
   mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
   background: rgb(151, 151, 151);
-  /* background-image: url(times-circle-solid.svg); https://fontawesome.com/license */
   display: inline-block;
   width: 1.5ch;
   height: 1.5ch;
@@ -470,8 +470,37 @@ button:focus {
   position: absolute;
   top: 50%;
   right: 0.5em;
-  /* padding: 12px 16px; */
   transform: translate(0%, -50%);
+}
+
+.tabClose{
+  cursor: pointer;
+  mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
+  background: rgb(151, 151, 151);
+  width: 1.5ch;
+  height: 1.5ch;
+  mask-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
+  margin: -1px 0px 0px 0.5px;
+}
+
+.tabCloseContainer {
+  position: relative;
+}
+
+.tabCloseHover {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  position: absolute;
+  top: -30px;
+  right: -12px;
+  padding: 5px;
+}
+
+.tabCloseHover:hover {
+  background-color: rgb(227, 227, 227);
 }
 
 #startAReviewButton {
@@ -530,16 +559,26 @@ button:focus {
   overflow: auto;
 }
 
-.pannelClose{
+#pannelCloseContainer{
   cursor: pointer;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  padding: 10px;
+}
+
+.pannelClose{
   mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
   background: rgb(151, 151, 151);
-  width: 3ch;
-  height: 3ch;
+  width: 2ch;
+  height: 2ch;
   mask-repeat: no-repeat;
   background-position: center;
   vertical-align: middle;
-  position: absolute;
-  top: 10px;
-  right: 10px;
+}
+
+#tabNav .nav-link{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

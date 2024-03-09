@@ -9,10 +9,15 @@ import useSplitPane from "../../utils/useSplitPane";
 
 export default function Flashcards({ filteredFlashcards }: { filteredFlashcards: Flashcard[] }) {
   const { flashcardId } = useParams();
-  const { user, setFlashcards, filter } = useContext(ConfigContext);
+  const { user, flashcards, setFlashcards, setOpenedFlashcards, filter } = useContext(ConfigContext);
   const navigate = useNavigate();
 
   const openFlashcard = (id: string) => {
+    setOpenedFlashcards((openedFlashcards: Flashcard[]) =>
+      openedFlashcards.find((flashcard) => flashcard._id === id)
+        ? openedFlashcards
+        : [...openedFlashcards, flashcards.find((el: Flashcard) => el._id === id)]
+    );
     navigate("/flashcards/" + id);
   };
 
@@ -59,7 +64,11 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
           <FilterBar />
           <div id="flashcardList">
             {filteredFlashcards.map((flashcard, index) => (
-              <div key={index} className={"line" + (flashcard._id === flashcardId ? " selectedFlashcard" : "")} onClick={() => openFlashcard(flashcard._id)}>
+              <div
+                key={index}
+                className={"line" + (flashcard._id === flashcardId ? " selectedFlashcard" : "")}
+                onClick={() => openFlashcard(flashcard._id)}
+              >
                 <div className={"lineTitle" + (flashcard.hasBeenRead ? " hasBeenRead" : "")}>{flashcard.title}</div>
                 <div className="lineOptions">
                   {(user._id === flashcard.author._id || flashcard.status === "Published") && (
@@ -85,9 +94,9 @@ export default function Flashcards({ filteredFlashcards }: { filteredFlashcards:
         </InfiniteScrollComponent>
       </div>
       <div id="right">
-      <div id="openedFlashcard">
-        <Outlet/>
-      </div>
+        <div id="openedFlashcard">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
