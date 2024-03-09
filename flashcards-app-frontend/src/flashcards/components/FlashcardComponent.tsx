@@ -41,6 +41,14 @@ export default function FlashcardComponent() {
   );
 
   useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown); // TODO: only one time on component mount
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [flashcardId]);
+
+
+  useEffect(() => {
     if (flashcard && !flashcard.hasBeenRead) {
       readRemoteFlashcard(flashcard).then((res) => {
         if (res.success) {
@@ -55,11 +63,6 @@ export default function FlashcardComponent() {
     if (!hasNextFlashcard()) {
       fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, flashcards.length, 30);
     }
-    document.addEventListener("keydown", handleKeyDown, true); // TODO: only one time on component mount
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
   }, [flashcardId]);
 
   useEffect(() => {
