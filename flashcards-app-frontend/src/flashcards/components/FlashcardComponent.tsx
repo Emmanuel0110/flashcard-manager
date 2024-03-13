@@ -4,8 +4,9 @@ import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
 import { Flashcard, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
-import { editUserFlashcardInfo, readRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
+import { editUserFlashcardInfo, getRemoteFlashcardUsedIn, readRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
 import { useEditFlashcard, useSaveAsNewFlashcard } from "./FlashcardForm";
+import { FlashcardLine } from "./FlashcardLine";
 
 export default function FlashcardComponent() {
   const { flashcardId } = useParams();
@@ -45,29 +46,54 @@ export default function FlashcardComponent() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [flashcards, flashcardId]);
-
+  }, [flashcardId]);
 
   useEffect(() => {
     if (flashcard && !flashcard.hasBeenRead) {
       readRemoteFlashcard(flashcard).then((res) => {
         if (res.success) {
-          setFlashcards((flashcards) =>
-            flashcards.map((flashcard) => {
-              return flashcard._id === flashcardId ? { ...flashcard, hasBeenRead: true } : flashcard;
-            })
-          );
+          // setFlashcards((flashcards) =>
+          //   flashcards.map((flashcard) => {
+          //     return flashcard._id === flashcardId ? { ...flashcard, hasBeenRead: true } : flashcard;
+          //   })
+          // );
         }
       });
     }
     if (!hasNextFlashcard()) {
-      fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, flashcards.length, 30);
+      // fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, flashcards.length, 30);
+    }
+
+    if (flashcard && !flashcard.usedIn) {
+      console.log(flashcard);
+      getRemoteFlashcardUsedIn(flashcard._id).then((usedInflashcards) => {
+        // setFlashcards((flashcards) =>
+        //   flashcards.map((flashcard) =>
+        //     flashcard._id === flashcardId
+        //       ? {
+        //           ...flashcard,
+        //           usedIn: usedInflashcards.map((usedInflashcard) => {
+        //             const {
+        //               _id,
+        //               author: { _id: authorId },
+        //               title,
+        //               status,
+        //               hasBeenRead,
+        //               nextReviewDate,
+        //             } = usedInflashcard;
+        //             return { _id, authorId, title, status, hasBeenRead, nextReviewDate };
+        //           }),
+        //         }
+        //       : flashcard
+        //   )
+        // );
+      });
     }
   }, [flashcardId]);
 
-  useEffect(() => {
-    setAnswerVisible(filter !== "To be reviewed");
-  }, [flashcardId]);
+  // useEffect(() => {
+  //   setAnswerVisible(filter !== "To be reviewed");
+  // }, [flashcardId]);
 
   const currentIndex = useMemo(
     () => filteredFlashcards.findIndex((flashcard: Flashcard) => flashcard._id === flashcardId),
@@ -219,14 +245,33 @@ export default function FlashcardComponent() {
             <>
               <div id="answer" dangerouslySetInnerHTML={{ __html: flashcard?.answer || "" }} />
               {filter !== "To be reviewed" && (
-                <div id="tags">
-                  {flashcard &&
-                    flashcard.tags.map((tag, index) => (
-                      <div key={index} className="tag" onClick={(e) => searchTag(tag._id)}>
-                        {"#" + tag.label}
-                      </div>
-                    ))}
-                </div>
+                <>
+                  <div id="tags">
+                    {flashcard &&
+                      flashcard.tags.map((tag, index) => (
+                        <div key={index} className="tag" onClick={(e) => searchTag(tag._id)}>
+                          {"#" + tag.label}
+                        </div>
+                      ))}
+                  </div>
+                  {flashcard && flashcard.uses.length > 0 && (
+                    <div id="uses">
+                      <div className="flashcardSection">Uses</div>
+                      {flashcard.uses.map((flashcardData, index) => (
+                        <FlashcardLine key={index} flashcardData={flashcardData} />
+                      ))}
+                    </div>
+                  )}
+                  {flashcard?.usedIn && (
+                    <div id="usedIn">
+                      <div className="flashcardSection">Used in</div>
+
+                      {flashcard?.usedIn.map((flashcardData, index) => (
+                        <FlashcardLine key={index} flashcardData={flashcardData} />
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
               {filter === "To be reviewed" && (
                 <div id="answerButtons">

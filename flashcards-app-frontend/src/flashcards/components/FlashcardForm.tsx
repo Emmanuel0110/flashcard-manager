@@ -3,11 +3,17 @@ import { Editor } from "@tinymce/tinymce-react";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
-import { edit, saveNewFlashcard, saveNewTag } from "../flashcardActions";
+import {
+  edit,
+  getRemoteFlashcardById,
+  saveNewFlashcard,
+  saveNewTag,
+} from "../flashcardActions";
 import { ConfigContext } from "../../App";
-import { Flashcard, Tag } from "../../types";
+import { FlashCardLineData, Flashcard, Tag } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
 import AutoComplete from "../../utils/Autocomplete";
+import { FlashcardLine } from "./FlashcardLine";
 
 export const useSaveAsNewFlashcard = () => {
   const navigate = useNavigate();
@@ -45,6 +51,8 @@ export default function FlashcardForm() {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
   const [localTags, setLocalTags] = useState([] as Tag[]);
+  const [localUses, setLocalUses] = useState([] as FlashCardLineData[]);
+  const [localUseId, setLocalUseId] = useState("");
   const { flashcardId } = useParams();
   const {
     flashcards,
@@ -65,6 +73,7 @@ export default function FlashcardForm() {
 
   useEffect(() => {
     flashcard && setLocalTags(flashcard.tags);
+    flashcard && setLocalUses(flashcard.uses);
   }, [flashcardId]);
 
   const saveOrEditFlashcard = () => {
@@ -73,13 +82,13 @@ export default function FlashcardForm() {
       const question = questionRef.current.getContent();
       const answer = answerRef.current.getContent();
       const tags = localTags;
+      const uses = localUses;
       if (flashcard) {
-        editFlashcard({ _id: flashcard._id, title, question, answer, tags });
+        editFlashcard({ _id: flashcard._id, title, question, answer, tags, uses });
         navigate("/flashcards/" + flashcard._id);
       } else {
-        saveAsNewFlashcard({ title, question, answer, tags });
+        saveAsNewFlashcard({ title, question, answer, tags, uses });
       }
-
     }
   };
 
@@ -95,6 +104,31 @@ export default function FlashcardForm() {
   };
 
   const availableTags = tags.filter((tag) => !localTags.map((tag) => tag._id).includes(tag._id));
+
+  const getFlashcardById = (id: string): Promise<Flashcard> => {
+    const flashcard = flashcards.find((flashcard) => flashcard._id === id);
+    return flashcard ? Promise.resolve(flashcard) : getRemoteFlashcardById(id);
+  };
+
+  const onKeyUpUses = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log(localUses.find((el) => el._id === localUseId));
+    if (e.key === "Enter" && !localUses.find((el) => el._id === localUseId) && localUseId.length === 24) {
+      getFlashcardById(localUseId).then((flashcard) => {
+        if (flashcard) {
+          const {
+            _id,
+            author: { _id: authorId },
+            title,
+            status,
+            hasBeenRead,
+            nextReviewDate,
+          } = flashcard;
+          setLocalUses((localUses) => [...localUses, { _id, authorId, title, status, hasBeenRead, nextReviewDate }]);
+          setLocalUseId("");
+        }
+      });
+    }
+  };
 
   return (
     <div id="flashcardForm">
@@ -162,12 +196,29 @@ export default function FlashcardForm() {
               {"#" + tag.label}
             </div>
           ))}
-          <div id="tagInput">
+          <div className="tagInput">
             <AutoComplete
               dropdownList={availableTags}
               callback={addTag}
               placeholder="Add a tag..."
               placement="top-start"
+            />
+          </div>
+        </div>
+        <div id="uses">
+          <div className="flashcardSection">Uses</div>
+          {localUses.map((flashcardData, index) => (
+            <FlashcardLine key={index} flashcardData={flashcardData} />
+          ))}
+          <div className="tagInput">
+            <input
+              type="text"
+              placeholder="Add a flashcard id"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setLocalUseId(e.target.value);
+              }}
+              onKeyUp={onKeyUpUses}
+              value={localUseId}
             />
           </div>
         </div>

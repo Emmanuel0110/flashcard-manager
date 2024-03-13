@@ -1,18 +1,29 @@
-
-
 export interface User {
   _id: string;
   username: string;
 }
 
+export type Status = "Draft" | "To be validated" | "Published" | "Obsolete";
+
 export interface Flashcard {
   _id: string;
-  author: {_id: string, name: string};
+  author: { _id: string; name: string };
   title: string;
   question: string;
   answer: string;
   tags: Tag[];
-  status: "Draft" | "To be validated" | "Published" | "Obsolete";
+  status: Status;
+  nextReviewDate: Date | undefined;
+  hasBeenRead: boolean;
+  uses: FlashCardLineData[];
+  usedIn?: FlashCardLineData[];
+}
+
+export interface FlashCardLineData {
+  _id: string;
+  authorId: string;
+  title: string;
+  status: Status;
   nextReviewDate: Date | undefined;
   hasBeenRead: boolean;
 }

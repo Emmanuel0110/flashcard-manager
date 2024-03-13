@@ -32,21 +32,21 @@ function TabNav() {
               <>
                 {flashcard.title.substring(0, 15) + "..."}
                 <div className="tabCloseContainer">
-                  <div className="tabCloseHover">
-                    <div
-                      className="tabClose"
-                      onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
-                        e.stopPropagation();
-                        setOpenedFlashcards((openedFlashcards) =>
-                          openedFlashcards.filter((flashcard, indexOpenFlashcard) => indexOpenFlashcard !== index)
-                        );
-                        navigate(
-                          openedFlashcards.length > 1
-                            ? "/flashcards/" + (openedFlashcards[index + 1]?._id || openedFlashcards[index - 1]?._id)
-                            : "/flashcards"
-                        );
-                      }}
-                    ></div>
+                  <div
+                    className="tabCloseHover"
+                    onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
+                      e.stopPropagation();
+                      setOpenedFlashcards((openedFlashcards) =>
+                        openedFlashcards.filter((flashcard, indexOpenFlashcard) => indexOpenFlashcard !== index)
+                      );
+                      navigate(
+                        openedFlashcards.length > 1
+                          ? "/flashcards/" + (openedFlashcards[index + 1]?._id || openedFlashcards[index - 1]?._id)
+                          : "/flashcards"
+                      );
+                    }}
+                  >
+                    <div className="tabClose"></div>
                   </div>
                 </div>
               </>

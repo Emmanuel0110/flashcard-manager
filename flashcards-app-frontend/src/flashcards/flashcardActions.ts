@@ -2,14 +2,18 @@ import { url } from "../App";
 import { authHeaders, customFetch } from "../utils/http-helpers";
 import { Flashcard } from "../types";
 
+export const getRemoteFlashcardById = async (id: string) => {
+  return customFetch(url + "flashcards/" + id, { method: "GET", headers: authHeaders() });
+};
+
 export const saveNewFlashcard = async (args: Partial<Flashcard>) => {
-  const formattedArgs = {...args, tags: args.tags?.map(tag => tag._id)}
+  const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) };
   const body = JSON.stringify(formattedArgs);
   return customFetch(url + "flashcards", { method: "POST", headers: authHeaders(), body });
 };
 
 export const edit = async ({ _id, ...args }: Partial<Flashcard>) => {
-  const formattedArgs = {...args, tags: args.tags?.map(tag => tag._id)}
+  const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) };
   const body = JSON.stringify(formattedArgs);
   return customFetch(url + "flashcards/" + _id, { method: "PUT", headers: authHeaders(), body });
 };
@@ -18,16 +22,20 @@ export const deleteRemoteFlashcard = async (flashcardId: string) => {
   return customFetch(url + "flashcards/" + flashcardId, { method: "DELETE", headers: authHeaders() });
 };
 
-export const subscribeToRemoteFlashcard = async (flashcard: Flashcard) => {
+export const subscribeToRemoteFlashcard = async ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
   const body = JSON.stringify({
-    hasBeenRead: flashcard.hasBeenRead,
-    nextReviewDate: flashcard.nextReviewDate ? null : new Date(),
+    hasBeenRead,
+    nextReviewDate: nextReviewDate ? null : new Date(),
   });
-  return customFetch(url + "userflashcardinfo/" + flashcard._id, { method: "PUT", headers: authHeaders(), body });
+  return customFetch(url + "userflashcardinfo/" + _id, { method: "PUT", headers: authHeaders(), body });
 };
 
-export const editUserFlashcardInfo = async({_id, ...body}: any) => {
-  return customFetch(url + "userflashcardinfo/" + _id, { method: "PATCH", headers: authHeaders(), body: JSON.stringify(body) });
+export const editUserFlashcardInfo = async ({ _id, ...body }: any) => {
+  return customFetch(url + "userflashcardinfo/" + _id, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify(body),
+  });
 };
 
 export const readRemoteFlashcard = async (flashcard: Flashcard) => {
@@ -38,4 +46,8 @@ export const readRemoteFlashcard = async (flashcard: Flashcard) => {
 export const saveNewTag = async ({ label }: { label: string }) => {
   const body = JSON.stringify({ label });
   return customFetch(url + "tags", { method: "POST", headers: authHeaders(), body });
+};
+
+export const getRemoteFlashcardUsedIn = async (id: string) : Promise<Flashcard[]> => {
+  return customFetch(url + "flashcards?uses=" + id, { method: "GET", headers: authHeaders() });
 };

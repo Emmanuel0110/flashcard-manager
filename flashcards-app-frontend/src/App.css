@@ -206,7 +206,7 @@ button:focus {
   padding: 10px;
 }
 
-#flashcardList .line {
+.line {
   cursor: pointer;
 }
 
@@ -214,7 +214,7 @@ button:focus {
   padding: 10px;
   display: grid;
   grid: "previous middle next"
-        /60px 1fr 60px;
+        /12% 76% 12%;
 }
 
 #middle{
@@ -413,6 +413,7 @@ button:focus {
 
 #tags {
   display: flex;
+  margin-bottom: 20px;
 }
 
 .tag {
@@ -424,16 +425,22 @@ button:focus {
   margin-right: 7px;
 }
 
-#tagInput {
+.tagInput {
   padding: 5px;
   background: white;
   border: 1px solid lightgray;
   border-radius: 4px;
 }
 
-#tagInput input {
+.tagInput input {
   border: none;
   width: 100%;
+}
+
+.flashcardSection {
+  color: rgb(119, 119, 119);
+  font-weight: 600;
+  margin-bottom: 7px;
 }
 
 
@@ -528,7 +535,7 @@ button:focus {
 }
 
 .gutter.gutter-vertical {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+  /* background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); */
   cursor: row-resize;
 }
 
