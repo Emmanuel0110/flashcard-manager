@@ -1,17 +1,15 @@
-import { useContext } from "react";
+import { Children, useContext } from "react";
 import { Button, Tab, Tabs } from "react-bootstrap";
 import { Outlet } from "react-router";
 import { ConfigContext } from "../App";
 import { Flashcard } from "../types";
 import { useNavigate, useParams } from "react-router-dom";
+import FlashcardDetail from "../flashcards/components/FlashcardDetail";
 
-function TabNav() {
-  const { flashcardId } = useParams();
+function TabNav({ openedFlashcards, flashcardId }: { openedFlashcards: Flashcard[], flashcardId: string }) {
   const {
-    openedFlashcards,
     setOpenedFlashcards,
   }: {
-    openedFlashcards: Flashcard[];
     setOpenedFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>>;
   } = useContext(ConfigContext);
   const navigate = useNavigate();
@@ -52,7 +50,7 @@ function TabNav() {
               </>
             }
           >
-            <Outlet />
+            <FlashcardDetail flashcardId={flashcard._id} />
           </Tab>
         ))}
       </Tabs>

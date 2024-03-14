@@ -32,14 +32,16 @@ app.use(function (req, res, next) {
 });
 
 app.get("/api/flashcards", auth, (req, res) => {
+  console.log("testttttttttt");
   const { filter, searchString, tagId, uses } = req.query;
-  if (filter === "Draft" || filter === "To be validated" || filter === "Published") {
+  if (filter === "Draft" || filter === "To be validated" || filter === "Published" || uses !== undefined) {
     UserFlashcardInfoModel.find({ user: req.user._id }).then((userFlashcardInfos) => {
+      const status = filter ? {status: filter} : {};
       const stringSearch = searchString ? { $text: { $search: searchString } } : {};
       const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
       const usesSearch = uses ? { uses } : {};
       const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
-      FlashcardModel.find({ status: filter, ...stringSearch, ...tagSearch, ...usesSearch, ...otherFilter })
+      FlashcardModel.find({ ...status, ...stringSearch, ...tagSearch, ...usesSearch, ...otherFilter })
         .sort("-creationDate")
         .skip(parseInt(req.query.skip) || 0)
         .limit(parseInt(req.query.limit) || 30)

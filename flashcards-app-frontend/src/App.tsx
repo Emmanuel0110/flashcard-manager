@@ -7,11 +7,9 @@ import ProtectedRoute from "./ProtectedRoute";
 import Profile from "./Profile";
 import Login from "./auth/components/Login";
 import { Flashcard, SearchFilter, Tag, User } from "./types";
-import FlashcardForm from "./flashcards/components/FlashcardForm";
-import Flashcards from "./flashcards/components/Flashcards";
-import FlashcardComponent from "./flashcards/components/FlashcardComponent";
+import FlashcardList from "./flashcards/components/FlashcardList";
 import { authHeaders, customFetch } from "./utils/http-helpers";
-import TabNav from "./Layout/TabNav";
+import FlashcardListWithDetail from "./flashcards/components/FlashcardListWithDetail";
 
 export let url = "/api/";
 
@@ -155,13 +153,13 @@ export default function App() {
           }
         >
           <Route element={<Layout />}>
-            <Route path="flashcards" element={<Flashcards filteredFlashcards={filteredFlashcards} />}>
-              <Route element={<TabNav />}>
-                <Route path=":flashcardId" element={<FlashcardComponent />} />
-                <Route path=":flashcardId/edit" element={<FlashcardForm />} />
-              </Route>
-            </Route>
-            <Route path="flashcards/new" element={<FlashcardForm />} />
+            <Route path="flashcards" element={<FlashcardList filteredFlashcards={filteredFlashcards} />} />
+            <Route
+              path="flashcards/:flashcardId"
+              element={
+                <FlashcardListWithDetail filteredFlashcards={filteredFlashcards} openedFlashcards={openedFlashcards} />
+              }
+            />
             <Route path="profile" element={<Profile />} />
             <Route
               path="/"
