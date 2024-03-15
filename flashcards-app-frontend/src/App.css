@@ -458,7 +458,7 @@ button:focus {
   margin: 5px;
   border-radius: 1em;
   color: rgb(34, 34, 34);
-  border: solid lightgrey 2px;
+  border: solid lightgrey 1.5px;
   position: relative;
   color: #424242;
   background-color: rgb(252, 252, 252);

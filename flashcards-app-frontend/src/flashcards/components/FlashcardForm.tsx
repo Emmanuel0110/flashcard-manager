@@ -3,12 +3,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
-import {
-  edit,
-  getRemoteFlashcardById,
-  saveNewFlashcard,
-  saveNewTag,
-} from "../flashcardActions";
+import { edit, getRemoteFlashcardById, saveNewFlashcard, saveNewTag } from "../flashcardActions";
 import { ConfigContext } from "../../App";
 import { FlashCardLineData, Flashcard, Tag } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
@@ -47,6 +42,23 @@ export const useEditFlashcard = () => {
   };
 };
 
+export const useGetFlashcardById = () => {
+  const {
+    flashcards,
+    setFlashcards,
+  }: { flashcards: Flashcard[]; setFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>> } =
+    useContext(ConfigContext);
+  return (id: string): Promise<Flashcard> => {
+    const flashcard = flashcards.find((flashcard) => flashcard._id === id);
+    return flashcard
+      ? Promise.resolve(flashcard)
+      : getRemoteFlashcardById(id).then((flashcard) => {
+          setFlashcards((flashcards) => [...flashcards, flashcard]);
+          return flashcard;
+        });
+  };
+};
+
 export default function FlashcardForm() {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
@@ -66,6 +78,7 @@ export default function FlashcardForm() {
   const navigate = useNavigate();
   const saveAsNewFlashcard = useSaveAsNewFlashcard();
   const editFlashcard = useEditFlashcard();
+  const getFlashcardById = useGetFlashcardById();
 
   const flashcard: Flashcard | undefined = useMemo(() => {
     return flashcards.find((flashcard: Flashcard) => flashcard._id === flashcardId);
@@ -104,11 +117,6 @@ export default function FlashcardForm() {
   };
 
   const availableTags = tags.filter((tag) => !localTags.map((tag) => tag._id).includes(tag._id));
-
-  const getFlashcardById = (id: string): Promise<Flashcard> => {
-    const flashcard = flashcards.find((flashcard) => flashcard._id === id);
-    return flashcard ? Promise.resolve(flashcard) : getRemoteFlashcardById(id);
-  };
 
   const onKeyUpUses = (e: React.KeyboardEvent<HTMLInputElement>) => {
     console.log(localUses.find((el) => el._id === localUseId));

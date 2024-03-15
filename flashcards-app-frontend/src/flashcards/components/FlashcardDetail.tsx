@@ -13,7 +13,9 @@ import {
 import { useEditFlashcard, useSaveAsNewFlashcard } from "./FlashcardForm";
 import { FlashcardLine } from "./FlashcardLine";
 
-export default function FlashcardDetail({ flashcardId }: { flashcardId: string }) {
+export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard }) {
+  const flashcardId = flashcard._id;
+
   const {
     flashcards,
     filteredFlashcards,
@@ -28,7 +30,10 @@ export default function FlashcardDetail({ flashcardId }: { flashcardId: string }
     flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
-    setOpenedFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
+    setOpenedFlashcards: React.Dispatch<React.SetStateAction<{
+      id: string;
+      edit: boolean;
+  }[]>>;
     user: User;
     filter: string;
     setFilter: Dispatch<SetStateAction<string>>;
@@ -40,11 +45,6 @@ export default function FlashcardDetail({ flashcardId }: { flashcardId: string }
   const navigate = useNavigate();
   const saveAsNewFlashcard = useSaveAsNewFlashcard();
   const editFlashcard = useEditFlashcard();
-
-  const flashcard = useMemo(
-    () => flashcards.find((flashcard) => flashcard._id === flashcardId),
-    [flashcards, flashcardId]
-  );
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown); // TODO: only one time on component mount
@@ -112,7 +112,7 @@ export default function FlashcardDetail({ flashcardId }: { flashcardId: string }
     if (hasPreviousFlashcard()) {
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((flashcard) =>
-          flashcard._id === flashcardId ? filteredFlashcards[currentIndex - 1] : flashcard
+          flashcard.id === flashcardId ? {...flashcard, id: filteredFlashcards[currentIndex - 1]._id} : flashcard
         )
       );
       navigate("/flashcards/" + filteredFlashcards[currentIndex - 1]._id);
@@ -125,7 +125,7 @@ export default function FlashcardDetail({ flashcardId }: { flashcardId: string }
     if (hasNextFlashcard()) {
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((flashcard) =>
-          flashcard._id === flashcardId ? filteredFlashcards[currentIndex + 1] : flashcard
+          flashcard.id === flashcardId ? {...flashcard, id: filteredFlashcards[currentIndex + 1]._id} : flashcard
         )
       );
       navigate("/flashcards/" + filteredFlashcards[currentIndex + 1]._id);

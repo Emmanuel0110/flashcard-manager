@@ -5,7 +5,7 @@ export default function OpenedFlashcards({
   openedFlashcards,
   flashcardId,
 }: {
-  openedFlashcards: Flashcard[];
+  openedFlashcards: { id: string; edit: boolean }[];
   flashcardId: string;
 }) {
   return <TabNav openedFlashcards={openedFlashcards} flashcardId={flashcardId} />;

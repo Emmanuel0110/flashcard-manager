@@ -68,7 +68,7 @@ export default function App() {
   const [user, setUser] = useState(null as User | null);
   const [searchFilter, setSearchFilter] = useState<SearchFilter>({ searchString: "", tag: undefined });
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
-  const [openedFlashcards, setOpenedFlashcards] = useState([] as Flashcard[]);
+  const [openedFlashcards, setOpenedFlashcards] = useState([] as {id: string, edit: boolean}[]);
   const [filter, setFilter] = useState("Published");
   const [tags, setTags] = useState([] as Tag[]);
   const navigate = useNavigate();

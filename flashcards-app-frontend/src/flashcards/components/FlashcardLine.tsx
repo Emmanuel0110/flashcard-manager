@@ -1,23 +1,49 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { deleteRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
-import { Flashcard } from "../../types";
+import { Flashcard, User } from "../../types";
 import { useContext } from "react";
 import { ConfigContext } from "../../App";
 
-
-export const FlashcardLine = ({flashcardData}: {flashcardData: {_id: string, authorId: string, title: string, status: string, nextReviewDate: Date | undefined,
-  hasBeenRead: boolean}}) => {
+export const FlashcardLine = ({
+  flashcardData,
+}: {
+  flashcardData: {
+    _id: string;
+    authorId: string;
+    title: string;
+    status: string;
+    nextReviewDate: Date | undefined;
+    hasBeenRead: boolean;
+  };
+}) => {
   const { flashcardId } = useParams();
-  const { user, flashcards, setFlashcards, setOpenedFlashcards } = useContext(ConfigContext);
+  const {
+    user,
+    flashcards,
+    setFlashcards,
+    setOpenedFlashcards,
+  }: {
+    user: User;
+    flashcards: Flashcard[];
+    setFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>>;
+    setOpenedFlashcards: React.Dispatch<
+      React.SetStateAction<
+        {
+          id: string;
+          edit: boolean;
+        }[]
+      >
+    >;
+  } = useContext(ConfigContext);
   const navigate = useNavigate();
 
-  const {_id, authorId, title, status, nextReviewDate, hasBeenRead} = flashcardData;
-  
+  const { _id, authorId, title, status, nextReviewDate, hasBeenRead } = flashcardData;
+
   const openFlashcard = (id: string) => {
-    setOpenedFlashcards((openedFlashcards: Flashcard[]) =>
-      openedFlashcards.find((flashcard) => flashcard._id === id)
+    setOpenedFlashcards((openedFlashcards) =>
+      openedFlashcards.find((flashcard) => flashcard.id === id)
         ? openedFlashcards
-        : [...openedFlashcards, flashcards.find((el: Flashcard) => el._id === id)]
+        : [...openedFlashcards, {id: flashcards.find((el: Flashcard) => el._id === id)!._id, edit: false}]
     );
     navigate("/flashcards/" + id);
   };
@@ -36,9 +62,9 @@ export const FlashcardLine = ({flashcardData}: {flashcardData: {_id: string, aut
     });
   };
 
-  const subscribeToFlashcard = (e: React.MouseEvent, {_id, hasBeenRead, nextReviewDate}: Partial<Flashcard>) => {
+  const subscribeToFlashcard = (e: React.MouseEvent, { _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
     e.stopPropagation();
-    subscribeToRemoteFlashcard({_id, hasBeenRead, nextReviewDate}).then((res) => {
+    subscribeToRemoteFlashcard({ _id, hasBeenRead, nextReviewDate }).then((res) => {
       if (res.success) {
         setFlashcards((flashcards: Flashcard[]) =>
           flashcards.map((flashcard) => {
@@ -52,10 +78,7 @@ export const FlashcardLine = ({flashcardData}: {flashcardData: {_id: string, aut
   };
 
   return (
-    <div
-      className={"line" + (_id === flashcardId ? " selectedFlashcard" : "")}
-      onClick={() => openFlashcard(_id)}
-    >
+    <div className={"line" + (_id === flashcardId ? " selectedFlashcard" : "")} onClick={() => openFlashcard(_id)}>
       <div className={"lineTitle" + (hasBeenRead ? " hasBeenRead" : "")}>{title}</div>
       <div className="lineOptions">
         {(user._id === authorId || status === "Published") && (
@@ -65,11 +88,11 @@ export const FlashcardLine = ({flashcardData}: {flashcardData: {_id: string, aut
             )}
             <div
               className={"subscribe" + (nextReviewDate instanceof Date ? " subscribed" : "")}
-              onClick={(e) => subscribeToFlashcard(e, {_id, hasBeenRead, })}
+              onClick={(e) => subscribeToFlashcard(e, { _id, hasBeenRead })}
             ></div>
           </>
         )}
-        {user._id === authorId&& (
+        {user._id === authorId && (
           <>
             <div className="edit" onClick={(e) => editFlashcard(e, _id)}></div>
             <div className="delete" onClick={(e) => deleteFlashcard(e, _id)}></div>

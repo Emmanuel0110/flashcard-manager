@@ -32,7 +32,6 @@ app.use(function (req, res, next) {
 });
 
 app.get("/api/flashcards", auth, (req, res) => {
-  console.log("testttttttttt");
   const { filter, searchString, tagId, uses } = req.query;
   if (filter === "Draft" || filter === "To be validated" || filter === "Published" || uses !== undefined) {
     UserFlashcardInfoModel.find({ user: req.user._id }).then((userFlashcardInfos) => {
