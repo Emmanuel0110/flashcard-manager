@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
 import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
@@ -10,8 +10,9 @@ import {
   readRemoteFlashcard,
   subscribeToRemoteFlashcard,
 } from "../flashcardActions";
-import { useEditFlashcard, useSaveAsNewFlashcard } from "./FlashcardForm";
+import { useEditFlashcard } from "./FlashcardForm";
 import { FlashcardLine } from "./FlashcardLine";
+import { useSaveAsNewFlashcard } from "../../Layout/LeftMenuBar";
 
 export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard }) {
   const flashcardId = flashcard._id;

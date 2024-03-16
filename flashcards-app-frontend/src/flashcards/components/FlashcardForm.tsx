@@ -3,27 +3,11 @@ import { Editor } from "@tinymce/tinymce-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
-import { edit, getRemoteFlashcardById, saveNewFlashcard, saveNewTag } from "../flashcardActions";
+import { edit, getRemoteFlashcardById, saveNewTag } from "../flashcardActions";
 import { ConfigContext } from "../../App";
 import { FlashCardLineData, Flashcard, OpenFlashcardData, Tag } from "../../types";
-import { useNavigate } from "react-router-dom";
 import AutoComplete from "../../utils/Autocomplete";
 import { FlashcardLine } from "./FlashcardLine";
-
-export const useSaveAsNewFlashcard = () => {
-  const navigate = useNavigate();
-  const { setFlashcards } = useContext(ConfigContext);
-  return ({ _id, ...infos }: Partial<Flashcard>) => {
-    saveNewFlashcard(infos)
-      .then(({ data: newFlashcard }) => {
-        setFlashcards((flashcards: Flashcard[]) => [...flashcards, newFlashcard]);
-        navigate("/flashcards/" + newFlashcard._id);
-      })
-      .catch((err: Error) => {
-        console.log(err);
-      });
-  };
-};
 
 export const useEditFlashcard = () => {
   const { setFlashcards } = useContext(ConfigContext);

@@ -7,13 +7,13 @@ export const getRemoteFlashcardById = async (id: string) => {
 };
 
 export const saveNewFlashcard = async (args: Partial<Flashcard>) => {
-  const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) };
+  const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) || [] };
   const body = JSON.stringify(formattedArgs);
   return customFetch(url + "flashcards", { method: "POST", headers: authHeaders(), body });
 };
 
 export const edit = async ({ _id, ...args }: Partial<Flashcard>) => {
-  const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) };
+  const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) || [] };
   const body = JSON.stringify(formattedArgs);
   return customFetch(url + "flashcards/" + _id, { method: "PUT", headers: authHeaders(), body });
 };
@@ -48,6 +48,6 @@ export const saveNewTag = async ({ label }: { label: string }) => {
   return customFetch(url + "tags", { method: "POST", headers: authHeaders(), body });
 };
 
-export const getRemoteFlashcardUsedIn = async (id: string) : Promise<Flashcard[]> => {
+export const getRemoteFlashcardUsedIn = async (id: string): Promise<Flashcard[]> => {
   return customFetch(url + "flashcards?uses=" + id, { method: "GET", headers: authHeaders() });
 };
