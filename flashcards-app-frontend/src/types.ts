@@ -37,3 +37,8 @@ export interface SearchFilter {
   searchString?: string;
   tag?: Tag;
 }
+
+export interface OpenFlashcardData {
+  id: string;
+  unsavedData?: Flashcard;
+}

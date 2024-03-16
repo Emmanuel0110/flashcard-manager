@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { deleteRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
-import { Flashcard, User } from "../../types";
+import { Flashcard, OpenFlashcardData, User } from "../../types";
 import { useContext } from "react";
 import { ConfigContext } from "../../App";
 
@@ -26,14 +26,7 @@ export const FlashcardLine = ({
     user: User;
     flashcards: Flashcard[];
     setFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>>;
-    setOpenedFlashcards: React.Dispatch<
-      React.SetStateAction<
-        {
-          id: string;
-          edit: boolean;
-        }[]
-      >
-    >;
+    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
   } = useContext(ConfigContext);
   const navigate = useNavigate();
 
@@ -43,14 +36,25 @@ export const FlashcardLine = ({
     setOpenedFlashcards((openedFlashcards) =>
       openedFlashcards.find((flashcard) => flashcard.id === id)
         ? openedFlashcards
-        : [...openedFlashcards, {id: flashcards.find((el: Flashcard) => el._id === id)!._id, edit: false}]
+        : [...openedFlashcards, { id: flashcards.find((el: Flashcard) => el._id === id)!._id }]
     );
     navigate("/flashcards/" + id);
   };
 
   const editFlashcard = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    navigate("/flashcards/" + id + "/edit");
+    setOpenedFlashcards((openedFlashcards) => {
+      const flashcard = flashcards.find((el) => el._id === id)!;
+      const openedFlashcard = openedFlashcards.find((el) => el.id === id);
+      if (openedFlashcard) {
+        return openedFlashcard.unsavedData
+          ? openedFlashcards
+          : openedFlashcards.map((el) => (el.id === id ? { ...el, unsavedData: flashcard } : el));
+      } else {
+        return [...openedFlashcards, { id: flashcard._id, unsavedData: flashcard }];
+      }
+    });
+    navigate("/flashcards/" + id);
   };
 
   const deleteFlashcard = (e: React.MouseEvent, id: string) => {

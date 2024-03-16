@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
-import { Flashcard, SearchFilter, Tag, User } from "../../types";
+import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
 import {
@@ -30,10 +30,7 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
-    setOpenedFlashcards: React.Dispatch<React.SetStateAction<{
-      id: string;
-      edit: boolean;
-  }[]>>;
+    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
     user: User;
     filter: string;
     setFilter: Dispatch<SetStateAction<string>>;
@@ -112,7 +109,7 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     if (hasPreviousFlashcard()) {
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((flashcard) =>
-          flashcard.id === flashcardId ? {...flashcard, id: filteredFlashcards[currentIndex - 1]._id} : flashcard
+          flashcard.id === flashcardId ? { ...flashcard, id: filteredFlashcards[currentIndex - 1]._id } : flashcard
         )
       );
       navigate("/flashcards/" + filteredFlashcards[currentIndex - 1]._id);
@@ -125,7 +122,7 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     if (hasNextFlashcard()) {
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((flashcard) =>
-          flashcard.id === flashcardId ? {...flashcard, id: filteredFlashcards[currentIndex + 1]._id} : flashcard
+          flashcard.id === flashcardId ? { ...flashcard, id: filteredFlashcards[currentIndex + 1]._id } : flashcard
         )
       );
       navigate("/flashcards/" + filteredFlashcards[currentIndex + 1]._id);
@@ -221,7 +218,11 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
   if (flashcard?.author._id === user?._id) {
     options.push({
       callback: (flashcard: Flashcard) => {
-        navigate("/flashcards/" + flashcard._id + "/edit");
+        setOpenedFlashcards((openedFlashcards) =>
+          openedFlashcards.map((openedFlashcard) =>
+            openedFlashcard.id === flashcard._id ? { ...openedFlashcard, unsavedData: flashcard } : openedFlashcard
+          )
+        );
       },
       label: "Edit",
     });

@@ -6,7 +6,7 @@ import Layout from "./Layout/Layout";
 import ProtectedRoute from "./ProtectedRoute";
 import Profile from "./Profile";
 import Login from "./auth/components/Login";
-import { Flashcard, SearchFilter, Tag, User } from "./types";
+import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "./types";
 import FlashcardList from "./flashcards/components/FlashcardList";
 import { authHeaders, customFetch } from "./utils/http-helpers";
 import FlashcardListWithDetail from "./flashcards/components/FlashcardListWithDetail";
@@ -68,7 +68,7 @@ export default function App() {
   const [user, setUser] = useState(null as User | null);
   const [searchFilter, setSearchFilter] = useState<SearchFilter>({ searchString: "", tag: undefined });
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
-  const [openedFlashcards, setOpenedFlashcards] = useState([] as {id: string, edit: boolean}[]);
+  const [openedFlashcards, setOpenedFlashcards] = useState([] as OpenFlashcardData[]);
   const [filter, setFilter] = useState("Published");
   const [tags, setTags] = useState([] as Tag[]);
   const navigate = useNavigate();

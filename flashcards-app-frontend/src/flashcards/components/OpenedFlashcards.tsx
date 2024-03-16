@@ -1,11 +1,11 @@
-import { Flashcard } from "../../types";
+import { Flashcard, OpenFlashcardData } from "../../types";
 import TabNav from "../../Layout/TabNav";
 
 export default function OpenedFlashcards({
   openedFlashcards,
   flashcardId,
 }: {
-  openedFlashcards: { id: string; edit: boolean }[];
+  openedFlashcards: OpenFlashcardData[];
   flashcardId: string;
 }) {
   return <TabNav openedFlashcards={openedFlashcards} flashcardId={flashcardId} />;

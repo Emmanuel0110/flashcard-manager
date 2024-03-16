@@ -1,4 +1,4 @@
-import { Flashcard } from "../../types";
+import { Flashcard, OpenFlashcardData } from "../../types";
 import { useParams } from "react-router-dom";
 import useSplitPane from "../../utils/useSplitPane";
 import FlashcardList from "./FlashcardList";
@@ -12,21 +12,14 @@ export default function FlashcardListWithDetail({
   openedFlashcards,
 }: {
   filteredFlashcards: Flashcard[];
-  openedFlashcards: { id: string; edit: boolean }[];
+  openedFlashcards: OpenFlashcardData[];
 }) {
   const {
     setFlashcards,
     setOpenedFlashcards,
   }: {
     setFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>>;
-    setOpenedFlashcards: React.Dispatch<
-      React.SetStateAction<
-        {
-          id: string;
-          edit: boolean;
-        }[]
-      >
-    >;
+    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
   } = useContext(ConfigContext);
   const flashcardId = useParams().flashcardId!;
   const getFlashcardById = useGetFlashcardById();
@@ -36,7 +29,7 @@ export default function FlashcardListWithDetail({
       getFlashcardById(flashcardId).then((flashcard) => {
         if (flashcard) {
           setFlashcards((flashcards) => [...flashcards, flashcard]);
-          setOpenedFlashcards([{ id: flashcard._id, edit: false }]);
+          setOpenedFlashcards([{ id: flashcard._id }]);
         }
       });
     }

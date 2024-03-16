@@ -1,12 +1,12 @@
 import "../../App.css";
 import { Editor } from "@tinymce/tinymce-react";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
 import { edit, getRemoteFlashcardById, saveNewFlashcard, saveNewTag } from "../flashcardActions";
 import { ConfigContext } from "../../App";
-import { FlashCardLineData, Flashcard, Tag } from "../../types";
-import { useNavigate, useParams } from "react-router-dom";
+import { FlashCardLineData, Flashcard, OpenFlashcardData, Tag } from "../../types";
+import { useNavigate } from "react-router-dom";
 import AutoComplete from "../../utils/Autocomplete";
 import { FlashcardLine } from "./FlashcardLine";
 
@@ -59,35 +59,28 @@ export const useGetFlashcardById = () => {
   };
 };
 
-export default function FlashcardForm() {
+export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
   const [localTags, setLocalTags] = useState([] as Tag[]);
   const [localUses, setLocalUses] = useState([] as FlashCardLineData[]);
   const [localUseId, setLocalUseId] = useState("");
-  const { flashcardId } = useParams();
   const {
-    flashcards,
     tags,
     setTags,
+    setOpenedFlashcards,
   }: {
-    flashcards: Flashcard[];
     tags: Tag[];
     setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
   } = useContext(ConfigContext);
-  const navigate = useNavigate();
-  const saveAsNewFlashcard = useSaveAsNewFlashcard();
   const editFlashcard = useEditFlashcard();
   const getFlashcardById = useGetFlashcardById();
 
-  const flashcard: Flashcard | undefined = useMemo(() => {
-    return flashcards.find((flashcard: Flashcard) => flashcard._id === flashcardId);
-  }, [flashcards, flashcardId]);
-
   useEffect(() => {
-    flashcard && setLocalTags(flashcard.tags);
-    flashcard && setLocalUses(flashcard.uses);
-  }, [flashcardId]);
+    setLocalTags(flashcard.tags);
+    setLocalUses(flashcard.uses);
+  }, [flashcard]);
 
   const saveOrEditFlashcard = () => {
     if (questionRef.current && answerRef.current) {
@@ -96,12 +89,12 @@ export default function FlashcardForm() {
       const answer = answerRef.current.getContent();
       const tags = localTags;
       const uses = localUses;
-      if (flashcard) {
-        editFlashcard({ _id: flashcard._id, title, question, answer, tags, uses });
-        navigate("/flashcards/" + flashcard._id);
-      } else {
-        saveAsNewFlashcard({ title, question, answer, tags, uses });
-      }
+      editFlashcard({ _id: flashcard._id, title, question, answer, tags, uses });
+      setOpenedFlashcards((openedFlashcards) =>
+        openedFlashcards.map((openedFlashcard) =>
+          openedFlashcard.id === flashcard._id ? { ...openedFlashcard, unsavedData: undefined } : openedFlashcard
+        )
+      );
     }
   };
 
@@ -142,9 +135,6 @@ export default function FlashcardForm() {
     <div id="flashcardForm">
       <div className="buttonHeader">
         <Button onClick={saveOrEditFlashcard}>Save</Button>
-        <Button onClick={() => saveAsNewFlashcard(flashcard!)} disabled={flashcardId === undefined}>
-          Save as new
-        </Button>
       </div>
       <div id="form">
         <div id="question">
@@ -152,9 +142,9 @@ export default function FlashcardForm() {
             tinymceScriptSrc="/public/to/tinymce.min.js"
             onInit={(evt, editor) => {
               questionRef.current = editor;
-              questionRef.current.setContent(flashcard?.question || "");
+              questionRef.current.setContent(flashcard.question);
             }}
-            initialValue={flashcard?.question || ""}
+            initialValue={flashcard.question}
             init={{
               placeholder: "Question",
               height: 200,
@@ -175,9 +165,9 @@ export default function FlashcardForm() {
           <Editor
             onInit={(evt, editor) => {
               answerRef.current = editor;
-              answerRef.current.setContent(flashcard?.answer || "");
+              answerRef.current.setContent(flashcard.answer);
             }}
-            initialValue={flashcard?.answer || ""}
+            initialValue={flashcard.answer}
             init={{
               placeholder: "Answer",
               height: 500,

@@ -1,30 +1,18 @@
 import { useContext } from "react";
 import { Tab, Tabs } from "react-bootstrap";
 import { ConfigContext } from "../App";
-import { Flashcard } from "../types";
+import { Flashcard, OpenFlashcardData } from "../types";
 import { useNavigate } from "react-router-dom";
 import FlashcardDetail from "../flashcards/components/FlashcardDetail";
+import FlashcardForm from "../flashcards/components/FlashcardForm";
 
-function TabNav({
-  openedFlashcards,
-  flashcardId,
-}: {
-  openedFlashcards: { id: string; edit: boolean }[];
-  flashcardId: string;
-}) {
+function TabNav({ openedFlashcards, flashcardId }: { openedFlashcards: OpenFlashcardData[]; flashcardId: string }) {
   const {
     flashcards,
     setOpenedFlashcards,
   }: {
     flashcards: Flashcard[];
-    setOpenedFlashcards: React.Dispatch<
-      React.SetStateAction<
-        {
-          id: string;
-          edit: boolean;
-        }[]
-      >
-    >;
+    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
   } = useContext(ConfigContext);
   const navigate = useNavigate();
 
@@ -67,7 +55,7 @@ function TabNav({
                 </>
               }
             >
-              <FlashcardDetail flashcard={flashcard} />
+              {openedFlashcard.unsavedData ? <FlashcardForm flashcard={openedFlashcard.unsavedData}/> : <FlashcardDetail flashcard={flashcard} />}
             </Tab>
           );
         })}
