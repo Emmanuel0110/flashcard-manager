@@ -4,7 +4,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
 import { edit, getRemoteFlashcardById, saveNewTag } from "../flashcardActions";
-import { ConfigContext } from "../../App";
+import { ConfigContext, updateListWithNewFlashcards } from "../../App";
 import { FlashCardLineData, Flashcard, OpenFlashcardData, Tag } from "../../types";
 import AutoComplete from "../../utils/Autocomplete";
 import { FlashcardLine } from "./FlashcardLine";
@@ -37,7 +37,7 @@ export const useGetFlashcardById = () => {
     return flashcard
       ? Promise.resolve(flashcard)
       : getRemoteFlashcardById(id).then((flashcard) => {
-          setFlashcards((flashcards) => [...flashcards, flashcard]);
+        updateListWithNewFlashcards(flashcards, [flashcard]);
           return flashcard;
         });
   };

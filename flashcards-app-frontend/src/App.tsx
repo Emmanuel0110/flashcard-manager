@@ -25,6 +25,19 @@ export const fetchTags = () => {
   });
 };
 
+export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcards: any): Flashcard[] => {
+  return newFlashcards.reduce((acc: Flashcard[], value: any) => {
+    value = { ...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined };
+    var index: number = acc.findIndex((flashcard) => flashcard._id === value._id);
+    if (index === -1) {
+      return [...acc, value];
+    } else {
+      acc.splice(index, 1, value);
+      return [...acc];
+    }
+  }, flashcards);
+};
+
 export const fetchMoreFlashcards = (
   url: string,
   setFlashcards: Dispatch<SetStateAction<Flashcard[]>>,
@@ -32,19 +45,8 @@ export const fetchMoreFlashcards = (
   limit: number
 ) => {
   return customFetch(url + `&skip=${skip}&limit=${limit}`, { headers: authHeaders() })
-    .then((data: any) => {
-      setFlashcards((flashcards) => {
-        return data.reduce((acc: Flashcard[], value: any) => {
-          value = { ...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined };
-          var index: number = acc.findIndex((flashcard) => flashcard._id === value._id);
-          if (index === -1) {
-            return [...acc, value];
-          } else {
-            acc.splice(index, 1, value);
-            return [...acc];
-          }
-        }, flashcards);
-      });
+    .then((newFlashcards: any) => {
+      setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, newFlashcards));
     })
     .catch((err: Error) => {
       console.log(err);

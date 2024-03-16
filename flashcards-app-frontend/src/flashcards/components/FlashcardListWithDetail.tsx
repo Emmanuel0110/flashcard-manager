@@ -14,13 +14,8 @@ export default function FlashcardListWithDetail({
   filteredFlashcards: Flashcard[];
   openedFlashcards: OpenFlashcardData[];
 }) {
-  const {
-    setFlashcards,
-    setOpenedFlashcards,
-  }: {
-    setFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>>;
-    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
-  } = useContext(ConfigContext);
+  const { setOpenedFlashcards }: { setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>> } =
+    useContext(ConfigContext);
   const flashcardId = useParams().flashcardId!;
   const getFlashcardById = useGetFlashcardById();
   useSplitPane(["#left", "#right"], "horizontal", [50, 50]);
@@ -28,7 +23,6 @@ export default function FlashcardListWithDetail({
     if (openedFlashcards.length == 0) {
       getFlashcardById(flashcardId).then((flashcard) => {
         if (flashcard) {
-          setFlashcards((flashcards) => [...flashcards, flashcard]);
           setOpenedFlashcards([{ id: flashcard._id }]);
         }
       });
