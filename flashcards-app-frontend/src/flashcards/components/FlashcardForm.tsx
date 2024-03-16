@@ -16,7 +16,7 @@ export const useEditFlashcard = () => {
       .then(({ data: updatedFlashcard }: { data: Flashcard }) => {
         setFlashcards((flashcards: Flashcard[]) =>
           flashcards.map((flashcard) => {
-            return flashcard._id === updatedFlashcard._id ? updatedFlashcard : flashcard;
+            return flashcard._id === updatedFlashcard._id ? {...flashcard, ...updatedFlashcard} : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashacard instead of replacing it
           })
         );
       })

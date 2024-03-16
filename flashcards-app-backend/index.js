@@ -35,7 +35,7 @@ app.get("/api/flashcards", auth, (req, res) => {
   const { filter, searchString, tagId, uses } = req.query;
   if (filter === "Draft" || filter === "To be validated" || filter === "Published" || uses !== undefined) {
     UserFlashcardInfoModel.find({ user: req.user._id }).then((userFlashcardInfos) => {
-      const status = filter ? {status: filter} : {};
+      const status = filter ? { status: filter } : {};
       const stringSearch = searchString ? { $text: { $search: searchString } } : {};
       const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
       const usesSearch = uses ? { uses } : {};
@@ -100,7 +100,19 @@ app.get("/api/flashcards", auth, (req, res) => {
                   userFlashcardInfos.find((info) => {
                     return info.flashcard.equals(flashcard._id);
                   }) || {};
-                return { ...flashcard, hasBeenRead: info.hasBeenRead || false, nextReviewDate: info.nextReviewDate };
+                return {
+                  ...flashcard,
+                  hasBeenRead: info.hasBeenRead || false,
+                  nextReviewDate: info.nextReviewDate,
+                  uses:
+                    flashcard.uses?.map((el) => {
+                      const info =
+                        userFlashcardInfos.find((info) => {
+                          return info.flashcard.equals(el._id);
+                        }) || {};
+                      return { ...el, hasBeenRead: info.hasBeenRead, nextReviewDate: info.nextReviewDate };
+                    }) || [],
+                };
               })
             );
           })
