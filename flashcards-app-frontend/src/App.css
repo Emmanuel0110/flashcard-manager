@@ -412,7 +412,7 @@ button:focus {
 }
 
 .dropdownItem {
-  padding: 0px 5px;
+  padding: 5px;
   cursor: pointer;
   overflow-wrap: anywhere;
 }
