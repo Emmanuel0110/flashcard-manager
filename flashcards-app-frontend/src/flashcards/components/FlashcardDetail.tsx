@@ -38,7 +38,7 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
     tags: Tag[];
   } = useContext(ConfigContext);
-  const [answerVisible, setAnswerVisible] = useState(filter === "Draft" || filter === "To be validated");
+  const [answerVisible, setAnswerVisible] = useState(filter !== "To be reviewed");
   const usedInLoading = useRef(false);
   const navigate = useNavigate();
   const saveAsNewFlashcard = useSaveAsNewFlashcard();
@@ -139,9 +139,7 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
         goToNextFlashcard();
         break;
       case "Enter":
-        if (!answerVisible) {
-          setAnswerVisible(true);
-        }
+        setAnswerVisible(true);
         break;
       case "1":
         reviewIn(1, "day");
@@ -306,7 +304,13 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
           {options.length > 0 && <DotOptions obj={flashcard} options={options} />}
           {hasNextFlashcard() && <div id="nextArrow" onClick={goToNextFlashcard}></div>}
         </div>
-        <div id="pannelCloseContainer" onClick={(e: React.MouseEvent<HTMLSpanElement>) => navigate("/flashcards")}>
+        <div
+          id="pannelCloseContainer"
+          onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
+            navigate("/flashcards");
+            setOpenedFlashcards([]);
+          }}
+        >
           <div className="pannelClose"></div>
         </div>
       </div>

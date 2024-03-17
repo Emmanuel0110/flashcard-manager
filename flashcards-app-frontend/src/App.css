@@ -231,10 +231,20 @@ button:focus {
   position: relative;
 }
 
-#flashcard #question, #flashcard #answer {
+#flashcard #question {
   padding: 10px;
   margin-bottom: 20px;
-  height: 200px;
+  height: 25vh;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  background-color: #fff;
+  overflow: auto;
+}
+
+#flashcard #answer {
+  padding: 10px;
+  margin-bottom: 20px;
+  height: 40vh;
   border: 2px solid #eee;
   border-radius: 10px;
   background-color: #fff;
@@ -575,10 +585,10 @@ button:focus {
 }
 
 .pannelClose{
-  mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
-  background: rgb(151, 151, 151);
-  width: 2ch;
-  height: 2ch;
+  mask: url(images/tab_close_FILL0_wght400_GRAD0_opsz24.svg); /*https://fontawesome.com/license*/
+  background: rgb(129, 129, 129);
+  width: 3ch;
+  height: 3ch;
   mask-repeat: no-repeat;
   background-position: center;
   vertical-align: middle;
