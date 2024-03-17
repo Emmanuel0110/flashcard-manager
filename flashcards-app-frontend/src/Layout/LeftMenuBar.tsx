@@ -22,10 +22,11 @@ export const useSaveAsNewFlashcard = () => {
 };
 
 function LeftMenuBar() {
-  const { filter, setFilter } = useContext(ConfigContext);
+  const { filter, setFilter, setOpenedFlashcards } = useContext(ConfigContext);
   const saveAsNewFlashcard = useSaveAsNewFlashcard();
 
   const startReview = () => {
+    setOpenedFlashcards([]);
     setFilter("To be reviewed");
   };
 

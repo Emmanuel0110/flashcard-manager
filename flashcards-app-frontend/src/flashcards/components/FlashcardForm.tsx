@@ -16,7 +16,7 @@ export const useEditFlashcard = () => {
       .then(({ data: updatedFlashcard }: { data: Flashcard }) => {
         setFlashcards((flashcards: Flashcard[]) =>
           flashcards.map((flashcard) => {
-            return flashcard._id === updatedFlashcard._id ? {...flashcard, ...updatedFlashcard} : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashacard instead of replacing it
+            return flashcard._id === updatedFlashcard._id ? { ...flashcard, ...updatedFlashcard } : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashacard instead of replacing it
           })
         );
       })
@@ -27,17 +27,13 @@ export const useEditFlashcard = () => {
 };
 
 export const useGetFlashcardById = () => {
-  const {
-    flashcards,
-    setFlashcards,
-  }: { flashcards: Flashcard[]; setFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>> } =
-    useContext(ConfigContext);
+  const { flashcards }: { flashcards: Flashcard[] } = useContext(ConfigContext);
   return (id: string): Promise<Flashcard> => {
     const flashcard = flashcards.find((flashcard) => flashcard._id === id);
     return flashcard
       ? Promise.resolve(flashcard)
       : getRemoteFlashcardById(id).then((flashcard) => {
-        updateListWithNewFlashcards(flashcards, [flashcard]);
+          updateListWithNewFlashcards(flashcards, [flashcard]);
           return flashcard;
         });
   };

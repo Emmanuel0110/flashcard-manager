@@ -584,8 +584,6 @@ button:focus {
   vertical-align: middle;
 }
 
-#tabNav .nav-link{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+a.nav-link {
+  color: #636b74;
 }
