@@ -172,8 +172,7 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     }
   };
 
-  const subscribeToFlashcard = (e: React.MouseEvent, flashcardToSubscribe: Flashcard) => {
-    e.stopPropagation();
+  const subscribeToFlashcard = (flashcardToSubscribe: Flashcard) => {
     subscribeToRemoteFlashcard(flashcardToSubscribe).then((res) => {
       if (res.success) {
         setFlashcards((flashcards: Flashcard[]) =>
@@ -232,6 +231,12 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     },
     label: "Save as new",
   });
+  options.push({
+    callback: (flashcard: Flashcard) => {
+      subscribeToFlashcard(flashcard);
+    },
+    label: "Mark as known",
+  });
 
   return (
     <div id="flashCardComponent">
@@ -239,7 +244,7 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
         {flashcard?.status === "Draft" && <Button onClick={submitForValidation}>Submit for validation</Button>}
         {flashcard?.status === "To be validated" && <Button onClick={publish}>Publish</Button>}
         {flashcard?.status === "Published" && (
-          <Button onClick={(e) => subscribeToFlashcard(e, flashcard)}>
+          <Button onClick={() => subscribeToFlashcard(flashcard)}>
             {flashcard.nextReviewDate instanceof Date ? "Remove from favorites" : "Add to favorites"}
           </Button>
         )}
@@ -301,17 +306,8 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
           {hasPreviousFlashcard() && <div id="previousArrow" onClick={goToPreviousFlashcard}></div>}
         </div>
         <div id="next">
-          {options.length > 0 && <DotOptions obj={flashcard} options={options} />}
+          {options.length > 0 && filter !== "To be reviewed" && <DotOptions obj={flashcard} options={options} />}
           {hasNextFlashcard() && <div id="nextArrow" onClick={goToNextFlashcard}></div>}
-        </div>
-        <div
-          id="pannelCloseContainer"
-          onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
-            navigate("/flashcards");
-            setOpenedFlashcards([]);
-          }}
-        >
-          <div className="pannelClose"></div>
         </div>
       </div>
     </div>

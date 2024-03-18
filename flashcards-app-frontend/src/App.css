@@ -333,12 +333,12 @@ button:focus {
 }
 
 #flashcardForm {
-  padding: 10px;
+  padding: 20px;
 }
 
 #flashCardComponent {
   position: relative;
-  padding: 10px;
+  padding: 20px;
   height: 100%;
 }
 
@@ -450,7 +450,6 @@ button:focus {
   font-weight: 600;
   margin-bottom: 7px;
 }
-
 
 #filterList{
   list-style-type: none;
@@ -576,10 +575,11 @@ button:focus {
 
 #pannelCloseContainer{
   cursor: pointer;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  padding: 10px;
+  padding: 7px;
+}
+
+.pannelHeader {
+  display: flex;
 }
 
 .pannelClose{
