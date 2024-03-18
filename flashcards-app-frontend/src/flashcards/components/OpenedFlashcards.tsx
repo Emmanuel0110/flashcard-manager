@@ -3,10 +3,10 @@ import TabNav from "../../Layout/TabNav";
 
 export default function OpenedFlashcards({
   openedFlashcards,
-  flashcardId,
+  currentFlashcard,
 }: {
   openedFlashcards: OpenFlashcardData[];
-  flashcardId: string;
+  currentFlashcard: Flashcard;
 }) {
-  return <TabNav openedFlashcards={openedFlashcards} flashcardId={flashcardId} />;
+  return <TabNav openedFlashcards={openedFlashcards} currentFlashcard={currentFlashcard} />;
 }
