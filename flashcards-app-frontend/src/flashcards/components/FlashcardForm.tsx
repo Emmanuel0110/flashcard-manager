@@ -92,9 +92,28 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
   const availableTags = tags.filter((tag) => !localTags.map((tag) => tag._id).includes(tag._id));
 
   const onKeyUpPrerequisites = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    console.log(localPrerequisites.find((el) => el._id === localPrerequisiteId));
     if (e.key === "Enter" && !localPrerequisites.find((el) => el._id === localPrerequisiteId) && localPrerequisiteId.length === 24) {
       getFlashcardById(localPrerequisiteId).then((flashcard) => {
+        if (flashcard) {
+          const {
+            _id,
+            author: { _id: authorId },
+            title,
+            status,
+            hasBeenRead,
+            nextReviewDate,
+          } = flashcard;
+          setLocalPrerequisites((localPrerequisites) => [...localPrerequisites, { _id, authorId, title, status, hasBeenRead, nextReviewDate }]);
+          setLocalPrerequisiteId("");
+        }
+      });
+    }
+  };
+
+  const onPaste = (e: React.ClipboardEvent) => {
+    const copiedText = e.clipboardData.getData('Text');
+    if (copiedText.length === 24 && !localPrerequisites.find((el) => el._id === copiedText) ) {
+      getFlashcardById(copiedText).then((flashcard) => {
         if (flashcard) {
           const {
             _id,
@@ -192,6 +211,7 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
             <input
               type="text"
               placeholder="Add a flashcard id"
+              onPaste={onPaste}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setLocalPrerequisiteId(e.target.value);
               }}
