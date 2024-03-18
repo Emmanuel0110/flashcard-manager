@@ -49,5 +49,5 @@ export const saveNewTag = async ({ label }: { label: string }) => {
 };
 
 export const getRemoteFlashcardUsedIn = async (id: string): Promise<Flashcard[]> => {
-  return customFetch(url + "flashcards?uses=" + id, { method: "GET", headers: authHeaders() });
+  return customFetch(url + "flashcards?prerequisites=" + id, { method: "GET", headers: authHeaders() });
 };

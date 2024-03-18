@@ -32,15 +32,15 @@ app.use(function (req, res, next) {
 });
 
 app.get("/api/flashcards", auth, (req, res) => {
-  const { filter, searchString, tagId, uses } = req.query;
-  if (filter === "Draft" || filter === "To be validated" || filter === "Published" || uses !== undefined) {
+  const { filter, searchString, tagId, prerequisites } = req.query;
+  if (filter === "Draft" || filter === "To be validated" || filter === "Published" || prerequisites !== undefined) {
     UserFlashcardInfoModel.find({ user: req.user._id }).then((userFlashcardInfos) => {
       const status = filter ? { status: filter } : {};
       const stringSearch = searchString ? { $text: { $search: searchString } } : {};
       const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
-      const usesSearch = uses ? { uses } : {};
+      const prerequisitesSearch = prerequisites ? { prerequisites } : {};
       const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
-      FlashcardModel.find({ ...status, ...stringSearch, ...tagSearch, ...usesSearch, ...otherFilter })
+      FlashcardModel.find({ ...status, ...stringSearch, ...tagSearch, ...prerequisitesSearch, ...otherFilter })
         .sort("-creationDate")
         .skip(parseInt(req.query.skip) || 0)
         .limit(parseInt(req.query.limit) || 30)
@@ -50,7 +50,7 @@ app.get("/api/flashcards", auth, (req, res) => {
           populate: { path: "label" },
         })
         .populate({
-          path: "uses",
+          path: "prerequisites",
           populate: { path: "author title status" },
         })
         .lean()
@@ -65,8 +65,8 @@ app.get("/api/flashcards", auth, (req, res) => {
                 ...flashcard,
                 hasBeenRead: info.hasBeenRead || false,
                 nextReviewDate: info.nextReviewDate,
-                uses:
-                  flashcard.uses?.map((el) => {
+                prerequisites:
+                  flashcard.prerequisites?.map((el) => {
                     const info =
                       userFlashcardInfos.find((info) => {
                         return info.flashcard.equals(el._id);
@@ -89,7 +89,7 @@ app.get("/api/flashcards", auth, (req, res) => {
           .populate("author", "username")
           .populate("tags", "label")
           .populate({
-            path: "uses",
+            path: "prerequisites",
             populate: { path: "title" },
           })
           .lean()
@@ -104,8 +104,8 @@ app.get("/api/flashcards", auth, (req, res) => {
                   ...flashcard,
                   hasBeenRead: info.hasBeenRead || false,
                   nextReviewDate: info.nextReviewDate,
-                  uses:
-                    flashcard.uses?.map((el) => {
+                  prerequisites:
+                    flashcard.prerequisites?.map((el) => {
                       const info =
                         userFlashcardInfos.find((info) => {
                           return info.flashcard.equals(el._id);
@@ -134,7 +134,7 @@ app.get("/api/flashcards/:id", auth, (req, res) => {
             populate: { path: "label" },
           })
           .populate({
-            path: "uses",
+            path: "prerequisites",
             populate: { path: "author title status" },
           })
           .lean()
@@ -147,8 +147,8 @@ app.get("/api/flashcards/:id", auth, (req, res) => {
               ...flashcard,
               hasBeenRead: info.hasBeenRead || false,
               nextReviewDate: info.nextReviewDate,
-              uses:
-                flashcard.uses?.map((el) => {
+              prerequisites:
+                flashcard.prerequisites?.map((el) => {
                   const info =
                     userFlashcardInfos.find((info) => {
                       return info.flashcard.equals(el._id);
@@ -204,7 +204,7 @@ app.put("/api/flashcards/:id", auth, function (req, res) {
       populate: { path: "label" },
     })
     .populate({
-      path: "uses",
+      path: "prerequisites",
       populate: { path: "author title status" },
     })
     .then((updatedFlashcard) => {
@@ -303,7 +303,7 @@ const flashcardSchema = new Schema({
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag", required: true }],
   creationDate: Date,
   status: String,
-  uses: [{ type: Schema.Types.ObjectId, ref: "Flashcard", required: true }],
+  prerequisites: [{ type: Schema.Types.ObjectId, ref: "Flashcard", required: true }],
 });
 flashcardSchema.index({ title: "text" });
 export const FlashcardModel = model("Flashcard", flashcardSchema);

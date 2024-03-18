@@ -90,16 +90,14 @@ body {
   cursor: pointer;
   color: white;
   padding: 6px;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   gap: 10px;
+  letter-spacing: 0.2px;
 }
 
 #filterSection > div:hover {
-  cursor: pointer;
   background-color: #3f51b5;
-  padding: 6px;
-  font-weight: 600;
 }
 
 .selected {

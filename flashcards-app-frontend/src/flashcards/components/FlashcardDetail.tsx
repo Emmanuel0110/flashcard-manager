@@ -260,10 +260,10 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
                         </div>
                       ))}
                   </div>
-                  {flashcard && flashcard.uses.length > 0 && (
-                    <div id="uses">
-                      <div className="flashcardSection">Uses</div>
-                      {flashcard.uses.map((flashcardData, index) => (
+                  {flashcard && flashcard.prerequisites.length > 0 && (
+                    <div id="prerequisites">
+                      <div className="flashcardSection">Prerequisites</div>
+                      {flashcard.prerequisites.map((flashcardData, index) => (
                         <FlashcardLine key={index} flashcardData={flashcardData} />
                       ))}
                     </div>

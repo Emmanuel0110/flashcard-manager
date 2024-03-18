@@ -43,8 +43,8 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
   const [localTags, setLocalTags] = useState([] as Tag[]);
-  const [localUses, setLocalUses] = useState([] as FlashCardLineData[]);
-  const [localUseId, setLocalUseId] = useState("");
+  const [localPrerequisites, setLocalPrerequisites] = useState([] as FlashCardLineData[]);
+  const [localPrerequisiteId, setLocalPrerequisiteId] = useState("");
   const {
     tags,
     setTags,
@@ -59,7 +59,7 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
 
   useEffect(() => {
     setLocalTags(flashcard.tags);
-    setLocalUses(flashcard.uses);
+    setLocalPrerequisites(flashcard.prerequisites);
   }, [flashcard]);
 
   const saveOrEditFlashcard = () => {
@@ -68,8 +68,8 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
       const question = questionRef.current.getContent();
       const answer = answerRef.current.getContent();
       const tags = localTags;
-      const uses = localUses;
-      editFlashcard({ _id: flashcard._id, title, question, answer, tags, uses });
+      const prerequisites = localPrerequisites;
+      editFlashcard({ _id: flashcard._id, title, question, answer, tags, prerequisites });
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openedFlashcard) =>
           openedFlashcard.id === flashcard._id ? { ...openedFlashcard, unsavedData: undefined } : openedFlashcard
@@ -91,10 +91,10 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
 
   const availableTags = tags.filter((tag) => !localTags.map((tag) => tag._id).includes(tag._id));
 
-  const onKeyUpUses = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    console.log(localUses.find((el) => el._id === localUseId));
-    if (e.key === "Enter" && !localUses.find((el) => el._id === localUseId) && localUseId.length === 24) {
-      getFlashcardById(localUseId).then((flashcard) => {
+  const onKeyUpPrerequisites = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log(localPrerequisites.find((el) => el._id === localPrerequisiteId));
+    if (e.key === "Enter" && !localPrerequisites.find((el) => el._id === localPrerequisiteId) && localPrerequisiteId.length === 24) {
+      getFlashcardById(localPrerequisiteId).then((flashcard) => {
         if (flashcard) {
           const {
             _id,
@@ -104,8 +104,8 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
             hasBeenRead,
             nextReviewDate,
           } = flashcard;
-          setLocalUses((localUses) => [...localUses, { _id, authorId, title, status, hasBeenRead, nextReviewDate }]);
-          setLocalUseId("");
+          setLocalPrerequisites((localPrerequisites) => [...localPrerequisites, { _id, authorId, title, status, hasBeenRead, nextReviewDate }]);
+          setLocalPrerequisiteId("");
         }
       });
     }
@@ -183,9 +183,9 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
             />
           </div>
         </div>
-        <div id="uses">
-          <div className="flashcardSection">Uses</div>
-          {localUses.map((flashcardData, index) => (
+        <div id="prerequisites">
+          <div className="flashcardSection">Prerequisites</div>
+          {localPrerequisites.map((flashcardData, index) => (
             <FlashcardLine key={index} flashcardData={flashcardData} />
           ))}
           <div className="tagInput">
@@ -193,10 +193,10 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
               type="text"
               placeholder="Add a flashcard id"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setLocalUseId(e.target.value);
+                setLocalPrerequisiteId(e.target.value);
               }}
-              onKeyUp={onKeyUpUses}
-              value={localUseId}
+              onKeyUp={onKeyUpPrerequisites}
+              value={localPrerequisiteId}
             />
           </div>
         </div>

@@ -15,7 +15,7 @@ export interface Flashcard {
   status: Status;
   nextReviewDate: Date | undefined;
   hasBeenRead: boolean;
-  uses: FlashCardLineData[];
+  prerequisites: FlashCardLineData[];
   usedIn?: FlashCardLineData[];
 }
 
