@@ -33,8 +33,8 @@ function TabNav({
         >
           {openedFlashcards.length > 0 &&
             openedFlashcards.map((openedFlashcard, index) => {
-              const flashcard = flashcards.find((flashcard: Flashcard) => flashcard._id === openedFlashcard.id)!;
-              return (
+              const flashcard = flashcards.find((flashcard: Flashcard) => flashcard._id === openedFlashcard.id);
+              return flashcard ? (
                 <Nav.Item key={index}>
                   <Nav.Link eventKey={flashcard._id}>
                     {
@@ -62,8 +62,8 @@ function TabNav({
                       </>
                     }
                   </Nav.Link>
-                </Nav.Item>
-              );
+                </Nav.Item>) : null;
+
             })}
         </Nav>
         {openedFlashcards.length > 1 && (
