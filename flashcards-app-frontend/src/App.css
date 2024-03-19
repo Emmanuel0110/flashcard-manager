@@ -14,7 +14,7 @@ body {
   padding-bottom: 10px;
 }
 
-#form {
+#form,#middle {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -231,7 +231,6 @@ button:focus {
 
 #flashcard #question {
   padding: 10px;
-  margin-bottom: 20px;
   height: 25vh;
   border: 2px solid #eee;
   border-radius: 10px;
@@ -241,7 +240,6 @@ button:focus {
 
 #flashcard #answer {
   padding: 10px;
-  margin-bottom: 20px;
   height: 40vh;
   border: 2px solid #eee;
   border-radius: 10px;
@@ -421,7 +419,6 @@ button:focus {
 
 #tags {
   display: flex;
-  margin-bottom: 20px;
 }
 
 .tag {
