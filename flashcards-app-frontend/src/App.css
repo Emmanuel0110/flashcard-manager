@@ -1,17 +1,14 @@
-body {
-  
-}
-.App {
-  text-align: center;
-  color:darkgrey;
-  background-color: #282c34;
-}
+
 
 .buttonHeader {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  background-color: #f8f8f8;
   display: flex;
   flex-direction: row;
   gap: 10px;
-  padding-bottom: 10px;
+  padding: 10px 0 10px 0;
 }
 
 #form,#middle {

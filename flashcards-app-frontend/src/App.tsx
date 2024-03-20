@@ -10,6 +10,7 @@ import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "./types";
 import FlashcardList from "./flashcards/components/FlashcardList";
 import { authHeaders, customFetch } from "./utils/http-helpers";
 import FlashcardListWithDetail from "./flashcards/components/FlashcardListWithDetail";
+import { fetchTags } from "./flashcards/flashcardActions";
 
 export let url = "/api/";
 
@@ -18,12 +19,6 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export const ConfigContext = createContext(null as any);
-
-export const fetchTags = () => {
-  return customFetch(url + "tags", { headers: authHeaders() }).catch((err: Error) => {
-    console.log(err);
-  });
-};
 
 export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcards: any): Flashcard[] => {
   return newFlashcards.reduce((acc: Flashcard[], value: any) => {
