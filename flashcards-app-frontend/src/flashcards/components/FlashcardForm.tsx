@@ -1,11 +1,11 @@
 import "../../App.css";
 import { Editor } from "@tinymce/tinymce-react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
 import { edit, getRemoteFlashcardById, saveNewTag } from "../flashcardActions";
 import { ConfigContext, updateListWithNewFlashcards } from "../../App";
-import { FlashCardLineData, Flashcard, OpenFlashcardData, Tag } from "../../types";
+import { Flashcard, OpenFlashcardData, Tag } from "../../types";
 import AutoComplete from "../../utils/Autocomplete";
 import { FlashcardLine } from "./FlashcardLine";
 
@@ -27,23 +27,29 @@ export const useEditFlashcard = () => {
 };
 
 export const useGetFlashcardById = () => {
-  const { flashcards }: { flashcards: Flashcard[] } = useContext(ConfigContext);
+  const { flashcards, setFlashcards }: { flashcards: Flashcard[]; setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;} = useContext(ConfigContext);
   return (id: string): Promise<Flashcard> => {
     const flashcard = flashcards.find((flashcard) => flashcard._id === id);
     return flashcard
       ? Promise.resolve(flashcard)
       : getRemoteFlashcardById(id).then((flashcard) => {
-          updateListWithNewFlashcards(flashcards, [flashcard]);
+        setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, [flashcard]));
           return flashcard;
         });
   };
 };
 
-export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
+export default function FlashcardForm({
+  flashcard,
+  prerequisites,
+}: {
+  flashcard: Flashcard;
+  prerequisites: Flashcard[];
+}) {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
   const [localTags, setLocalTags] = useState([] as Tag[]);
-  const [localPrerequisites, setLocalPrerequisites] = useState([] as FlashCardLineData[]);
+  const [localPrerequisites, setLocalPrerequisites] = useState([] as Flashcard[]);
   const [localPrerequisiteId, setLocalPrerequisiteId] = useState("");
   const {
     tags,
@@ -59,7 +65,7 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
 
   useEffect(() => {
     setLocalTags(flashcard.tags);
-    setLocalPrerequisites(flashcard.prerequisites);
+    setLocalPrerequisites(prerequisites);
   }, [flashcard]);
 
   const saveOrEditFlashcard = () => {
@@ -68,7 +74,7 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
       const question = questionRef.current.getContent();
       const answer = answerRef.current.getContent();
       const tags = localTags;
-      const prerequisites = localPrerequisites;
+      const prerequisites = localPrerequisites.map((_) => _._id);
       editFlashcard({ _id: flashcard._id, title, question, answer, tags, prerequisites });
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openedFlashcard) =>
@@ -92,19 +98,11 @@ export default function FlashcardForm({ flashcard }: { flashcard: Flashcard }) {
   const availableTags = tags.filter((tag) => !localTags.map((tag) => tag._id).includes(tag._id));
 
   const onPaste = (e: React.ClipboardEvent) => {
-    const copiedText = e.clipboardData.getData('Text');
-    if (copiedText.length === 24 && !localPrerequisites.find((el) => el._id === copiedText) ) {
+    const copiedText = e.clipboardData.getData("Text");
+    if (copiedText.length === 24 && !localPrerequisites.find((el) => el._id === copiedText)) {
       getFlashcardById(copiedText).then((flashcard) => {
         if (flashcard) {
-          const {
-            _id,
-            author: { _id: authorId },
-            title,
-            status,
-            hasBeenRead,
-            nextReviewDate,
-          } = flashcard;
-          setLocalPrerequisites((localPrerequisites) => [...localPrerequisites, { _id, authorId, title, status, hasBeenRead, nextReviewDate }]);
+          setLocalPrerequisites((localPrerequisites) => [...localPrerequisites, flashcard]);
           setLocalPrerequisiteId("");
         }
       });

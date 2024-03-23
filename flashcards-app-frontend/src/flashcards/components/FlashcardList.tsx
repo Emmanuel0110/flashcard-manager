@@ -18,7 +18,7 @@ export default function FlashcardList({ filteredFlashcards }: { filteredFlashcar
       <FilterBar />
       <div id="flashcardList">
         {filteredFlashcards.map((flashcard, index) => (
-          <FlashcardLine key={index} flashcardData={{ ...flashcard, authorId: flashcard.author._id }} />
+          <FlashcardLine key={index} flashcardData={flashcard} />
         ))}
       </div>
     </InfiniteScrollComponent>

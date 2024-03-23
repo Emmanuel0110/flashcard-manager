@@ -48,8 +48,11 @@ export const saveNewTag = async ({ label }: { label: string }) => {
   return customFetch(url + "tags", { method: "POST", headers: authHeaders(), body });
 };
 
-export const getRemoteFlashcardUsedIn = async (id: string): Promise<Flashcard[]> => {
-  return customFetch(url + "flashcards?prerequisites=" + id, { method: "GET", headers: authHeaders() });
+export const getRemotePrerequisiteAndUsedIn = async (ids: string[]): Promise<Flashcard[]> => {
+  return customFetch(url + "flashcards?prerequisitesAndUsedIn=" + ids.join(","), {
+    method: "GET",
+    headers: authHeaders(),
+  });
 };
 
 export const fetchTags = () => {

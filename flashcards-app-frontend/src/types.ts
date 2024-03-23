@@ -15,17 +15,8 @@ export interface Flashcard {
   status: Status;
   nextReviewDate: Date | undefined;
   hasBeenRead: boolean;
-  prerequisites: FlashCardLineData[];
-  usedIn?: FlashCardLineData[];
-}
-
-export interface FlashCardLineData {
-  _id: string;
-  authorId: string;
-  title: string;
-  status: Status;
-  nextReviewDate: Date | undefined;
-  hasBeenRead: boolean;
+  prerequisites: string[];
+  usedIn: string[];
 }
 
 export interface Tag {

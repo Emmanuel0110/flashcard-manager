@@ -7,14 +7,7 @@ import { ConfigContext } from "../../App";
 export const FlashcardLine = ({
   flashcardData,
 }: {
-  flashcardData: {
-    _id: string;
-    authorId: string;
-    title: string;
-    status: string;
-    nextReviewDate: Date | undefined;
-    hasBeenRead: boolean;
-  };
+  flashcardData: Flashcard;
 }) => {
   const { flashcardId } = useParams();
   const {
@@ -30,7 +23,7 @@ export const FlashcardLine = ({
   } = useContext(ConfigContext);
   const navigate = useNavigate();
 
-  const { _id, authorId, title, status, nextReviewDate, hasBeenRead } = flashcardData;
+  const { _id, author, title, status, nextReviewDate, hasBeenRead } = flashcardData;
 
   const openFlashcard = (id: string) => {
     setOpenedFlashcards((openedFlashcards) =>
@@ -85,7 +78,7 @@ export const FlashcardLine = ({
     <div className={"line" + (_id === flashcardId ? " selectedFlashcard" : "")} onClick={() => openFlashcard(_id)}>
       <div className={"lineTitle" + (hasBeenRead ? " hasBeenRead" : "")}>{title}</div>
       <div className="lineOptions">
-        {(user._id === authorId || status === "Published") && (
+        {(user._id === author._id || status === "Published") && (
           <>
             {nextReviewDate instanceof Date && nextReviewDate.getTime() <= new Date().getTime() && (
               <div className="review"></div>
@@ -96,7 +89,7 @@ export const FlashcardLine = ({
             ></div>
           </>
         )}
-        {user._id === authorId && (
+        {user._id === author._id && (
           <>
             <div className="edit" onClick={(e) => editFlashcard(e, _id)}></div>
             <div className="delete" onClick={(e) => deleteFlashcard(e, _id)}></div>

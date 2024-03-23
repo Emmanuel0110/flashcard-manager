@@ -4,17 +4,20 @@ import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
 import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
-import {
-  editUserFlashcardInfo,
-  getRemoteFlashcardUsedIn,
-  readRemoteFlashcard,
-  subscribeToRemoteFlashcard,
-} from "../flashcardActions";
+import { editUserFlashcardInfo, readRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
 import { useEditFlashcard } from "./FlashcardForm";
 import { FlashcardLine } from "./FlashcardLine";
 import { useSaveAsNewFlashcard } from "../../Layout/LeftMenuBar";
 
-export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard }) {
+export default function FlashcardDetail({
+  flashcard,
+  prerequisites,
+  usedIn,
+}: {
+  flashcard: Flashcard;
+  prerequisites: Flashcard[];
+  usedIn: Flashcard[];
+}) {
   const flashcardId = flashcard._id;
 
   const {
@@ -39,7 +42,6 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     tags: Tag[];
   } = useContext(ConfigContext);
   const [answerVisible, setAnswerVisible] = useState(filter !== "To be reviewed");
-  const usedInLoading = useRef(false);
   const navigate = useNavigate();
   const saveAsNewFlashcard = useSaveAsNewFlashcard();
   const editFlashcard = useEditFlashcard();
@@ -65,33 +67,6 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
     }
     if (!hasNextFlashcard()) {
       fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, flashcards.length, 30);
-    }
-
-    if (flashcard && !flashcard.usedIn && !usedInLoading.current) {
-      usedInLoading.current = true;
-      getRemoteFlashcardUsedIn(flashcard._id).then((usedInflashcards) => {
-        usedInLoading.current = false;
-        setFlashcards((flashcards) =>
-          flashcards.map((flashcard) =>
-            flashcard._id === flashcardId
-              ? {
-                  ...flashcard,
-                  usedIn: usedInflashcards.map((usedInflashcard) => {
-                    const {
-                      _id,
-                      author: { _id: authorId },
-                      title,
-                      status,
-                      hasBeenRead,
-                      nextReviewDate,
-                    } = usedInflashcard;
-                    return { _id, authorId, title, status, hasBeenRead, nextReviewDate };
-                  }),
-                }
-              : flashcard
-          )
-        );
-      });
     }
   }, [flashcardId]);
 
@@ -265,19 +240,19 @@ export default function FlashcardDetail({ flashcard }: { flashcard: Flashcard })
                         </div>
                       ))}
                   </div>
-                  {flashcard && flashcard.prerequisites.length > 0 && (
+                  {prerequisites.length > 0 && (
                     <div id="prerequisites">
                       <div className="flashcardSection">Prerequisites</div>
-                      {flashcard.prerequisites.map((flashcardData, index) => (
+                      {prerequisites.map((flashcardData, index) => (
                         <FlashcardLine key={index} flashcardData={flashcardData} />
                       ))}
                     </div>
                   )}
-                  {flashcard?.usedIn && flashcard.usedIn.length > 0 && (
+                  {usedIn.length > 0 && (
                     <div id="usedIn">
                       <div className="flashcardSection">Used in</div>
 
-                      {flashcard?.usedIn.map((flashcardData, index) => (
+                      {usedIn.map((flashcardData, index) => (
                         <FlashcardLine key={index} flashcardData={flashcardData} />
                       ))}
                     </div>

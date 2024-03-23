@@ -31,54 +31,63 @@ app.use(function (req, res, next) {
   next();
 });
 
+const completeFlashcard = async (flashcard, userFlashcardInfos) => {
+  const usedInFlashcard = await FlashcardModel.find({ prerequisites: { $in: [flashcard._id] } }).lean();
+  const usedInFlashcardIds = usedInFlashcard.map((_) => _._id);
+  const info =
+    userFlashcardInfos.find((info) => {
+      return info.flashcard.equals(flashcard._id);
+    }) || {};
+  return {
+    ...flashcard,
+    usedIn: usedInFlashcardIds,
+    hasBeenRead: info.hasBeenRead || false,
+    nextReviewDate: info.nextReviewDate,
+  };
+};
+
 app.get("/api/flashcards", auth, (req, res) => {
-  const { filter, searchString, tagId, prerequisites } = req.query;
-  if (filter === "Draft" || filter === "To be validated" || filter === "Published" || prerequisites !== undefined) {
-    UserFlashcardInfoModel.find({ user: req.user._id }).then((userFlashcardInfos) => {
-      const status = filter ? { status: filter } : {};
-      const stringSearch = searchString ? { $text: { $search: searchString } } : {};
-      const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
-      const prerequisitesSearch = prerequisites ? { prerequisites } : {};
-      const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
-      FlashcardModel.find({ ...status, ...stringSearch, ...tagSearch, ...prerequisitesSearch, ...otherFilter })
-        .sort("-creationDate")
-        .skip(parseInt(req.query.skip) || 0)
-        .limit(parseInt(req.query.limit) || 30)
-        .populate("author", "username")
-        .populate({
-          path: "tags",
-          populate: { path: "label" },
+  const { filter, searchString, tagId, prerequisitesAndUsedIn } = req.query;
+  if (
+    filter === "Draft" ||
+    filter === "To be validated" ||
+    filter === "Published" ||
+    prerequisitesAndUsedIn !== undefined
+  ) {
+    UserFlashcardInfoModel.find({ user: req.user._id })
+      .then((userFlashcardInfos) => {
+        const status = filter ? { status: filter } : {};
+        const stringSearch = searchString ? { $text: { $search: searchString } } : {};
+        const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
+        const prerequisitesAndUsedInSearch = prerequisitesAndUsedIn ? { _id: { $in: prerequisitesAndUsedIn } } : {};
+        const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
+        FlashcardModel.find({
+          ...status,
+          ...stringSearch,
+          ...tagSearch,
+          ...prerequisitesAndUsedInSearch,
+          ...otherFilter,
         })
-        .populate({
-          path: "prerequisites",
-          populate: { path: "author title status" },
-        })
-        .lean()
-        .then((flashcards) => {
-          res.send(
-            flashcards.map((flashcard) => {
-              const info =
-                userFlashcardInfos.find((info) => {
-                  return info.flashcard.equals(flashcard._id);
-                }) || {};
-              return {
-                ...flashcard,
-                hasBeenRead: info.hasBeenRead || false,
-                nextReviewDate: info.nextReviewDate,
-                prerequisites:
-                  flashcard.prerequisites?.map((el) => {
-                    const info =
-                      userFlashcardInfos.find((info) => {
-                        return info.flashcard.equals(el._id);
-                      }) || {};
-                    return { ...el, hasBeenRead: info.hasBeenRead, nextReviewDate: info.nextReviewDate };
-                  }) || [],
-              };
-            })
-          );
-        })
-        .catch((err) => console.log(err));
-    });
+          .sort("-creationDate")
+          .skip(parseInt(req.query.skip) || 0)
+          .limit(parseInt(req.query.limit) || 30)
+          .populate("author", "username")
+          .populate({
+            path: "tags",
+            populate: { path: "label" },
+          })
+          .lean()
+          .then(async (flashcards) => {
+            var results = await Promise.all(
+              flashcards.map(async (flashcard) => {
+                return completeFlashcard(flashcard, userFlashcardInfos);
+              })
+            );
+            res.send(results);
+          })
+          .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
   } else if (filter === "My favorites" || filter === "To be reviewed") {
     UserFlashcardInfoModel.find({
       user: req.user._id,
@@ -88,33 +97,14 @@ app.get("/api/flashcards", auth, (req, res) => {
         FlashcardModel.find({ _id: userFlashcardInfos.map((el) => el.flashcard) })
           .populate("author", "username")
           .populate("tags", "label")
-          .populate({
-            path: "prerequisites",
-            populate: { path: "title" },
-          })
           .lean()
-          .then((flashcards) => {
-            res.send(
-              flashcards.map((flashcard) => {
-                const info =
-                  userFlashcardInfos.find((info) => {
-                    return info.flashcard.equals(flashcard._id);
-                  }) || {};
-                return {
-                  ...flashcard,
-                  hasBeenRead: info.hasBeenRead || false,
-                  nextReviewDate: info.nextReviewDate,
-                  prerequisites:
-                    flashcard.prerequisites?.map((el) => {
-                      const info =
-                        userFlashcardInfos.find((info) => {
-                          return info.flashcard.equals(el._id);
-                        }) || {};
-                      return { ...el, hasBeenRead: info.hasBeenRead, nextReviewDate: info.nextReviewDate };
-                    }) || [],
-                };
+          .then(async (flashcards) => {
+            var results = await Promise.all(
+              flashcards.map(async (flashcard) => {
+                return completeFlashcard(flashcard, userFlashcardInfos);
               })
             );
+            res.send(results);
           })
           .catch((err) => console.log(err));
       })
@@ -133,29 +123,10 @@ app.get("/api/flashcards/:id", auth, (req, res) => {
             path: "tags",
             populate: { path: "label" },
           })
-          .populate({
-            path: "prerequisites",
-            populate: { path: "author title status" },
-          })
           .lean()
-          .then((flashcard) => {
-            const info =
-              userFlashcardInfos.find((info) => {
-                return info.flashcard.equals(flashcard._id);
-              }) || {};
-            res.send({
-              ...flashcard,
-              hasBeenRead: info.hasBeenRead || false,
-              nextReviewDate: info.nextReviewDate,
-              prerequisites:
-                flashcard.prerequisites?.map((el) => {
-                  const info =
-                    userFlashcardInfos.find((info) => {
-                      return info.flashcard.equals(el._id);
-                    }) || {};
-                  return { ...el, hasBeenRead: info.hasBeenRead, nextReviewDate: info.nextReviewDate };
-                }) || [],
-            });
+          .then(async (flashcard) => {
+            const result = await completeFlashcard(flashcard, userFlashcardInfos);
+            res.send(result);
           })
           .catch((err) => console.log(err));
       });
@@ -202,10 +173,6 @@ app.put("/api/flashcards/:id", auth, function (req, res) {
     .populate({
       path: "tags",
       populate: { path: "label" },
-    })
-    .populate({
-      path: "prerequisites",
-      populate: { path: "author title status" },
     })
     .then((updatedFlashcard) => {
       res.send({ data: updatedFlashcard });
