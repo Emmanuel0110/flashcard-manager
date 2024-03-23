@@ -562,7 +562,7 @@ button:focus {
   height: 100%;
 }
 
-#openedFlashcard {
+#openedFlashcards {
   height: 100%;
   overflow: auto;
 }

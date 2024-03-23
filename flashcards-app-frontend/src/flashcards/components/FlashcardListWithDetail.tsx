@@ -48,7 +48,7 @@ export default function FlashcardListWithDetail({
     }
   }, [flashcardId]);
   const [currentFlashcard, prerequisites, usedIn] = useMemo(() => {
-    let curflash = flashcards.find((flashcard) => flashcard._id === flashcardId);
+    const curflash = flashcards.find((flashcard) => flashcard._id === flashcardId);
     if (curflash) {
       const missingPrerequisitesAndUsedIn = getMissingPrerequisitesAndUsedIn(curflash, flashcards);
       if (missingPrerequisitesAndUsedIn.length > 0) {
@@ -83,7 +83,7 @@ export default function FlashcardListWithDetail({
         <FlashcardList filteredFlashcards={filteredFlashcards} />
       </div>
       <div id="right">
-        <div id="openedFlashcard">
+        <div id="openedFlashcards">
           {currentFlashcard && (
             <>
               <TabNav openedFlashcards={openedFlashcards} currentFlashcardId={flashcardId} />
