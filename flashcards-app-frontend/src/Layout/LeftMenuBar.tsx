@@ -31,7 +31,7 @@ function LeftMenuBar() {
   };
 
   const openNewDraft = () => {
-    saveAsNewFlashcard({ title: "", question: "", answer: "" });
+    saveAsNewFlashcard({ title: "", question: "", answer: "", prerequisites: [] });
   }
 
   return (

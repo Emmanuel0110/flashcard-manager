@@ -148,7 +148,7 @@ app.post("/api/flashcards", auth, function (req, res) {
     .save()
     .then((newElement) => newElement.populate("author", "username"))
     .then((newElement) => newElement.populate("tags", "label"))
-    .then((newElement) => res.send({ data: newElement }))
+    .then((newElement) => res.send({ data: {...newElement.toObject(), usedIn: []} }))
     .catch(function (err) {
       console.log("save error ", err);
       if (err.name === "MongoError" && err.code === 11000) {

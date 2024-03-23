@@ -202,7 +202,7 @@ export default function FlashcardDetail({
   }
   options.push({
     callback: (flashcard: Flashcard) => {
-      saveAsNewFlashcard({ title: flashcard!.title, question: flashcard!.question, answer: flashcard!.answer });
+      saveAsNewFlashcard({ title: flashcard!.title, question: flashcard!.question, answer: flashcard!.answer, prerequisites: flashcard!.prerequisites });
     },
     label: "Save as new",
   });
