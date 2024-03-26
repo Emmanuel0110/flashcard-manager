@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Nav } from "react-bootstrap";
 import { ConfigContext } from "../App";
-import { Flashcard, OpenFlashcardData } from "../types";
+import { OpenFlashcardData } from "../types";
 import { useNavigate } from "react-router-dom";
 
 function TabNav({
@@ -12,11 +12,11 @@ function TabNav({
   currentFlashcardId: string;
 }) {
   const {
-    flashcards,
     setOpenedFlashcards,
+    closeTab,
   }: {
-    flashcards: Flashcard[];
     setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
+    closeTab: (index: number) => void;
   } = useContext(ConfigContext);
   const navigate = useNavigate();
 
@@ -30,27 +30,18 @@ function TabNav({
         >
           {openedFlashcards.length > 0 &&
             openedFlashcards.map((openedFlashcard, index) => {
-              const flashcard = flashcards.find((flashcard: Flashcard) => flashcard._id === openedFlashcard.id);
-              return flashcard ? (
+              return (
                 <Nav.Item key={index}>
-                  <Nav.Link eventKey={flashcard._id}>
+                  <Nav.Link eventKey={openedFlashcard.data._id}>
                     {
                       <>
-                        {flashcard.title.substring(0, 15) + "..."}
+                        {openedFlashcard.data.title.substring(0, 15) + "..."}
                         <div className="tabCloseContainer">
                           <div
                             className="tabCloseHover"
                             onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                               e.stopPropagation();
-                              setOpenedFlashcards((openedFlashcards) =>
-                                openedFlashcards.filter((flashcard, indexOpenFlashcard) => indexOpenFlashcard !== index)
-                              );
-                              navigate(
-                                openedFlashcards.length > 1
-                                  ? "/flashcards/" +
-                                      (openedFlashcards[index + 1]?.id || openedFlashcards[index - 1]?.id)
-                                  : "/flashcards"
-                              );
+                              closeTab(index);
                             }}
                           >
                             <div className="tabClose"></div>
@@ -60,7 +51,7 @@ function TabNav({
                     }
                   </Nav.Link>
                 </Nav.Item>
-              ) : null;
+              );
             })}
         </Nav>
         {openedFlashcards.length > 1 && (

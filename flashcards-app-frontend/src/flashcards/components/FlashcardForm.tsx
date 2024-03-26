@@ -1,43 +1,13 @@
 import "../../App.css";
 import { Editor } from "@tinymce/tinymce-react";
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
-import { edit, getRemoteFlashcardById, saveNewTag } from "../flashcardActions";
-import { ConfigContext, updateListWithNewFlashcards } from "../../App";
+import { saveNewTag } from "../flashcardActions";
+import { ConfigContext } from "../../App";
 import { Flashcard, OpenFlashcardData, Tag } from "../../types";
 import AutoComplete from "../../utils/Autocomplete";
 import { FlashcardLine } from "./FlashcardLine";
-
-export const useEditFlashcard = () => {
-  const { setFlashcards } = useContext(ConfigContext);
-  return (infos: Partial<Flashcard>) => {
-    edit(infos)
-      .then(({ data: updatedFlashcard }: { data: Flashcard }) => {
-        setFlashcards((flashcards: Flashcard[]) =>
-          flashcards.map((flashcard) => {
-            return flashcard._id === updatedFlashcard._id ? { ...flashcard, ...updatedFlashcard } : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashacard instead of replacing it
-          })
-        );
-      })
-      .catch((err: Error) => {
-        console.log(err);
-      });
-  };
-};
-
-export const useGetFlashcardById = () => {
-  const { flashcards, setFlashcards }: { flashcards: Flashcard[]; setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;} = useContext(ConfigContext);
-  return (id: string): Promise<Flashcard> => {
-    const flashcard = flashcards.find((flashcard) => flashcard._id === id);
-    return flashcard
-      ? Promise.resolve(flashcard)
-      : getRemoteFlashcardById(id).then((flashcard) => {
-        setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, [flashcard]));
-          return flashcard;
-        });
-  };
-};
 
 export default function FlashcardForm({
   flashcard,
@@ -55,27 +25,29 @@ export default function FlashcardForm({
     tags,
     setTags,
     setOpenedFlashcards,
+    saveFlashcard,
+    getFlashcardById,
   }: {
     tags: Tag[];
     setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
     setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
+    saveFlashcard: (infos: Partial<Flashcard>) => void;
+    getFlashcardById: (id: string) => Promise<Flashcard>;
   } = useContext(ConfigContext);
-  const editFlashcard = useEditFlashcard();
-  const getFlashcardById = useGetFlashcardById();
 
   useEffect(() => {
     setLocalTags(flashcard.tags);
     setLocalPrerequisites(prerequisites);
   }, [flashcard]);
 
-  const saveOrEditFlashcard = () => {
+  const onSave = () => {
     if (questionRef.current && answerRef.current) {
       const title = questionRef.current.getContent({ format: "text" });
       const question = questionRef.current.getContent();
       const answer = answerRef.current.getContent();
       const tags = localTags;
       const prerequisites = localPrerequisites.map((_) => _._id);
-      editFlashcard({ _id: flashcard._id, title, question, answer, tags, prerequisites });
+      saveFlashcard({ _id: flashcard._id, title, question, answer, tags, prerequisites });
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openedFlashcard) =>
           openedFlashcard.id === flashcard._id ? { ...openedFlashcard, unsavedData: undefined } : openedFlashcard
@@ -112,7 +84,7 @@ export default function FlashcardForm({
   return (
     <div id="flashcardForm">
       <div className="buttonHeader">
-        <Button onClick={saveOrEditFlashcard}>Save</Button>
+        <Button onClick={onSave}>Save</Button>
       </div>
       <div id="form">
         <div id="question">

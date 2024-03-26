@@ -12,7 +12,7 @@ export const saveNewFlashcard = async (args: Partial<Flashcard>) => {
   return customFetch(url + "flashcards", { method: "POST", headers: authHeaders(), body });
 };
 
-export const edit = async ({ _id, ...args }: Partial<Flashcard>) => {
+export const editRemoteFlashcard = async ({ _id, ...args }: Partial<Flashcard>) => {
   const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) || [] };
   const body = JSON.stringify(formattedArgs);
   return customFetch(url + "flashcards/" + _id, { method: "PUT", headers: authHeaders(), body });

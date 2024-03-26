@@ -1,6 +1,5 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { deleteRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
-import { Flashcard, OpenFlashcardData, User } from "../../types";
+import { useParams } from "react-router-dom";
+import { Flashcard, User } from "../../types";
 import { useContext } from "react";
 import { ConfigContext } from "../../App";
 
@@ -12,66 +11,33 @@ export const FlashcardLine = ({
   const { flashcardId } = useParams();
   const {
     user,
-    flashcards,
-    setFlashcards,
-    setOpenedFlashcards,
+    deleteFlashcard,
+    openFlashcard,
+    editFlashcard,
+    subscribeToFlashcard,
   }: {
     user: User;
-    flashcards: Flashcard[];
-    setFlashcards: React.Dispatch<React.SetStateAction<Flashcard[]>>;
-    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
+    deleteFlashcard: (id: string) => void;
+    openFlashcard: (id: string) => void;
+    editFlashcard: (id: string) => void;
+    subscribeToFlashcard: ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => void;
   } = useContext(ConfigContext);
-  const navigate = useNavigate();
 
   const { _id, author, title, status, nextReviewDate, hasBeenRead } = flashcardData;
 
-  const openFlashcard = (id: string) => {
-    setOpenedFlashcards((openedFlashcards) =>
-      openedFlashcards.find((flashcard) => flashcard.id === id)
-        ? openedFlashcards
-        : [...openedFlashcards, { id: flashcards.find((el: Flashcard) => el._id === id)!._id }]
-    );
-    navigate("/flashcards/" + id);
+  const onEdit = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    editFlashcard(id);
   };
 
-  const editFlashcard = (e: React.MouseEvent, id: string) => {
+  const onDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    setOpenedFlashcards((openedFlashcards) => {
-      const flashcard = flashcards.find((el) => el._id === id)!;
-      const openedFlashcard = openedFlashcards.find((el) => el.id === id);
-      if (openedFlashcard) {
-        return openedFlashcard.unsavedData
-          ? openedFlashcards
-          : openedFlashcards.map((el) => (el.id === id ? { ...el, unsavedData: flashcard } : el));
-      } else {
-        return [...openedFlashcards, { id: flashcard._id, unsavedData: flashcard }];
-      }
-    });
-    navigate("/flashcards/" + id);
+    deleteFlashcard(id);
   };
 
-  const deleteFlashcard = (e: React.MouseEvent, id: string) => {
+  const onSubscribe = (e: React.MouseEvent, { _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
     e.stopPropagation();
-    deleteRemoteFlashcard(id).then((res) => {
-      if (res.success) {
-        setFlashcards((flashcards: Flashcard[]) => flashcards.filter((flashcard) => flashcard._id !== id));
-      }
-    });
-  };
-
-  const subscribeToFlashcard = (e: React.MouseEvent, { _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
-    e.stopPropagation();
-    subscribeToRemoteFlashcard({ _id, hasBeenRead, nextReviewDate }).then((res) => {
-      if (res.success) {
-        setFlashcards((flashcards: Flashcard[]) =>
-          flashcards.map((flashcard) => {
-            return flashcard._id === _id
-              ? { ...flashcard, nextReviewDate: flashcard.nextReviewDate instanceof Date ? undefined : new Date() }
-              : flashcard;
-          })
-        );
-      }
-    });
+    subscribeToFlashcard({ _id, hasBeenRead, nextReviewDate });
   };
 
   return (
@@ -85,14 +51,14 @@ export const FlashcardLine = ({
             )}
             <div
               className={"subscribe" + (nextReviewDate instanceof Date ? " subscribed" : "")}
-              onClick={(e) => subscribeToFlashcard(e, { _id, hasBeenRead })}
+              onClick={(e) => onSubscribe(e, { _id, hasBeenRead, nextReviewDate })}
             ></div>
           </>
         )}
         {user._id === author._id && (
           <>
-            <div className="edit" onClick={(e) => editFlashcard(e, _id)}></div>
-            <div className="delete" onClick={(e) => deleteFlashcard(e, _id)}></div>
+            <div className="edit" onClick={(e) => onEdit(e, _id)}></div>
+            <div className="delete" onClick={(e) => onDelete(e, _id)}></div>
           </>
         )}
       </div>

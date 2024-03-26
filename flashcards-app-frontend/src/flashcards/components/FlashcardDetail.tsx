@@ -1,13 +1,11 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
 import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
 import { editUserFlashcardInfo, readRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
-import { useEditFlashcard } from "./FlashcardForm";
 import { FlashcardLine } from "./FlashcardLine";
-import { useSaveAsNewFlashcard } from "../../Layout/LeftMenuBar";
 
 export default function FlashcardDetail({
   flashcard,
@@ -30,6 +28,8 @@ export default function FlashcardDetail({
     setFilter,
     setSearchFilter,
     tags,
+    saveFlashcard,
+    saveAsNewFlashcard,
   }: {
     flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
@@ -40,18 +40,18 @@ export default function FlashcardDetail({
     setFilter: Dispatch<SetStateAction<string>>;
     setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
     tags: Tag[];
+    saveFlashcard: (infos: Partial<Flashcard>) => void;
+    saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
   } = useContext(ConfigContext);
   const [answerVisible, setAnswerVisible] = useState(filter !== "To be reviewed");
   const navigate = useNavigate();
-  const saveAsNewFlashcard = useSaveAsNewFlashcard();
-  const editFlashcard = useEditFlashcard();
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown); // TODO: only one time on component mount
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [flashcardId]);
+  }, [flashcardId, filteredFlashcards]);
 
   useEffect(() => {
     if (flashcard && !flashcard.hasBeenRead) {
@@ -84,8 +84,10 @@ export default function FlashcardDetail({
   const goToPreviousFlashcard = () => {
     if (hasPreviousFlashcard()) {
       setOpenedFlashcards((openedFlashcards) =>
-        openedFlashcards.map((flashcard) =>
-          flashcard.id === flashcardId ? { ...flashcard, id: filteredFlashcards[currentIndex - 1]._id } : flashcard
+        openedFlashcards.map((openFlashcardData) =>
+          openFlashcardData.id === flashcardId
+            ? { id: filteredFlashcards[currentIndex - 1]._id, data: filteredFlashcards[currentIndex - 1] }
+            : openFlashcardData
         )
       );
       navigate("/flashcards/" + filteredFlashcards[currentIndex - 1]._id);
@@ -97,8 +99,10 @@ export default function FlashcardDetail({
   const goToNextFlashcard = () => {
     if (hasNextFlashcard()) {
       setOpenedFlashcards((openedFlashcards) =>
-        openedFlashcards.map((flashcard) =>
-          flashcard.id === flashcardId ? { ...flashcard, id: filteredFlashcards[currentIndex + 1]._id } : flashcard
+        openedFlashcards.map((openFlashcardData) =>
+          openFlashcardData.id === flashcardId
+            ? {id: filteredFlashcards[currentIndex + 1]._id, data: filteredFlashcards[currentIndex + 1] }
+            : openFlashcardData
         )
       );
       navigate("/flashcards/" + filteredFlashcards[currentIndex + 1]._id);
@@ -131,7 +135,7 @@ export default function FlashcardDetail({
 
   const submitForValidation = () => {
     if (flashcard) {
-      editFlashcard({ _id: flashcard._id, status: "To be validated" });
+      saveFlashcard({ _id: flashcard._id, status: "To be validated" });
       if (hasNextFlashcard()) {
         goToNextFlashcard();
       } else navigate("/flashcards/");
@@ -140,7 +144,7 @@ export default function FlashcardDetail({
 
   const publish = () => {
     if (flashcard) {
-      editFlashcard({ _id: flashcard._id, status: "Published" });
+      saveFlashcard({ _id: flashcard._id, status: "Published" });
       if (hasNextFlashcard()) {
         goToNextFlashcard();
       } else navigate("/flashcards/");
@@ -202,7 +206,12 @@ export default function FlashcardDetail({
   }
   options.push({
     callback: (flashcard: Flashcard) => {
-      saveAsNewFlashcard({ title: flashcard!.title, question: flashcard!.question, answer: flashcard!.answer, prerequisites: flashcard!.prerequisites });
+      saveAsNewFlashcard({
+        title: flashcard!.title,
+        question: flashcard!.question,
+        answer: flashcard!.answer,
+        prerequisites: flashcard!.prerequisites,
+      });
     },
     label: "Save as new",
   });

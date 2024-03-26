@@ -1,38 +1,26 @@
-import { Dispatch, SetStateAction, useContext } from "react";
+import { useContext } from "react";
 import { Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import { ConfigContext } from "../App";
-import { saveNewFlashcard } from "../flashcards/flashcardActions";
 import { Flashcard, OpenFlashcardData } from "../types";
 
-export const useSaveAsNewFlashcard = () => {
-  const navigate = useNavigate();
-  const { setFlashcards, setOpenedFlashcards } : {setFlashcards: Dispatch<SetStateAction<Flashcard[]>>; setOpenedFlashcards: Dispatch<SetStateAction<OpenFlashcardData[]>>;} = useContext(ConfigContext);
-  return (infos: Partial<Flashcard>) => {
-    saveNewFlashcard(infos)
-      .then(({ data: newFlashcard }) => {
-        setFlashcards((flashcards: Flashcard[]) => [...flashcards, newFlashcard]);
-        setOpenedFlashcards((openedFlashcards) => [...openedFlashcards, { id: newFlashcard._id, unsavedData: newFlashcard }]);
-        navigate("/flashcards/" + newFlashcard._id);
-      })
-      .catch((err: Error) => {
-        console.log(err);
-      });
-  };
-};
-
 function LeftMenuBar() {
-  const { filter, setFilter, setOpenedFlashcards } = useContext(ConfigContext);
-  const saveAsNewFlashcard = useSaveAsNewFlashcard();
+  const {
+    filter,
+    setFilter,
+    saveAsNewFlashcard,
+  }: {
+    filter: string;
+    setFilter: React.Dispatch<React.SetStateAction<string>>;
+    saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
+  } = useContext(ConfigContext);
 
   const startReview = () => {
-    setOpenedFlashcards([]);
     setFilter("To be reviewed");
   };
 
   const openNewDraft = () => {
     saveAsNewFlashcard({ title: "", question: "", answer: "", prerequisites: [] });
-  }
+  };
 
   return (
     <div id="leftSideMenu">

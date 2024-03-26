@@ -2,9 +2,9 @@ import { Flashcard, OpenFlashcardData } from "../../types";
 import { useParams } from "react-router-dom";
 import useSplitPane from "../../utils/useSplitPane";
 import FlashcardList from "./FlashcardList";
-import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ConfigContext, updateListWithNewFlashcards } from "../../App";
-import FlashcardForm, { useGetFlashcardById } from "./FlashcardForm";
+import FlashcardForm from "./FlashcardForm";
 import { getRemotePrerequisiteAndUsedIn } from "../flashcardActions";
 import TabNav from "../../Layout/TabNav";
 import FlashcardDetail from "./FlashcardDetail";
@@ -26,56 +26,68 @@ export default function FlashcardListWithDetail({
     flashcards,
     setFlashcards,
     setOpenedFlashcards,
+    getFlashcardById,
   }: {
     flashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
     setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
+    getFlashcardById: (id: string) => Promise<Flashcard>;
   } = useContext(ConfigContext);
   const flashcardId = useParams().flashcardId!;
+  const [currentOpenedFlashcard, setCurrentOpenedFlashcard] = useState<OpenFlashcardData | null>(null);
+  const [prerequisites, setPrerequisites] = useState<Flashcard[]>([]);
+  const [usedIn, setdUsedIn] = useState<Flashcard[]>([]);
   const loading = useRef(false);
   const prerequisitesAndusedInLoading = useRef(false);
-  const getFlashcardById = useGetFlashcardById();
+
   useSplitPane(["#left", "#right"], "horizontal", [50, 50]);
+
   useEffect(() => {
-    if (!openedFlashcards.find(({ id }) => id === flashcardId) && !loading.current) {
-      loading.current = true;
-      getFlashcardById(flashcardId).then((flashcard) => {
+    if (!loading.current) {
+      const currentOpenedFlashcard = openedFlashcards.find(({ id }) => id === flashcardId);
+      if (currentOpenedFlashcard) {
+        setCurrentOpenedFlashcard(currentOpenedFlashcard);
+      } else {
+        const flashcard = flashcards.find(({ _id }) => _id === flashcardId);
         if (flashcard) {
-          setOpenedFlashcards((openedFlashcards) => [...openedFlashcards, { id: flashcard._id }]);
-        }
-        loading.current = false;
-      });
-    }
-  }, [flashcardId]);
-  const [currentFlashcard, prerequisites, usedIn] = useMemo(() => {
-    const curflash = flashcards.find((flashcard) => flashcard._id === flashcardId);
-    if (curflash) {
-      const missingPrerequisitesAndUsedIn = getMissingPrerequisitesAndUsedIn(curflash, flashcards);
-      if (missingPrerequisitesAndUsedIn.length > 0) {
-        if (!prerequisitesAndusedInLoading.current) {
-          prerequisitesAndusedInLoading.current = true;
-          getRemotePrerequisiteAndUsedIn(missingPrerequisitesAndUsedIn).then(
-            (missingPrerequisitesAndUsedInFlashcards) => {
-              prerequisitesAndusedInLoading.current = false;
-              setFlashcards((flashcards) =>
-                updateListWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards)
-              );
-            }
-          );
+          const currentOpenedFlashcard: OpenFlashcardData = { id: flashcard._id, data: flashcard };
+          setOpenedFlashcards((openedFlashcards) => [...openedFlashcards, currentOpenedFlashcard]);
+          setCurrentOpenedFlashcard(currentOpenedFlashcard);
+        } else {
+          loading.current = true;
+          getFlashcardById(flashcardId).then(() => (loading.current = false));
         }
       }
-      return [
-        curflash,
-        missingPrerequisitesAndUsedIn.length > 0
-          ? []
-          : curflash.prerequisites.map((prerequisite) => flashcards.find((_) => _._id === prerequisite)!),
-        missingPrerequisitesAndUsedIn.length > 0
-          ? []
-          : curflash.usedIn.map((usedIn) => flashcards.find((_) => _._id === usedIn)!),
-      ];
-    } else return [undefined, undefined, undefined];
+    }
   }, [flashcards, flashcardId]);
-  const currentOpenedFlashcard = openedFlashcards.find((flashcard) => flashcard.id === flashcardId);
+
+  useEffect(() => {
+    if (currentOpenedFlashcard && !prerequisitesAndusedInLoading.current) {
+      const missingPrerequisitesAndUsedIn = getMissingPrerequisitesAndUsedIn(currentOpenedFlashcard.data, flashcards);
+      if (missingPrerequisitesAndUsedIn.length === 0) {
+        const [prerequisites, usedIn] = getPrerequisitesAndUsedIn(currentOpenedFlashcard.data);
+        setPrerequisites(prerequisites);
+        setdUsedIn(usedIn);
+      } else {
+        prerequisitesAndusedInLoading.current = true;
+        getRemotePrerequisiteAndUsedIn(missingPrerequisitesAndUsedIn).then(
+          (missingPrerequisitesAndUsedInFlashcards) => {
+            prerequisitesAndusedInLoading.current = false;
+            setFlashcards((flashcards) =>
+              updateListWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards)
+            );
+          }
+        );
+      }
+    }
+  }, [currentOpenedFlashcard, flashcards]);
+
+  const getPrerequisitesAndUsedIn = (flashcard: Flashcard) => {
+    return [
+      flashcard.prerequisites.map((prerequisiteId) => flashcards.find(({ _id }) => _id === prerequisiteId)!),
+      flashcard.usedIn.map((usedInId) => flashcards.find(({ _id }) => _id === usedInId)!),
+    ];
+  };
 
   return (
     <div id="splitContainer">
@@ -83,19 +95,16 @@ export default function FlashcardListWithDetail({
         <FlashcardList filteredFlashcards={filteredFlashcards} />
       </div>
       <div id="right">
-        <div id="openedFlashcards">
-          {currentFlashcard && (
-            <>
-              <TabNav openedFlashcards={openedFlashcards} currentFlashcardId={flashcardId} />
-              {currentOpenedFlashcard &&
-                (currentOpenedFlashcard.unsavedData ? (
-                  <FlashcardForm flashcard={currentOpenedFlashcard.unsavedData} prerequisites={prerequisites} />
-                ) : (
-                  <FlashcardDetail flashcard={currentFlashcard} prerequisites={prerequisites} usedIn={usedIn} />
-                ))}
-            </>
-          )}
-        </div>
+        {currentOpenedFlashcard && (
+          <div id="openedFlashcards">
+            <TabNav openedFlashcards={openedFlashcards} currentFlashcardId={flashcardId} />
+            {currentOpenedFlashcard.unsavedData ? (
+              <FlashcardForm flashcard={currentOpenedFlashcard.unsavedData} prerequisites={prerequisites} />
+            ) : (
+              <FlashcardDetail flashcard={currentOpenedFlashcard.data} prerequisites={prerequisites} usedIn={usedIn} />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

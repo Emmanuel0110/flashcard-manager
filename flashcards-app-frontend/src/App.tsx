@@ -10,7 +10,14 @@ import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "./types";
 import FlashcardList from "./flashcards/components/FlashcardList";
 import { authHeaders, customFetch } from "./utils/http-helpers";
 import FlashcardListWithDetail from "./flashcards/components/FlashcardListWithDetail";
-import { fetchTags } from "./flashcards/flashcardActions";
+import {
+  deleteRemoteFlashcard,
+  editRemoteFlashcard,
+  fetchTags,
+  getRemoteFlashcardById,
+  saveNewFlashcard,
+  subscribeToRemoteFlashcard,
+} from "./flashcards/flashcardActions";
 
 export let url = "/api/";
 
@@ -86,8 +93,10 @@ export default function App() {
       0,
       30
     ).then(() => {
-      if (filter === "To be reviewed" && filteredFlashcards.length > 0)
+      if (filter === "To be reviewed" && filteredFlashcards.length > 0) {
+        setOpenedFlashcards([]);
         navigate("/flashcards/" + filteredFlashcards[0]._id);
+      }
     });
   }, [filter, searchFilter, isAuthenticated]);
 
@@ -105,6 +114,113 @@ export default function App() {
       );
     });
   }, [flashcards, filter, searchFilter]);
+
+  const closeTab = (tabIndex: number) => {
+    setOpenedFlashcards((openedFlashcards) =>
+      openedFlashcards.filter((flashcard, indexOpenFlashcard) => indexOpenFlashcard !== tabIndex)
+    );
+    navigate(
+      openedFlashcards.length > 1
+        ? "/flashcards/" + (openedFlashcards[tabIndex + 1]?.id || openedFlashcards[tabIndex - 1]?.id)
+        : "/flashcards"
+    );
+  };
+
+  const deleteFlashcard = (flashcardId: string) => {
+    deleteRemoteFlashcard(flashcardId).then((res) => {
+      if (res.success) {
+        setFlashcards((flashcards: Flashcard[]) => flashcards.filter((flashcard) => flashcard._id !== flashcardId));
+        const tabIndex = openedFlashcards.findIndex(({ id }) => id === flashcardId);
+        if (tabIndex >= 0) closeTab(tabIndex);
+      }
+    });
+  };
+
+  const openFlashcard = (flashcardId: string) => {
+    const flashcard = flashcards.find(({ _id }) => _id === flashcardId);
+    if (flashcard) {
+      setOpenedFlashcards((openedFlashcards) =>
+        openedFlashcards.find(({ id }) => id === flashcardId)
+          ? openedFlashcards
+          : [...openedFlashcards, { id: flashcardId, data: flashcard }]
+      );
+      navigate("/flashcards/" + flashcardId);
+    }
+  };
+
+  const editFlashcard = (flashcardId: string) => {
+    const flashcard = flashcards.find(({ _id }) => _id === flashcardId);
+    if (flashcard) {
+      setOpenedFlashcards((openedFlashcards) => {
+        const openedFlashcard = openedFlashcards.find(({ id }) => id === flashcardId);
+        if (openedFlashcard) {
+          return openedFlashcard.unsavedData
+            ? openedFlashcards
+            : openedFlashcards.map((el) => (el.id === flashcardId ? { ...el, unsavedData: flashcard } : el));
+        } else {
+          return [...openedFlashcards, { id: flashcardId, data: flashcard, unsavedData: flashcard }];
+        }
+      });
+      navigate("/flashcards/" + flashcardId);
+    }
+  };
+
+  const subscribeToFlashcard = ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
+    subscribeToRemoteFlashcard({ _id, hasBeenRead, nextReviewDate }).then((res) => {
+      if (res.success) {
+        setFlashcards((flashcards: Flashcard[]) =>
+          flashcards.map((flashcard) => {
+            return flashcard._id === _id
+              ? { ...flashcard, nextReviewDate: flashcard.nextReviewDate instanceof Date ? undefined : new Date() }
+              : flashcard;
+          })
+        );
+      }
+    });
+  };
+
+  const saveFlashcard = () => {
+    return (infos: Partial<Flashcard>) => {
+      editRemoteFlashcard(infos)
+        .then(({ data: updatedFlashcard }: { data: Flashcard }) => {
+          setFlashcards((flashcards: Flashcard[]) =>
+            flashcards.map((flashcard) => {
+              return flashcard._id === updatedFlashcard._id ? { ...flashcard, ...updatedFlashcard } : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashcard instead of replacing it
+            })
+          );
+        })
+        .catch((err: Error) => {
+          console.log(err);
+        });
+    };
+  };
+
+  const saveAsNewFlashcard = (infos: Partial<Flashcard>) => {
+    saveNewFlashcard(infos)
+      .then(({ data: newFlashcard }) => {
+        setFlashcards((flashcards: Flashcard[]) => [...flashcards, newFlashcard]);
+        setOpenedFlashcards((openedFlashcards) => [
+          ...openedFlashcards,
+          { id: newFlashcard._id, data: newFlashcard, unsavedData: newFlashcard },
+        ]);
+        navigate("/flashcards/" + newFlashcard._id);
+      })
+      .catch((err: Error) => {
+        console.log(err);
+      });
+  };
+
+  const getFlashcardById = (id: string): Promise<Flashcard> => {
+    const flashcard = flashcards.find(({ _id }) => _id === id);
+    return flashcard
+      ? Promise.resolve(flashcard)
+      : getRemoteFlashcardById(id).then((flashcard) => {
+          if (flashcard) {
+            setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, [flashcard]));
+            return flashcard;
+          } else navigate("/flashcards");
+        });
+  };
 
   return (
     <ConfigContext.Provider
@@ -124,6 +240,14 @@ export default function App() {
         setFilter,
         tags,
         setTags,
+        deleteFlashcard,
+        closeTab,
+        openFlashcard,
+        editFlashcard,
+        subscribeToFlashcard,
+        saveFlashcard,
+        saveAsNewFlashcard,
+        getFlashcardById,
       }}
     >
       <Routes>

@@ -31,5 +31,6 @@ export interface SearchFilter {
 
 export interface OpenFlashcardData {
   id: string;
+  data: Flashcard;
   unsavedData?: Flashcard;
 }
