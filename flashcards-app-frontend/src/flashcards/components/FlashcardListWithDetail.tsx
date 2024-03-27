@@ -51,7 +51,7 @@ export default function FlashcardListWithDetail({
         const flashcard = flashcards.find(({ _id }) => _id === flashcardId);
         if (flashcard) {
           const currentOpenedFlashcard: OpenFlashcardData = { id: flashcard._id, data: flashcard };
-          setOpenedFlashcards((openedFlashcards) => [...openedFlashcards, currentOpenedFlashcard]);
+          setOpenedFlashcards([...openedFlashcards, currentOpenedFlashcard]);
           setCurrentOpenedFlashcard(currentOpenedFlashcard);
         } else {
           loading.current = true;
