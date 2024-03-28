@@ -51,7 +51,7 @@ export default function FlashcardListWithDetail({
         const flashcard = flashcards.find(({ _id }) => _id === flashcardId);
         if (flashcard) {
           const currentOpenedFlashcard: OpenFlashcardData = { id: flashcard._id, data: flashcard };
-          setOpenedFlashcards([...openedFlashcards, currentOpenedFlashcard]);
+          setOpenedFlashcards([...openedFlashcards, currentOpenedFlashcard]); //Why is it too slow when I use function in setOpenedFlashcards ?
           setCurrentOpenedFlashcard(currentOpenedFlashcard);
         } else {
           loading.current = true;
@@ -59,7 +59,7 @@ export default function FlashcardListWithDetail({
         }
       }
     }
-  }, [flashcards, flashcardId]);
+  }, [flashcards, flashcardId, openedFlashcards]);
 
   useEffect(() => {
     if (currentOpenedFlashcard && !prerequisitesAndusedInLoading.current) {
