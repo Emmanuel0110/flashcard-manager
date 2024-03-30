@@ -208,7 +208,7 @@ button:focus {
   display: grid;
   grid:
     "previous middle next"
-    /12% 76% 12%;
+    /10% 80% 10%;
 }
 
 #middle {
@@ -246,7 +246,7 @@ button:focus {
 #previousArrow {
   position: absolute;
   top: 190px;
-  right: 20px;
+  right: 10px;
   cursor: pointer;
   mask: url(./images/circle-chevron-left-solid.svg); /*https://fontawesome.com/license*/
   background: #303f9f;
@@ -259,7 +259,7 @@ button:focus {
 #nextArrow {
   position: absolute;
   top: 190px;
-  left: 20px;
+  left: 10px;
   cursor: pointer;
   mask: url(./images/circle-chevron-right-solid.svg); /*https://fontawesome.com/license*/
   background: #303f9f;
@@ -327,13 +327,19 @@ button:focus {
 }
 
 #flashcardForm {
-  padding: 20px;
+  margin-left: 20px;
+  padding-right: 10px;
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 #flashCardComponent {
   position: relative;
-  padding: 20px;
+  margin-left: 20px;
+  padding-right: 10px;
   height: 100%;
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 .infiniteScrollComponent {
@@ -560,8 +566,9 @@ button:focus {
 }
 
 #openedFlashcards {
+  display: flex;
+  flex-flow: column;
   height: 100%;
-  overflow: auto;
 }
 
 #pannelCloseContainer {
@@ -585,4 +592,9 @@ button:focus {
 
 a.nav-link {
   color: #636b74;
+}
+
+#tabNav {
+  flex: 0 1 auto;
+  margin-top: 5px;
 }
