@@ -160,7 +160,7 @@ app.post("/api/flashcards", auth, function (req, res) {
     });
 });
 
-app.put("/api/flashcards/:id", auth, function (req, res) {
+app.patch("/api/flashcards/:id", auth, function (req, res) {
   const { id: _id } = req.params;
 
   const newFlashcard = {

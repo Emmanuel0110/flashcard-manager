@@ -12,7 +12,7 @@ import { FlashcardLine } from "./FlashcardLine";
 export default function FlashcardForm({
   flashcard,
   prerequisites: prerequisiteFlashcards,
-  updateUnsavedData
+  updateUnsavedData,
 }: {
   flashcard: Flashcard;
   prerequisites: Flashcard[];
@@ -35,10 +35,17 @@ export default function FlashcardForm({
     getFlashcardById: (id: string) => Promise<Flashcard>;
   } = useContext(ConfigContext);
 
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [flashcard]);
+  
   const onSave = () => {
     if (questionRef.current && answerRef.current) {
-      const {_id, title, question, answer, tags, prerequisites} = flashcard;
-      saveFlashcard({ _id, title, question, answer, tags, prerequisites});
+      const { _id, title, question, answer, tags, prerequisites } = flashcard;
+      saveFlashcard({ _id, title, question, answer, tags, prerequisites });
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openedFlashcard) =>
           openedFlashcard.id === flashcard._id
@@ -51,11 +58,11 @@ export default function FlashcardForm({
 
   const addTag = ({ _id, label }: { _id?: string; label?: string }) => {
     if (_id && (!flashcard || !flashcard.tags.map((tag) => tag._id).includes(_id))) {
-      updateUnsavedData(flashcard._id, {tags: [...flashcard.tags, tags.find((tag: Tag) => tag._id === _id)!]});
+      updateUnsavedData(flashcard._id, { tags: [...flashcard.tags, tags.find((tag: Tag) => tag._id === _id)!] });
     } else if (label && !tags.map((tag) => tag.label).includes(label)) {
       saveNewTag({ label }).then(({ data: tag }) => {
         setTags((tags: Tag[]) => [...tags, tag]);
-        updateUnsavedData(flashcard._id, {tags: [...flashcard.tags, tag]});
+        updateUnsavedData(flashcard._id, { tags: [...flashcard.tags, tag] });
       });
     }
   };
@@ -65,12 +72,23 @@ export default function FlashcardForm({
   const onPaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const copiedText = e.clipboardData.getData("Text");
-    if (copiedText.length === 24 && !prerequisiteFlashcards.find(({_id}) => _id === copiedText)) {
+    if (copiedText.length === 24 && !prerequisiteFlashcards.find(({ _id }) => _id === copiedText)) {
       getFlashcardById(copiedText).then((prerequisite) => {
         if (prerequisite) {
-          updateUnsavedData(flashcard._id, {prerequisites: [...flashcard.prerequisites, prerequisite._id]});
+          updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, prerequisite._id] });
         }
       });
+    }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "s":
+        if (e.ctrlKey) {
+          e.preventDefault();
+          onSave();
+        }
+        break;
     }
   };
 
@@ -86,10 +104,14 @@ export default function FlashcardForm({
             onInit={(evt, editor) => {
               questionRef.current = editor;
               questionRef.current.setContent(flashcard.question);
+              editor.focus();
             }}
-            onChange={() => updateUnsavedData(flashcard._id, {
-              title: questionRef.current?.getContent({ format: "text" }) || "",
-              question: questionRef.current?.getContent() || ""})}
+            onChange={() =>
+              updateUnsavedData(flashcard._id, {
+                title: questionRef.current?.getContent({ format: "text" }) || "",
+                question: questionRef.current?.getContent() || "",
+              })
+            }
             initialValue={flashcard.question}
             init={{
               placeholder: "Question",
@@ -113,7 +135,7 @@ export default function FlashcardForm({
               answerRef.current = editor;
               answerRef.current.setContent(flashcard.answer);
             }}
-            onChange={() => updateUnsavedData(flashcard._id, {answer: answerRef.current?.getContent() || ""})}
+            onChange={() => updateUnsavedData(flashcard._id, { answer: answerRef.current?.getContent() || "" })}
             initialValue={flashcard.answer}
             init={{
               placeholder: "Answer",
@@ -135,7 +157,9 @@ export default function FlashcardForm({
           {flashcard.tags.map((tag, index) => (
             <div
               key={index}
-              onClick={() => updateUnsavedData(flashcard._id, {tags: flashcard.tags.filter(({_id}) => _id !== tag._id)})}
+              onClick={() =>
+                updateUnsavedData(flashcard._id, { tags: flashcard.tags.filter(({ _id }) => _id !== tag._id) })
+              }
               className="tag"
             >
               {"#" + tag.label}
@@ -156,12 +180,7 @@ export default function FlashcardForm({
             <FlashcardLine key={index} flashcardData={flashcardData} />
           ))}
           <div className="tagInput">
-            <input
-              ref={prerequisiteInputRef}
-              type="text"
-              placeholder="Add a flashcard id"
-              onPaste={onPaste}
-            />
+            <input ref={prerequisiteInputRef} type="text" placeholder="Add a flashcard id" onPaste={onPaste} />
           </div>
         </div>
       </div>

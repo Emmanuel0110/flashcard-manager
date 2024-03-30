@@ -30,6 +30,7 @@ export default function FlashcardDetail({
     tags,
     saveFlashcard,
     saveAsNewFlashcard,
+    editCurrentFlashcard,
   }: {
     flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
@@ -42,6 +43,7 @@ export default function FlashcardDetail({
     tags: Tag[];
     saveFlashcard: (infos: Partial<Flashcard>) => void;
     saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
+    editCurrentFlashcard: (flashcard: Flashcard) => void;
   } = useContext(ConfigContext);
   const [answerVisible, setAnswerVisible] = useState(filter !== "To be reviewed");
   const navigate = useNavigate();
@@ -101,7 +103,7 @@ export default function FlashcardDetail({
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openFlashcardData) =>
           openFlashcardData.id === flashcardId
-            ? {id: filteredFlashcards[currentIndex + 1]._id, data: filteredFlashcards[currentIndex + 1] }
+            ? { id: filteredFlashcards[currentIndex + 1]._id, data: filteredFlashcards[currentIndex + 1] }
             : openFlashcardData
         )
       );
@@ -111,6 +113,12 @@ export default function FlashcardDetail({
 
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key) {
+      case "e":
+        if (e.ctrlKey) {
+          e.preventDefault();
+          editCurrentFlashcard(flashcard);
+        }
+        break;
       case "ArrowLeft":
         goToPreviousFlashcard();
         break;
@@ -194,13 +202,7 @@ export default function FlashcardDetail({
   let options = [];
   if (flashcard?.author._id === user?._id) {
     options.push({
-      callback: (flashcard: Flashcard) => {
-        setOpenedFlashcards((openedFlashcards) =>
-          openedFlashcards.map((openedFlashcard) =>
-            openedFlashcard.id === flashcard._id ? { ...openedFlashcard, unsavedData: flashcard } : openedFlashcard
-          )
-        );
-      },
+      callback: editCurrentFlashcard,
       label: "Edit",
     });
   }
@@ -210,6 +212,7 @@ export default function FlashcardDetail({
         title: flashcard!.title,
         question: flashcard!.question,
         answer: flashcard!.answer,
+        tags: flashcard!.tags,
         prerequisites: flashcard!.prerequisites,
       });
     },

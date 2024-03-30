@@ -13,9 +13,9 @@ export const saveNewFlashcard = async (args: Partial<Flashcard>) => {
 };
 
 export const editRemoteFlashcard = async ({ _id, ...args }: Partial<Flashcard>) => {
-  const formattedArgs = { ...args, tags: args.tags?.map((tag) => tag._id) || [] };
+  const formattedArgs = { ...args, ...(args.tags ? { tags: args.tags.map((tag) => tag._id) } : {}) };
   const body = JSON.stringify(formattedArgs);
-  return customFetch(url + "flashcards/" + _id, { method: "PUT", headers: authHeaders(), body });
+  return customFetch(url + "flashcards/" + _id, { method: "PATCH", headers: authHeaders(), body });
 };
 
 export const deleteRemoteFlashcard = async (flashcardId: string) => {

@@ -165,6 +165,14 @@ export default function App() {
     }
   };
 
+  const editCurrentFlashcard = (flashcard: Flashcard) => {
+    setOpenedFlashcards((openedFlashcards) =>
+      openedFlashcards.map((openedFlashcard) =>
+        openedFlashcard.id === flashcard._id ? { ...openedFlashcard, unsavedData: flashcard } : openedFlashcard
+      )
+    );
+  };
+
   const subscribeToFlashcard = ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
     subscribeToRemoteFlashcard({ _id, hasBeenRead, nextReviewDate }).then((res) => {
       if (res.success) {
@@ -242,6 +250,7 @@ export default function App() {
         closeTab,
         openFlashcard,
         editFlashcard,
+        editCurrentFlashcard,
         subscribeToFlashcard,
         saveFlashcard,
         saveAsNewFlashcard,
