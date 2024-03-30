@@ -63,9 +63,14 @@ export default function FlashcardListWithDetail({
 
   useEffect(() => {
     if (currentOpenedFlashcard && !prerequisitesAndusedInLoading.current) {
-      const missingPrerequisitesAndUsedIn = getMissingPrerequisitesAndUsedIn(currentOpenedFlashcard.data, flashcards);
+      const missingPrerequisitesAndUsedIn = getMissingPrerequisitesAndUsedIn(
+        currentOpenedFlashcard.unsavedData || currentOpenedFlashcard.data,
+        flashcards
+      );
       if (missingPrerequisitesAndUsedIn.length === 0) {
-        const [prerequisites, usedIn] = getPrerequisitesAndUsedIn(currentOpenedFlashcard.data);
+        const [prerequisites, usedIn] = getPrerequisitesAndUsedIn(
+          currentOpenedFlashcard.unsavedData || currentOpenedFlashcard.data
+        );
         setPrerequisites(prerequisites);
         setdUsedIn(usedIn);
       } else {
@@ -89,6 +94,16 @@ export default function FlashcardListWithDetail({
     ];
   };
 
+  const updateUnsavedData = (id: string, args: Partial<Flashcard>) => {
+    setOpenedFlashcards((openedFlashcards) =>
+      openedFlashcards.map((openedFlashcard) =>
+        openedFlashcard.id === id && openedFlashcard.unsavedData
+          ? { ...openedFlashcard, unsavedData: {...openedFlashcard.unsavedData, ...args} }
+          : openedFlashcard
+      )
+    );
+  };
+
   return (
     <div id="splitContainer">
       <div id="left">
@@ -99,7 +114,11 @@ export default function FlashcardListWithDetail({
           <div id="openedFlashcards">
             <TabNav openedFlashcards={openedFlashcards} currentFlashcardId={flashcardId} />
             {currentOpenedFlashcard.unsavedData ? (
-              <FlashcardForm flashcard={currentOpenedFlashcard.unsavedData} prerequisites={prerequisites} />
+              <FlashcardForm
+                updateUnsavedData={updateUnsavedData}
+                flashcard={currentOpenedFlashcard.unsavedData}
+                prerequisites={prerequisites}
+              />
             ) : (
               <FlashcardDetail flashcard={currentOpenedFlashcard.data} prerequisites={prerequisites} usedIn={usedIn} />
             )}

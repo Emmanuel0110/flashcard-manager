@@ -179,20 +179,18 @@ export default function App() {
     });
   };
 
-  const saveFlashcard = () => {
-    return (infos: Partial<Flashcard>) => {
-      editRemoteFlashcard(infos)
-        .then(({ data: updatedFlashcard }: { data: Flashcard }) => {
-          setFlashcards((flashcards: Flashcard[]) =>
-            flashcards.map((flashcard) => {
-              return flashcard._id === updatedFlashcard._id ? { ...flashcard, ...updatedFlashcard } : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashcard instead of replacing it
-            })
-          );
-        })
-        .catch((err: Error) => {
-          console.log(err);
-        });
-    };
+  const saveFlashcard = (infos: Partial<Flashcard>) => {
+    editRemoteFlashcard(infos)
+      .then(({ data: updatedFlashcard }: { data: Flashcard }) => {
+        setFlashcards((flashcards: Flashcard[]) =>
+          flashcards.map((flashcard) => {
+            return flashcard._id === updatedFlashcard._id ? { ...flashcard, ...updatedFlashcard } : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashcard instead of replacing it
+          })
+        );
+      })
+      .catch((err: Error) => {
+        console.log(err);
+      });
   };
 
   const saveAsNewFlashcard = (infos: Partial<Flashcard>) => {

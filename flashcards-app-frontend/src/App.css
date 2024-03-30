@@ -1,5 +1,3 @@
-
-
 .buttonHeader {
   position: sticky;
   top: 0;
@@ -11,7 +9,8 @@
   padding: 10px 0 10px 0;
 }
 
-#form,#middle {
+#form,
+#middle {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -53,27 +52,27 @@
   }
 }
 
-
-#container{
+#container {
   display: grid;
-  grid: "navbar navbar"
-        "leftSideMenu mainPannel" 1fr
-        /170px; 
+  grid:
+    "navbar navbar"
+    "leftSideMenu mainPannel" 1fr
+    /170px;
   height: 100vh;
 }
 
-#navbar{
+#navbar {
   grid-area: navbar;
 }
 
-.navb{
+.navb {
   background-color: #282c34;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
 }
 
-#leftSideMenu{
+#leftSideMenu {
   grid-area: leftSideMenu;
   background-color: #303f9f;
   display: flex;
@@ -87,7 +86,6 @@
   cursor: pointer;
   color: white;
   padding: 6px;
-  font-weight: 500;
   display: flex;
   gap: 10px;
   letter-spacing: 0.2px;
@@ -102,11 +100,11 @@
   background-color: rgb(131, 150, 236);
 }
 
-.unselected{
+.unselected {
   width: 5px;
 }
 
-#mainPannel{
+#mainPannel {
   grid-area: mainPannel;
   background-color: #f8f8f8;
   height: 100%;
@@ -117,37 +115,37 @@
   height: 100%;
 }
 
-#loginForm{
+#loginForm {
   width: 18em;
   margin: 20px auto;
 }
 
-#registerForm{
+#registerForm {
   width: 18em;
   margin: 20px auto;
 }
 
-.form-control{
+.form-control {
   margin-bottom: 10px;
 }
 
-.navButton{
+.navButton {
   padding: 5px 10px 10px 5px;
   color: rgb(153, 153, 153);
 }
 
-.navButton:hover{
+.navButton:hover {
   padding: 5px 10px 10px 5px;
-  color: #FAFAFA;
+  color: #fafafa;
   cursor: pointer;
   /* text-decoration: none; */
 }
 
-.form-label{
+.form-label {
   margin-top: 10px;
 }
 
-#searchAreaInput{
+#searchAreaInput {
   width: 20em;
 }
 #searchAreaInput input {
@@ -159,10 +157,10 @@ input:focus,
 select:focus,
 textarea:focus,
 button:focus {
-    outline: none;
+  outline: none;
 }
 
-#searchArea{
+#searchArea {
   margin: auto;
   display: flex;
 }
@@ -187,13 +185,13 @@ button:focus {
   background-color: #ededed;
 }
 
-.lineTitle{
+.lineTitle {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
 }
-.lineTitle.hasBeenRead{
+.lineTitle.hasBeenRead {
   font-weight: 400;
 }
 
@@ -208,20 +206,21 @@ button:focus {
 #flashcard {
   padding: 10px;
   display: grid;
-  grid: "previous middle next"
-        /12% 76% 12%;
+  grid:
+    "previous middle next"
+    /12% 76% 12%;
 }
 
-#middle{
+#middle {
   grid-area: middle;
 }
 
-#previous{
+#previous {
   grid-area: previous;
-  position: relative;  
+  position: relative;
 }
 
-#next{
+#next {
   grid-area: next;
   position: relative;
 }
@@ -344,7 +343,7 @@ button:focus {
 
 #cancelFilterForSearch {
   cursor: pointer;
-  mask: url('./images/filter_alt_off_FILL0_wght400_GRAD0_opsz24.svg'); /*google icons*/
+  mask: url("./images/filter_alt_off_FILL0_wght400_GRAD0_opsz24.svg"); /*google icons*/
   background: #848383;
   background-size: cover;
   display: inline-block;
@@ -369,7 +368,7 @@ button:focus {
   border: none;
 }
 
-#githubIconArea{
+#githubIconArea {
   position: absolute;
   padding: 5px 5px;
   height: 40px;
@@ -377,8 +376,7 @@ button:focus {
   left: 0;
 }
 
-
-.githubIcon{
+.githubIcon {
   cursor: pointer;
   mask: url(./images/github-mark-white.svg);
   background: rgb(255, 255, 255);
@@ -389,15 +387,14 @@ button:focus {
   float: right;
 }
 
-
 .dropdownList {
   z-index: 1;
   padding: 5px 0px;
   background: white;
   list-style-type: none;
-  -moz-box-shadow:    -1px 0 5px 0 rgb(165, 165, 165);
+  -moz-box-shadow: -1px 0 5px 0 rgb(165, 165, 165);
   -webkit-box-shadow: -1px 0 5px 0 rgb(165, 165, 165);
-  box-shadow:         1px 0 5px 0 rgb(165, 165, 165);
+  box-shadow: 1px 0 5px 0 rgb(165, 165, 165);
   border-radius: 3px;
   max-height: 300px;
   overflow: auto;
@@ -445,7 +442,7 @@ button:focus {
   margin-bottom: 7px;
 }
 
-#filterList{
+#filterList {
   list-style-type: none;
   padding: 10px 0 0 10px;
   margin: 0;
@@ -454,7 +451,7 @@ button:focus {
   overflow: auto;
 }
 
-.filterItem{
+.filterItem {
   padding: 0.2em 2em 0.3em 1em;
   margin: 5px;
   border-radius: 1em;
@@ -465,7 +462,7 @@ button:focus {
   background-color: rgb(252, 252, 252);
 }
 
-.filterClose{
+.filterClose {
   cursor: pointer;
   mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
   background: rgb(151, 151, 151);
@@ -481,7 +478,7 @@ button:focus {
   transform: translate(0%, -50%);
 }
 
-.tabClose{
+.tabClose {
   cursor: pointer;
   mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
   background: rgb(151, 151, 151);
@@ -567,7 +564,7 @@ button:focus {
   overflow: auto;
 }
 
-#pannelCloseContainer{
+#pannelCloseContainer {
   cursor: pointer;
   padding: 7px;
 }
@@ -576,7 +573,7 @@ button:focus {
   display: flex;
 }
 
-.pannelClose{
+.pannelClose {
   mask: url(images/tab_close_FILL0_wght400_GRAD0_opsz24.svg); /*https://fontawesome.com/license*/
   background: rgb(129, 129, 129);
   width: 3ch;

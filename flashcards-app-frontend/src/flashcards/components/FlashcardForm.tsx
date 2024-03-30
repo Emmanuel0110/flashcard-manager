@@ -11,16 +11,16 @@ import { FlashcardLine } from "./FlashcardLine";
 
 export default function FlashcardForm({
   flashcard,
-  prerequisites,
+  prerequisites: prerequisiteFlashcards,
+  updateUnsavedData
 }: {
   flashcard: Flashcard;
   prerequisites: Flashcard[];
+  updateUnsavedData: (id: string, args: Partial<Flashcard>) => void;
 }) {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
-  const [localTags, setLocalTags] = useState([] as Tag[]);
-  const [localPrerequisites, setLocalPrerequisites] = useState([] as Flashcard[]);
-  const [localPrerequisiteId, setLocalPrerequisiteId] = useState("");
+  const prerequisiteInputRef = useRef<HTMLInputElement>(null);
   const {
     tags,
     setTags,
@@ -35,22 +35,15 @@ export default function FlashcardForm({
     getFlashcardById: (id: string) => Promise<Flashcard>;
   } = useContext(ConfigContext);
 
-  useEffect(() => {
-    setLocalTags(flashcard.tags);
-    setLocalPrerequisites(prerequisites);
-  }, [flashcard]);
-
   const onSave = () => {
     if (questionRef.current && answerRef.current) {
-      const title = questionRef.current.getContent({ format: "text" });
-      const question = questionRef.current.getContent();
-      const answer = answerRef.current.getContent();
-      const tags = localTags;
-      const prerequisites = localPrerequisites.map((_) => _._id);
-      saveFlashcard({ _id: flashcard._id, title, question, answer, tags, prerequisites });
+      const {_id, title, question, answer, tags, prerequisites} = flashcard;
+      saveFlashcard({ _id, title, question, answer, tags, prerequisites});
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openedFlashcard) =>
-          openedFlashcard.id === flashcard._id ? { ...openedFlashcard, unsavedData: undefined } : openedFlashcard
+          openedFlashcard.id === flashcard._id
+            ? { ...openedFlashcard, data: openedFlashcard.unsavedData!, unsavedData: undefined }
+            : openedFlashcard
         )
       );
     }
@@ -58,24 +51,24 @@ export default function FlashcardForm({
 
   const addTag = ({ _id, label }: { _id?: string; label?: string }) => {
     if (_id && (!flashcard || !flashcard.tags.map((tag) => tag._id).includes(_id))) {
-      setLocalTags((localTags) => [...localTags, tags.find((tag: Tag) => tag._id === _id)!]);
+      updateUnsavedData(flashcard._id, {tags: [...flashcard.tags, tags.find((tag: Tag) => tag._id === _id)!]});
     } else if (label && !tags.map((tag) => tag.label).includes(label)) {
       saveNewTag({ label }).then(({ data: tag }) => {
         setTags((tags: Tag[]) => [...tags, tag]);
-        setLocalTags((localTags) => [...localTags, tag]);
+        updateUnsavedData(flashcard._id, {tags: [...flashcard.tags, tag]});
       });
     }
   };
 
-  const availableTags = tags.filter((tag) => !localTags.map((tag) => tag._id).includes(tag._id));
+  const availableTags = tags.filter((tag) => !flashcard.tags.map((tag) => tag._id).includes(tag._id));
 
   const onPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
     const copiedText = e.clipboardData.getData("Text");
-    if (copiedText.length === 24 && !localPrerequisites.find((el) => el._id === copiedText)) {
-      getFlashcardById(copiedText).then((flashcard) => {
-        if (flashcard) {
-          setLocalPrerequisites((localPrerequisites) => [...localPrerequisites, flashcard]);
-          setLocalPrerequisiteId("");
+    if (copiedText.length === 24 && !prerequisiteFlashcards.find(({_id}) => _id === copiedText)) {
+      getFlashcardById(copiedText).then((prerequisite) => {
+        if (prerequisite) {
+          updateUnsavedData(flashcard._id, {prerequisites: [...flashcard.prerequisites, prerequisite._id]});
         }
       });
     }
@@ -94,6 +87,9 @@ export default function FlashcardForm({
               questionRef.current = editor;
               questionRef.current.setContent(flashcard.question);
             }}
+            onChange={() => updateUnsavedData(flashcard._id, {
+              title: questionRef.current?.getContent({ format: "text" }) || "",
+              question: questionRef.current?.getContent() || ""})}
             initialValue={flashcard.question}
             init={{
               placeholder: "Question",
@@ -117,6 +113,7 @@ export default function FlashcardForm({
               answerRef.current = editor;
               answerRef.current.setContent(flashcard.answer);
             }}
+            onChange={() => updateUnsavedData(flashcard._id, {answer: answerRef.current?.getContent() || ""})}
             initialValue={flashcard.answer}
             init={{
               placeholder: "Answer",
@@ -135,10 +132,10 @@ export default function FlashcardForm({
           />
         </div>
         <div id="tags">
-          {localTags.map((tag, index) => (
+          {flashcard.tags.map((tag, index) => (
             <div
               key={index}
-              onClick={() => setLocalTags((localTags) => localTags.filter((localTag) => localTag._id !== tag._id))}
+              onClick={() => updateUnsavedData(flashcard._id, {tags: flashcard.tags.filter(({_id}) => _id !== tag._id)})}
               className="tag"
             >
               {"#" + tag.label}
@@ -155,18 +152,15 @@ export default function FlashcardForm({
         </div>
         <div id="prerequisites">
           <div className="flashcardSection">Prerequisites</div>
-          {localPrerequisites.map((flashcardData, index) => (
+          {prerequisiteFlashcards.map((flashcardData, index) => (
             <FlashcardLine key={index} flashcardData={flashcardData} />
           ))}
           <div className="tagInput">
             <input
+              ref={prerequisiteInputRef}
               type="text"
               placeholder="Add a flashcard id"
               onPaste={onPaste}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setLocalPrerequisiteId(e.target.value);
-              }}
-              value={localPrerequisiteId}
             />
           </div>
         </div>
