@@ -205,24 +205,26 @@ button:focus {
 
 #flashcard {
   padding: 10px;
-  display: grid;
-  grid:
-    "previous middle next"
-    /10% 80% 10%;
-}
-
-#middle {
-  grid-area: middle;
+  display: flex;
+  flex-flow:row;
+  width: 100%;
 }
 
 #previous {
-  grid-area: previous;
+  flex: 0 0 40px;
   position: relative;
+  margin-right: 10px;
+}
+
+#middle {
+  flex: 1 1 auto;
+  width: calc(100% - 100px);
 }
 
 #next {
-  grid-area: next;
+  flex: 0 0 40px;
   position: relative;
+  margin-left: 10px;
 }
 
 #flashcard #question {
@@ -246,7 +248,6 @@ button:focus {
 #previousArrow {
   position: absolute;
   top: 190px;
-  right: 10px;
   cursor: pointer;
   mask: url(./images/circle-chevron-left-solid.svg); /*https://fontawesome.com/license*/
   background: #303f9f;
@@ -259,7 +260,6 @@ button:focus {
 #nextArrow {
   position: absolute;
   top: 190px;
-  left: 10px;
   cursor: pointer;
   mask: url(./images/circle-chevron-right-solid.svg); /*https://fontawesome.com/license*/
   background: #303f9f;

@@ -237,6 +237,9 @@ export default function FlashcardDetail({
         )}
       </div>
       <div id="flashcard">
+        <div id="previous">
+          {hasPreviousFlashcard() && <div id="previousArrow" onClick={goToPreviousFlashcard}></div>}
+        </div>
         <div id="middle">
           <div id="question" dangerouslySetInnerHTML={{ __html: flashcard?.question || "" }} />
           {answerVisible ? (
@@ -288,9 +291,6 @@ export default function FlashcardDetail({
           ) : (
             <Button onClick={() => setAnswerVisible(true)}>See answer</Button>
           )}
-        </div>
-        <div id="previous">
-          {hasPreviousFlashcard() && <div id="previousArrow" onClick={goToPreviousFlashcard}></div>}
         </div>
         <div id="next">
           {options.length > 0 && filter !== "To be reviewed" && <DotOptions obj={flashcard} options={options} />}
