@@ -1,13 +1,13 @@
 
 .dotsOptions {
-  position: absolute;
-  top: 10px;
-  right: 7px;
+  width: 2ch;
+  height: 3ch;
+  margin: auto;
 }
   
 .dots {
-  min-width: 2ch;
-  min-height: 3ch;
+  width: 2ch;
+  height: 3ch;
   cursor: pointer;
   background-color: rgb(168, 168, 168);
   mask: url(more_vert_FILL0_wght400_GRAD0_opsz24.svg); /*https://fontawesome.com/license*/

@@ -41,7 +41,7 @@ export default function FlashcardForm({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [flashcard]);
-  
+
   const onSave = () => {
     if (questionRef.current && answerRef.current) {
       const { _id, title, question, answer, tags, prerequisites } = flashcard;
@@ -116,6 +116,7 @@ export default function FlashcardForm({
             init={{
               placeholder: "Question",
               height: 200,
+              setup: (editor) => editor.on("keydown", handleKeyDown),
               menubar: false,
               statusbar: false,
               plugins:
@@ -140,6 +141,7 @@ export default function FlashcardForm({
             init={{
               placeholder: "Answer",
               height: 500,
+              setup: (editor) => editor.on("keydown", handleKeyDown),
               menubar: false,
               statusbar: false,
               plugins:

@@ -22,6 +22,7 @@ export default function FlashcardDetail({
     flashcards,
     filteredFlashcards,
     setFlashcards,
+    openedFlashcards,
     setOpenedFlashcards,
     user,
     filter,
@@ -31,10 +32,12 @@ export default function FlashcardDetail({
     saveFlashcard,
     saveAsNewFlashcard,
     editCurrentFlashcard,
+    subscribeToFlashcard,
   }: {
     flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
+    openedFlashcards: OpenFlashcardData[];
     setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
     user: User;
     filter: string;
@@ -44,6 +47,7 @@ export default function FlashcardDetail({
     saveFlashcard: (infos: Partial<Flashcard>) => void;
     saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
     editCurrentFlashcard: (flashcard: Flashcard) => void;
+    subscribeToFlashcard: ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => void;
   } = useContext(ConfigContext);
   const [answerVisible, setAnswerVisible] = useState(filter !== "To be reviewed");
   const navigate = useNavigate();
@@ -85,13 +89,15 @@ export default function FlashcardDetail({
 
   const goToPreviousFlashcard = () => {
     if (hasPreviousFlashcard()) {
-      setOpenedFlashcards((openedFlashcards) =>
-        openedFlashcards.map((openFlashcardData) =>
-          openFlashcardData.id === flashcardId
-            ? { id: filteredFlashcards[currentIndex - 1]._id, data: filteredFlashcards[currentIndex - 1] }
-            : openFlashcardData
-        )
-      );
+      if (!openedFlashcards.find(({ id }) => id === filteredFlashcards[currentIndex - 1]._id)) {
+        setOpenedFlashcards((openedFlashcards) =>
+          openedFlashcards.map((openFlashcardData) =>
+            openFlashcardData.id === flashcardId
+              ? { id: filteredFlashcards[currentIndex - 1]._id, data: filteredFlashcards[currentIndex - 1] }
+              : openFlashcardData
+          )
+        );
+      }
       navigate("/flashcards/" + filteredFlashcards[currentIndex - 1]._id);
     }
   };
@@ -100,13 +106,15 @@ export default function FlashcardDetail({
 
   const goToNextFlashcard = () => {
     if (hasNextFlashcard()) {
-      setOpenedFlashcards((openedFlashcards) =>
-        openedFlashcards.map((openFlashcardData) =>
-          openFlashcardData.id === flashcardId
-            ? { id: filteredFlashcards[currentIndex + 1]._id, data: filteredFlashcards[currentIndex + 1] }
-            : openFlashcardData
-        )
-      );
+      if (!openedFlashcards.find(({ id }) => id === filteredFlashcards[currentIndex + 1]._id)) {
+        setOpenedFlashcards((openedFlashcards) =>
+          openedFlashcards.map((openFlashcardData) =>
+            openFlashcardData.id === flashcardId
+              ? { id: filteredFlashcards[currentIndex + 1]._id, data: filteredFlashcards[currentIndex + 1] }
+              : openFlashcardData
+          )
+        );
+      }
       navigate("/flashcards/" + filteredFlashcards[currentIndex + 1]._id);
     }
   };
@@ -157,20 +165,6 @@ export default function FlashcardDetail({
         goToNextFlashcard();
       } else navigate("/flashcards/");
     }
-  };
-
-  const subscribeToFlashcard = (flashcardToSubscribe: Flashcard) => {
-    subscribeToRemoteFlashcard(flashcardToSubscribe).then((res) => {
-      if (res.success) {
-        setFlashcards((flashcards: Flashcard[]) =>
-          flashcards.map((flashcard) => {
-            return flashcard._id === flashcardToSubscribe._id
-              ? { ...flashcard, nextReviewDate: flashcard.nextReviewDate instanceof Date ? undefined : new Date() }
-              : flashcard;
-          })
-        );
-      }
-    });
   };
 
   const reviewIn = (n: number, period: "day" | "week" | "month") => {
@@ -225,19 +219,23 @@ export default function FlashcardDetail({
     label: "Mark as known",
   });
 
+  const onSubscribe = (e: React.MouseEvent, flashcard: Flashcard) => {
+    e.stopPropagation();
+    subscribeToFlashcard(flashcard);
+  };
+
   return (
     <div id="flashCardComponent">
       <div className="buttonHeader">
         {flashcard?.status === "Draft" && <Button onClick={submitForValidation}>Submit for validation</Button>}
         {flashcard?.status === "To be validated" && <Button onClick={publish}>Publish</Button>}
-        {flashcard?.status === "Published" && (
-          <Button onClick={() => subscribeToFlashcard(flashcard)}>
-            {flashcard.nextReviewDate instanceof Date ? "Remove from favorites" : "Add to favorites"}
-          </Button>
-        )}
       </div>
       <div id="flashcard">
         <div id="previous">
+          <div
+            className={"subscribe" + (flashcard.nextReviewDate instanceof Date ? " subscribed" : "")}
+            onClick={(e) => onSubscribe(e, flashcard)}
+          ></div>
           {hasPreviousFlashcard() && <div id="previousArrow" onClick={goToPreviousFlashcard}></div>}
         </div>
         <div id="middle">

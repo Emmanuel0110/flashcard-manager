@@ -214,6 +214,7 @@ button:focus {
   flex: 0 0 40px;
   position: relative;
   margin-right: 10px;
+  padding-top: 20px;
 }
 
 #middle {
@@ -225,6 +226,7 @@ button:focus {
   flex: 0 0 40px;
   position: relative;
   margin-left: 10px;
+  padding-top: 20px;
 }
 
 #flashcard #question {

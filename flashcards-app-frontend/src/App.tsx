@@ -100,6 +100,13 @@ export default function App() {
     });
   }, [filter, searchFilter, isAuthenticated]);
 
+  useEffect(() => {
+    setOpenedFlashcards(openFlashcards => openFlashcards.map(openFlashcard => {
+      const flashcard = flashcards.find(({_id}) => _id === openFlashcard.id);
+      return flashcard ? {...openFlashcard, data: flashcard} : openFlashcard;
+    }));
+  }, [flashcards]);
+
   const filteredFlashcards = useMemo(() => {
     return flashcards.filter((flashcard) => {
       return (
@@ -173,12 +180,12 @@ export default function App() {
     );
   };
 
-  const subscribeToFlashcard = ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
-    subscribeToRemoteFlashcard({ _id, hasBeenRead, nextReviewDate }).then((res) => {
+  const subscribeToFlashcard = (flashcardToSubscribe: Flashcard) => {
+    subscribeToRemoteFlashcard(flashcardToSubscribe).then((res) => {
       if (res.success) {
         setFlashcards((flashcards: Flashcard[]) =>
           flashcards.map((flashcard) => {
-            return flashcard._id === _id
+            return flashcard._id === flashcardToSubscribe._id
               ? { ...flashcard, nextReviewDate: flashcard.nextReviewDate instanceof Date ? undefined : new Date() }
               : flashcard;
           })
