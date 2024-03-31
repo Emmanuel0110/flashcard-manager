@@ -34,3 +34,11 @@ export interface OpenFlashcardData {
   data: Flashcard;
   unsavedData?: Flashcard;
 }
+
+export interface View {
+  openedFlashcards: OpenFlashcardData[];
+  filter: string;
+  searchFilter: SearchFilter;
+  treeFilter: string[];
+  location: string;
+}

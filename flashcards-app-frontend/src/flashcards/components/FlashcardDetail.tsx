@@ -4,7 +4,7 @@ import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
 import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
-import { editUserFlashcardInfo, readRemoteFlashcard, subscribeToRemoteFlashcard } from "../flashcardActions";
+import { editUserFlashcardInfo, readRemoteFlashcard } from "../flashcardActions";
 import { FlashcardLine } from "./FlashcardLine";
 
 export default function FlashcardDetail({
@@ -33,12 +33,13 @@ export default function FlashcardDetail({
     saveAsNewFlashcard,
     editCurrentFlashcard,
     subscribeToFlashcard,
+    setTreeFilter,
   }: {
     flashcards: Flashcard[];
     filteredFlashcards: Flashcard[];
     setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
     openedFlashcards: OpenFlashcardData[];
-    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
+    setOpenedFlashcards: Dispatch<SetStateAction<OpenFlashcardData[]>>;
     user: User;
     filter: string;
     setFilter: Dispatch<SetStateAction<string>>;
@@ -47,7 +48,8 @@ export default function FlashcardDetail({
     saveFlashcard: (infos: Partial<Flashcard>) => void;
     saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
     editCurrentFlashcard: (flashcard: Flashcard) => void;
-    subscribeToFlashcard: ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => void;
+    subscribeToFlashcard: (flashcard: Flashcard) => void;
+    setTreeFilter: Dispatch<SetStateAction<string[]>>;
   } = useContext(ConfigContext);
   const [answerVisible, setAnswerVisible] = useState(filter !== "To be reviewed");
   const navigate = useNavigate();
@@ -57,7 +59,7 @@ export default function FlashcardDetail({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [flashcardId, filteredFlashcards]);
+  }, [flashcardId, filteredFlashcards, usedIn, prerequisites]);
 
   useEffect(() => {
     if (flashcard && !flashcard.hasBeenRead) {
@@ -128,10 +130,29 @@ export default function FlashcardDetail({
         }
         break;
       case "ArrowLeft":
-        goToPreviousFlashcard();
+        if (!e.altKey) {
+          goToPreviousFlashcard();
+        }
         break;
       case "ArrowRight":
-        goToNextFlashcard();
+        if (!e.altKey) {
+          goToNextFlashcard();
+        }
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        console.log(usedIn);
+        if (usedIn?.length !== 0) {
+          setTreeFilter(usedIn.map(({ _id }) => _id));
+          navigate("/flashcards/" + usedIn[0]._id);
+        }
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        if (prerequisites?.length !== 0) {
+          setTreeFilter(prerequisites.map(({ _id }) => _id));
+          navigate("/flashcards/" + prerequisites[0]._id);
+        }
         break;
       case "Enter":
         setAnswerVisible(true);

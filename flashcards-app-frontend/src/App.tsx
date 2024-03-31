@@ -1,12 +1,12 @@
-import React, { Dispatch, SetStateAction, createContext, useEffect, useMemo, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import React, { Dispatch, SetStateAction, createContext, useEffect, useMemo, useRef, useState } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 import Register from "./auth/components/Register";
 import Layout from "./Layout/Layout";
 import ProtectedRoute from "./ProtectedRoute";
 import Profile from "./Profile";
 import Login from "./auth/components/Login";
-import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "./types";
+import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User, View } from "./types";
 import FlashcardList from "./flashcards/components/FlashcardList";
 import { authHeaders, customFetch } from "./utils/http-helpers";
 import FlashcardListWithDetail from "./flashcards/components/FlashcardListWithDetail";
@@ -56,20 +56,22 @@ export const fetchMoreFlashcards = (
 };
 
 export const emptyFilter: SearchFilter = { searchString: "", tag: undefined };
-export const someFilter = (searchFilter: SearchFilter): boolean =>
-  searchFilter.searchString !== "" || searchFilter.tag !== undefined;
+export const someFilter = (searchFilter: SearchFilter, treeFilter: string[]): boolean =>
+  searchFilter.searchString !== "" || searchFilter.tag !== undefined || treeFilter.length !== 0;
 
-const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter) => {
+const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) => {
   const { searchString, tag } = searchFilter;
   return (
     (!searchString || flashcard.title.toLowerCase().includes(searchString.toLowerCase())) &&
-    (!tag || flashcard.tags.map((tag) => tag._id).includes(tag._id))
+    (!tag || flashcard.tags.map((tag) => tag._id).includes(tag._id)) &&
+    (treeFilter.length === 0 || treeFilter.includes(flashcard._id))
   );
 };
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null as boolean | null);
   const [user, setUser] = useState(null as User | null);
+  const [treeFilter, setTreeFilter] = useState<string[]>([]);
   const [searchFilter, setSearchFilter] = useState<SearchFilter>({ searchString: "", tag: undefined });
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
   const [openedFlashcards, setOpenedFlashcards] = useState([] as OpenFlashcardData[]);
@@ -101,10 +103,12 @@ export default function App() {
   }, [filter, searchFilter, isAuthenticated]);
 
   useEffect(() => {
-    setOpenedFlashcards(openFlashcards => openFlashcards.map(openFlashcard => {
-      const flashcard = flashcards.find(({_id}) => _id === openFlashcard.id);
-      return flashcard ? {...openFlashcard, data: flashcard} : openFlashcard;
-    }));
+    setOpenedFlashcards((openFlashcards) =>
+      openFlashcards.map((openFlashcard) => {
+        const flashcard = flashcards.find(({ _id }) => _id === openFlashcard.id);
+        return flashcard ? { ...openFlashcard, data: flashcard } : openFlashcard;
+      })
+    );
   }, [flashcards]);
 
   const filteredFlashcards = useMemo(() => {
@@ -117,10 +121,75 @@ export default function App() {
           (filter === "To be reviewed" &&
             flashcard.nextReviewDate instanceof Date &&
             flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
-        (!someFilter(searchFilter) || isFiltered(flashcard, searchFilter))
+        (!someFilter(searchFilter, treeFilter) || isFiltered(flashcard, searchFilter, treeFilter))
       );
     });
-  }, [flashcards, filter, searchFilter]);
+  }, [flashcards, filter, searchFilter, treeFilter]);
+
+  const viewHistory = useRef<View[]>([]);
+  const viewIndex = useRef(0);
+
+  const location = useLocation();
+  const preventHistorization = useRef(false);
+
+  useEffect(() => {
+    if (preventHistorization.current) {
+      preventHistorization.current = false;
+    } else {
+      if (viewHistory.current.length > 0) {
+        viewHistory.current = viewHistory.current.slice(0, viewIndex.current + 1);
+      }
+      viewIndex.current = viewHistory.current.push({
+        openedFlashcards,
+        filter,
+        searchFilter,
+        treeFilter,
+        location: location.pathname,
+      }) - 1;
+    }
+  }, [location]);
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "ArrowLeft":
+        if (e.altKey) {
+          e.preventDefault();
+          if (viewIndex.current > 0) {
+            viewIndex.current--;
+            refreshView(viewIndex.current);
+          }
+        }
+        break;
+      case "ArrowRight":
+        if (e.altKey) {
+          e.preventDefault();
+          console.log(viewIndex.current < viewHistory.current.length)
+          if (viewIndex.current < viewHistory.current.length - 1) {
+            viewIndex.current++;
+            refreshView(viewIndex.current);
+          }
+        }
+        break;
+      default:
+    }
+  };
+
+  const refreshView = (index: number) => {
+    preventHistorization.current = true;
+    const { openedFlashcards, filter, searchFilter, treeFilter, location } = viewHistory.current[index];
+    setOpenedFlashcards(openedFlashcards);
+    setFilter(filter);
+    setSearchFilter(searchFilter);
+    setTreeFilter(treeFilter);
+    navigate(location);
+  };
 
   const closeTab = (tabIndex: number) => {
     setOpenedFlashcards((openedFlashcards) =>
@@ -262,6 +331,8 @@ export default function App() {
         saveFlashcard,
         saveAsNewFlashcard,
         getFlashcardById,
+        treeFilter,
+        setTreeFilter,
       }}
     >
       <Routes>

@@ -12,15 +12,22 @@ function Navbar() {
     setSearchFilter,
     setIsAuthenticated,
     tags,
+    treeFilter,
+    setTreeFilter,
   }: {
     user: User;
     searchFilter: SearchFilter;
     setSearchFilter: React.Dispatch<React.SetStateAction<SearchFilter>>;
     setIsAuthenticated: (arg: boolean) => void;
     tags: Tag[];
+    treeFilter: string[];
+    setTreeFilter: React.Dispatch<React.SetStateAction<string[]>>;
   } = useContext(ConfigContext);
 
-  const cancelFilter = () => setSearchFilter(emptyFilter);
+  const cancelFilter = () => {
+    setSearchFilter(emptyFilter);
+    setTreeFilter([]);
+  };
 
   const search = ({ _id, label }: { _id?: string; label?: string }) => {
     if (_id) {
@@ -42,7 +49,7 @@ function Navbar() {
           <div id="searchAreaInput">
             <AutoComplete dropdownList={tags} callback={search} placeholder="Search..." placement="bottom-start" />
           </div>
-          {someFilter(searchFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
+          {someFilter(searchFilter, treeFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
         </div>
       </div>
       <div id="nameLabel">{user?.username}</div>
