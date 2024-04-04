@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Nav } from "react-bootstrap";
 import { ConfigContext } from "../App";
 import { OpenFlashcardData } from "../types";
@@ -20,6 +20,30 @@ function TabNav({
   } = useContext(ConfigContext);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [openedFlashcards, currentFlashcardId]);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "q":
+        if (e.ctrlKey) {
+          e.preventDefault();
+          closeTab(openedFlashcards.findIndex(({id}) => id === currentFlashcardId));
+        }
+        break;
+    }
+  };
+
+  const closeOtherTabs = (e: React.MouseEvent<HTMLElement>, index: number) => {
+    e.preventDefault();
+    navigate("/flashcards/" + openedFlashcards[index].id);
+    setOpenedFlashcards([openedFlashcards[index]]);
+  }
+
   return (
     <div id="tabNav">
       <div className="pannelHeader">
@@ -30,8 +54,8 @@ function TabNav({
         >
           {openedFlashcards.length > 0 &&
             openedFlashcards.map((openedFlashcard, index) => {
-              return (
-                <Nav.Item key={index}>
+              return (<div key={index} onContextMenu={(e) => closeOtherTabs(e, index)}>
+                <Nav.Item>
                   <Nav.Link eventKey={openedFlashcard.data._id}>
                     {
                       <>
@@ -46,11 +70,13 @@ function TabNav({
                           >
                             <div className="tabClose"></div>
                           </div>
+                          {openedFlashcard.unsavedData && <div className="dot"></div>}
                         </div>
                       </>
                     }
                   </Nav.Link>
                 </Nav.Item>
+                </div>
               );
             })}
         </Nav>

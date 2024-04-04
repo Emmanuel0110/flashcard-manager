@@ -600,3 +600,16 @@ a.nav-link {
   flex: 0 1 auto;
   margin-top: 5px;
 }
+
+.dot {
+  position: absolute;
+  top: -27px;
+  left: -10px;
+  mask: url(images/circle-solid.svg); /*https://fontawesome.com/license*/
+  background: rgb(151, 151, 151);
+  width: 5px;
+  height: 5px;
+  mask-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
+}

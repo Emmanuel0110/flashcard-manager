@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { ForwardedRef, forwardRef, useEffect, useRef, useState } from "react";
 import { Overlay } from "react-bootstrap";
 import { Placement } from "react-bootstrap/esm/types";
 
@@ -9,10 +9,29 @@ interface AutoCompleteProps {
   placement: string;
 }
 
-const AutoComplete: React.FC<AutoCompleteProps> = ({ dropdownList, callback, placeholder, placement }) => {
+const useForwardRef = <T,>(
+  ref: ForwardedRef<T>,
+  initialValue: any = null
+) => {
+  const targetRef = useRef<T>(initialValue);
+
+  useEffect(() => {
+    if (!ref) return;
+
+    if (typeof ref === 'function') {
+      ref(targetRef.current);
+    } else {
+      ref.current = targetRef.current;
+    }
+  }, [ref]);
+
+  return targetRef;
+};
+
+const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(({dropdownList, callback, placeholder, placement }, ref) => {
   const [editingMode, setEditingMode] = useState(false);
   const [localDescription, setLocalDescription] = useState("");
-  const linkEditInputRef = useRef<any>(null);
+  const forwardedRef = useForwardRef<HTMLInputElement>(ref);
 
   //Click outside feature ------------------
   const dropdownMenuRef: any = useRef();
@@ -50,7 +69,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({ dropdownList, callback, pla
   return (
     <div ref={dropdownMenuRef}>
       <input
-        ref={linkEditInputRef}
+        ref={forwardedRef}
         type="text"
         placeholder={placeholder}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +80,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({ dropdownList, callback, pla
         value={localDescription}
       />
       {editingMode && filteredDropdownList.length ? (
-        <Overlay target={linkEditInputRef.current} show={true} placement={placement as Placement}>
+        <Overlay target={forwardedRef.current} show={true} placement={placement as Placement}>
           <ul className="dropdownList">
             {filteredDropdownList.map((el, index) => (
               <li
@@ -79,6 +98,6 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({ dropdownList, callback, pla
       ) : null}
     </div>
   );
-};
+});
 
 export default AutoComplete;

@@ -129,6 +129,18 @@ export default function FlashcardDetail({
           editCurrentFlashcard(flashcard);
         }
         break;
+      case "l":
+        if (e.ctrlKey) {
+          e.preventDefault();
+          saveAsNewFlashcard({
+            title: flashcard!.title,
+            question: flashcard!.question,
+            answer: flashcard!.answer,
+            tags: flashcard!.tags,
+            prerequisites: flashcard!.prerequisites,
+          });
+        }
+        break;
       case "ArrowLeft":
         if (!e.altKey) {
           goToPreviousFlashcard();

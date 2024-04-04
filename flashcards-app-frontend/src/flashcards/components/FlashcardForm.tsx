@@ -44,8 +44,15 @@ export default function FlashcardForm({
 
   const onSave = () => {
     if (questionRef.current && answerRef.current) {
-      const { _id, title, question, answer, tags, prerequisites } = flashcard;
-      saveFlashcard({ _id, title, question, answer, tags, prerequisites });
+      const { _id, tags, prerequisites } = flashcard;
+      saveFlashcard({
+        _id,
+        title: questionRef.current.getContent({ format: "text" }),
+        question: questionRef.current.getContent(),
+        answer: answerRef.current.getContent(),
+        tags,
+        prerequisites,
+      });
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openedFlashcard) =>
           openedFlashcard.id === flashcard._id

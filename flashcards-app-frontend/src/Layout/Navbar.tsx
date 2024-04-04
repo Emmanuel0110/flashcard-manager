@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ConfigContext, emptyFilter, someFilter } from "../App";
 import { SearchFilter, Tag, User } from "../types";
@@ -24,6 +24,26 @@ function Navbar() {
     setTreeFilter: React.Dispatch<React.SetStateAction<string[]>>;
   } = useContext(ConfigContext);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "k":
+        if (e.ctrlKey) {
+          e.preventDefault();
+          inputRef.current?.focus();
+        }
+        break;
+      default:
+    }
+  };
+
   const cancelFilter = () => {
     setSearchFilter(emptyFilter);
     setTreeFilter([]);
@@ -47,7 +67,7 @@ function Navbar() {
       <div id="searchArea">
         <div id="searchAreaContainer">
           <div id="searchAreaInput">
-            <AutoComplete dropdownList={tags} callback={search} placeholder="Search..." placement="bottom-start" />
+            <AutoComplete ref={inputRef} dropdownList={tags} callback={search} placeholder="Search..." placement="bottom-start" />
           </div>
           {someFilter(searchFilter, treeFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
         </div>

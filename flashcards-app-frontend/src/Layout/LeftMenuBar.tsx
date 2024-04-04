@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import { ConfigContext } from "../App";
 import { Flashcard, OpenFlashcardData } from "../types";
@@ -14,6 +14,24 @@ function LeftMenuBar() {
     saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
   } = useContext(ConfigContext);
 
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "m":
+        if (e.ctrlKey) {
+          e.preventDefault();
+          openNewDraft();
+        }
+        break;
+    }
+  };
+  
   const startReview = () => {
     setFilter("To be reviewed");
   };
