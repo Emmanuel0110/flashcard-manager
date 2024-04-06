@@ -4,10 +4,11 @@ import { Placement } from "react-bootstrap/esm/types";
 
 interface AutoCompleteProps {
   dropdownList: { _id: string; label: string }[];
-  callback: ({ _id, label }: { _id?: string; label?: string }) => void;
+  callback: ({ _id, label }: { _id?: string; label?: string, setLocalDescription?: (desc: string) => void }) => void;
   placeholder: string;
   placement: string;
   onPaste?: any;
+  onClick?: any;
 }
 
 const useForwardRef = <T,>(ref: ForwardedRef<T>, initialValue: any = null) => {
@@ -53,7 +54,7 @@ const DropdownItem = ({
       key={index}
       className={"dropdownItem" + (selectedIndex === index ? " selected" : "")}
       onClick={(e: React.MouseEvent) => {
-        callback(_id);
+        callback({_id});
       }}
     >
       {"#" + label}
@@ -90,17 +91,12 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
       ? dropdownList.filter((el) => el.label.toUpperCase().includes(localDescription.toUpperCase()))
       : [];
 
-    const validateEdit = (_id: string) => {
-      callback({ _id });
-      closeOverlay();
-    };
-
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Escape") {
         closeOverlay();
       } else if (e.key === "Enter") {
         if (selectedIndex !== null && filteredDropdownList[selectedIndex] !== undefined) {
-          validateEdit(filteredDropdownList[selectedIndex]._id);
+          callback({ _id: filteredDropdownList[selectedIndex]._id , });
         } else {
           callback({ label: localDescription });
         }
@@ -140,13 +136,7 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
           <Overlay target={forwardedRef.current} show={true} placement={placement as Placement}>
             <ul className="dropdownList" style={{ width: forwardedRef.current.offsetWidth, zIndex: 10 }}>
               {filteredDropdownList.map(({ _id, label }, index) => (
-                <DropdownItem
-                  _id={_id}
-                  label={label}
-                  index={index}
-                  selectedIndex={selectedIndex}
-                  callback={validateEdit}
-                />
+                <DropdownItem _id={_id} label={label} index={index} selectedIndex={selectedIndex} callback={callback} />
               ))}
             </ul>
           </Overlay>
