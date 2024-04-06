@@ -46,7 +46,7 @@ export default function FlashcardDetail({
     setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
     tags: Tag[];
     saveFlashcard: (infos: Partial<Flashcard>) => void;
-    saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
+    saveAsNewFlashcard: (infos: Partial<Flashcard>) => Promise<Flashcard>;
     editCurrentFlashcard: (flashcard: Flashcard) => void;
     subscribeToFlashcard: (flashcard: Flashcard) => void;
     setTreeFilter: Dispatch<SetStateAction<string[]>>;
@@ -153,7 +153,6 @@ export default function FlashcardDetail({
         break;
       case "ArrowUp":
         e.preventDefault();
-        console.log(usedIn);
         if (usedIn?.length !== 0) {
           setTreeFilter(usedIn.map(({ _id }) => _id));
           navigate("/flashcards/" + usedIn[0]._id);

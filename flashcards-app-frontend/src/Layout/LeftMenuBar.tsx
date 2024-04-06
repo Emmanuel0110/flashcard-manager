@@ -11,7 +11,7 @@ function LeftMenuBar() {
   }: {
     filter: string;
     setFilter: React.Dispatch<React.SetStateAction<string>>;
-    saveAsNewFlashcard: (infos: Partial<Flashcard>) => void;
+    saveAsNewFlashcard: (infos: Partial<Flashcard>) => Promise<Flashcard>;
   } = useContext(ConfigContext);
 
   useEffect(() => {

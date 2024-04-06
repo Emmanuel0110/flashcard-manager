@@ -277,8 +277,8 @@ export default function App() {
       });
   };
 
-  const saveAsNewFlashcard = (infos: Partial<Flashcard>) => {
-    saveNewFlashcard(infos)
+  const saveAsNewFlashcard = (infos: Partial<Flashcard>): Promise<Flashcard> => {
+    return saveNewFlashcard(infos)
       .then(({ data: newFlashcard }) => {
         setFlashcards((flashcards: Flashcard[]) => [...flashcards, newFlashcard]);
         setOpenedFlashcards((openedFlashcards) => [
@@ -286,6 +286,7 @@ export default function App() {
           { id: newFlashcard._id, data: newFlashcard, unsavedData: newFlashcard },
         ]);
         navigate("/flashcards/" + newFlashcard._id);
+        return newFlashcard;
       })
       .catch((err: Error) => {
         console.log(err);

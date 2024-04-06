@@ -3,7 +3,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
-import { saveNewTag } from "../flashcardActions";
+import { saveNewFlashcard, saveNewTag } from "../flashcardActions";
 import { ConfigContext } from "../../App";
 import { Flashcard, OpenFlashcardData, Tag } from "../../types";
 import AutoComplete from "../../utils/Autocomplete";
@@ -20,19 +20,22 @@ export default function FlashcardForm({
 }) {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
-  const prerequisiteInputRef = useRef<HTMLInputElement>(null);
   const {
+    flashcards,
     tags,
     setTags,
     setOpenedFlashcards,
     saveFlashcard,
     getFlashcardById,
+    saveAsNewFlashcard,
   }: {
+    flashcards: Flashcard[];
     tags: Tag[];
     setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
     setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
     saveFlashcard: (infos: Partial<Flashcard>) => void;
     getFlashcardById: (id: string) => Promise<Flashcard>;
+    saveAsNewFlashcard: (infos: Partial<Flashcard>) => Promise<Flashcard>;
   } = useContext(ConfigContext);
 
   useEffect(() => {
@@ -76,7 +79,7 @@ export default function FlashcardForm({
 
   const availableTags = tags.filter((tag) => !flashcard.tags.map((tag) => tag._id).includes(tag._id));
 
-  const onPaste = (e: React.ClipboardEvent) => {
+  const onPastePrerequisiteId = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const copiedText = e.clipboardData.getData("Text");
     if (copiedText.length === 24 && !prerequisiteFlashcards.find(({ _id }) => _id === copiedText)) {
@@ -85,6 +88,18 @@ export default function FlashcardForm({
           updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, prerequisite._id] });
         }
       });
+    }
+  };
+
+  const addPrerequisite = ({ _id, label }: { _id?: string; label?: string }) => {
+    if (_id && (!flashcard || !flashcard.tags.map((tag) => tag._id).includes(_id))) {
+      updateUnsavedData(flashcard._id, {
+        prerequisites: [...flashcard.prerequisites, _id],
+      });
+    } else if (label && !tags.map((tag) => tag.label).includes(label)) {
+      saveAsNewFlashcard({ title: label }).then(({_id}) => updateUnsavedData(flashcard._id, {
+        prerequisites: [...flashcard.prerequisites, _id],
+      }));
     }
   };
 
@@ -188,8 +203,14 @@ export default function FlashcardForm({
           {prerequisiteFlashcards.map((flashcardData, index) => (
             <FlashcardLine key={index} flashcardData={flashcardData} />
           ))}
-          <div className="tagInput">
-            <input ref={prerequisiteInputRef} type="text" placeholder="Add a flashcard id" onPaste={onPaste} />
+          <div className="prerequisiteInput">
+            <AutoComplete
+              dropdownList={flashcards.map(({ _id, title }) => ({ _id, label: title }))}
+              callback={addPrerequisite}
+              placeholder="Add a flashcard id"
+              placement="top-start"
+              onPaste={onPastePrerequisiteId}
+            />
           </div>
         </div>
       </div>

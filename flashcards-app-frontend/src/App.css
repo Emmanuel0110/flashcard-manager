@@ -406,7 +406,6 @@ button:focus {
   border-radius: 3px;
   max-height: 300px;
   overflow: auto;
-  width: 200px;
 }
 
 .dropdownItem {
@@ -436,14 +435,14 @@ button:focus {
   margin-right: 7px;
 }
 
-.tagInput {
+.tagInput, .prerequisiteInput {
   padding: 5px;
   background: white;
   border: 1px solid lightgray;
   border-radius: 4px;
 }
 
-.tagInput input {
+.tagInput input, .prerequisiteInput input {
   border: none;
   width: 100%;
 }

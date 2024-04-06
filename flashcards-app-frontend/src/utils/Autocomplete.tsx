@@ -7,6 +7,7 @@ interface AutoCompleteProps {
   callback: ({ _id, label }: { _id?: string; label?: string }) => void;
   placeholder: string;
   placement: string;
+  onPaste?: any;
 }
 
 const useForwardRef = <T,>(ref: ForwardedRef<T>, initialValue: any = null) => {
@@ -42,7 +43,7 @@ const DropdownItem = ({
   useEffect(() => {
     const { current } = dropdownItemRef;
     if (current !== null && selectedIndex === index) {
-      current.scrollIntoView({ behavior: "smooth", block:'nearest' });
+      current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [selectedIndex]);
 
@@ -61,7 +62,7 @@ const DropdownItem = ({
 };
 
 const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
-  ({ dropdownList, callback, placeholder, placement }, ref) => {
+  ({ dropdownList, callback, placeholder, placement, onPaste }, ref) => {
     const [editingMode, setEditingMode] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [localDescription, setLocalDescription] = useState("");
@@ -133,10 +134,11 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
           }}
           onKeyDown={onKeyDown}
           value={localDescription}
+          onPaste={onPaste}
         />
         {editingMode && filteredDropdownList.length ? (
           <Overlay target={forwardedRef.current} show={true} placement={placement as Placement}>
-            <ul className="dropdownList">
+            <ul className="dropdownList" style={{ width: forwardedRef.current.offsetWidth, zIndex: 10 }}>
               {filteredDropdownList.map(({ _id, label }, index) => (
                 <DropdownItem
                   _id={_id}
