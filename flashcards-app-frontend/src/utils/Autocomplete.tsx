@@ -98,7 +98,7 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
       if (e.key === "Escape") {
         closeOverlay();
       } else if (e.key === "Enter") {
-        if (selectedIndex !== null) {
+        if (selectedIndex !== null && filteredDropdownList[selectedIndex] !== undefined) {
           validateEdit(filteredDropdownList[selectedIndex]._id);
         } else {
           callback({ label: localDescription });
