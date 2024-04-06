@@ -113,7 +113,7 @@ export default function FlashcardForm({
     label?: string;
     setLocalDescription: Dispatch<React.SetStateAction<string>>;
   }) => {
-    if (_id && (!flashcard || !flashcard.tags.map((tag) => tag._id).includes(_id))) {
+    if (_id) {
       updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, _id] });
       setLocalDescription("");
     } else if (label) {
