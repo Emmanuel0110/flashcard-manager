@@ -95,12 +95,12 @@
   background-color: #3f51b5;
 }
 
-.selected {
+#filterSection .selected {
   width: 5px;
   background-color: rgb(131, 150, 236);
 }
 
-.unselected {
+#filterSection .unselected {
   width: 5px;
 }
 
@@ -419,6 +419,10 @@ button:focus {
   background: lightgrey;
 }
 
+.dropdownItem.selected {
+  background: lightgrey;
+}
+
 #tags {
   display: flex;
 }
@@ -613,3 +617,4 @@ a.nav-link {
   background-position: center;
   vertical-align: middle;
 }
+
