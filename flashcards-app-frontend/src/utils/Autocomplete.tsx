@@ -25,6 +25,41 @@ const useForwardRef = <T,>(ref: ForwardedRef<T>, initialValue: any = null) => {
   return targetRef;
 };
 
+const DropdownItem = ({
+  _id,
+  label,
+  index,
+  selectedIndex,
+  callback,
+}: {
+  _id: string;
+  label: string;
+  index: number;
+  selectedIndex: number | null;
+  callback: any;
+}) => {
+  const dropdownItemRef = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    const { current } = dropdownItemRef;
+    if (current !== null && selectedIndex === index) {
+      current.scrollIntoView({ behavior: "smooth", block:'nearest' });
+    }
+  }, [selectedIndex]);
+
+  return (
+    <li
+      ref={dropdownItemRef}
+      key={index}
+      className={"dropdownItem" + (selectedIndex === index ? " selected" : "")}
+      onClick={(e: React.MouseEvent) => {
+        callback(_id);
+      }}
+    >
+      {"#" + label}
+    </li>
+  );
+};
+
 const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
   ({ dropdownList, callback, placeholder, placement }, ref) => {
     const [editingMode, setEditingMode] = useState(false);
@@ -102,16 +137,14 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
         {editingMode && filteredDropdownList.length ? (
           <Overlay target={forwardedRef.current} show={true} placement={placement as Placement}>
             <ul className="dropdownList">
-              {filteredDropdownList.map((el, index) => (
-                <li
-                  key={index}
-                  className={"dropdownItem" + (selectedIndex === index ? " selected" : "")}
-                  onClick={(e: React.MouseEvent) => {
-                    validateEdit(el._id);
-                  }}
-                >
-                  {"#" + el.label}
-                </li>
+              {filteredDropdownList.map(({ _id, label }, index) => (
+                <DropdownItem
+                  _id={_id}
+                  label={label}
+                  index={index}
+                  selectedIndex={selectedIndex}
+                  callback={validateEdit}
+                />
               ))}
             </ul>
           </Overlay>
