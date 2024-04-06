@@ -1,10 +1,10 @@
-import React, { ForwardedRef, forwardRef, useEffect, useRef, useState } from "react";
+import React, { Dispatch, ForwardedRef, forwardRef, useEffect, useRef, useState } from "react";
 import { Overlay } from "react-bootstrap";
 import { Placement } from "react-bootstrap/esm/types";
 
 interface AutoCompleteProps {
   dropdownList: { _id: string; label: string }[];
-  callback: ({ _id, label }: { _id?: string; label?: string, setLocalDescription?: (desc: string) => void }) => void;
+  callback: ({ _id, label, setLocalDescription }: { _id?: string; label?: string; setLocalDescription: Dispatch<React.SetStateAction<string>>;}) => void;
   placeholder: string;
   placement: string;
   onPaste?: any;
@@ -33,12 +33,14 @@ const DropdownItem = ({
   index,
   selectedIndex,
   callback,
+  setLocalDescription,
 }: {
   _id: string;
   label: string;
   index: number;
   selectedIndex: number | null;
   callback: any;
+  setLocalDescription: Dispatch<React.SetStateAction<string>>;
 }) => {
   const dropdownItemRef = useRef<HTMLLIElement>(null);
   useEffect(() => {
@@ -53,9 +55,7 @@ const DropdownItem = ({
       ref={dropdownItemRef}
       key={index}
       className={"dropdownItem" + (selectedIndex === index ? " selected" : "")}
-      onClick={(e: React.MouseEvent) => {
-        callback({_id});
-      }}
+      onClick={(e: React.MouseEvent) => callback({ _id, setLocalDescription })}
     >
       {"#" + label}
     </li>
@@ -84,7 +84,6 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
     const closeOverlay = () => {
       setEditingMode(false);
       setSelectedIndex(null);
-      setLocalDescription("");
     };
 
     const filteredDropdownList = dropdownList?.length
@@ -96,9 +95,9 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
         closeOverlay();
       } else if (e.key === "Enter") {
         if (selectedIndex !== null && filteredDropdownList[selectedIndex] !== undefined) {
-          callback({ _id: filteredDropdownList[selectedIndex]._id , });
+          callback({ _id: filteredDropdownList[selectedIndex]._id, setLocalDescription });
         } else {
-          callback({ label: localDescription });
+          callback({ label: localDescription, setLocalDescription });
         }
         closeOverlay();
       } else if (e.key === "ArrowUp") {
@@ -136,7 +135,7 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
           <Overlay target={forwardedRef.current} show={true} placement={placement as Placement}>
             <ul className="dropdownList" style={{ width: forwardedRef.current.offsetWidth, zIndex: 10 }}>
               {filteredDropdownList.map(({ _id, label }, index) => (
-                <DropdownItem _id={_id} label={label} index={index} selectedIndex={selectedIndex} callback={callback} />
+                <DropdownItem key={index} _id={_id} label={label} index={index} selectedIndex={selectedIndex} callback={callback} setLocalDescription={setLocalDescription} />
               ))}
             </ul>
           </Overlay>

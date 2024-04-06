@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { Dispatch, useContext, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ConfigContext, emptyFilter, someFilter } from "../App";
 import { SearchFilter, Tag, User } from "../types";
@@ -49,11 +49,21 @@ function Navbar() {
     setTreeFilter([]);
   };
 
-  const search = ({ _id, label }: { _id?: string; label?: string }) => {
+  const search = ({
+    _id,
+    label,
+    setLocalDescription,
+  }: {
+    _id?: string;
+    label?: string;
+    setLocalDescription: Dispatch<React.SetStateAction<string>>;
+  }) => {
     if (_id) {
-      setSearchFilter({ ...searchFilter, tag: tags.find((tag) => tag._id === _id) });
+      const tag = tags.find((tag) => tag._id === _id)!;
+      setLocalDescription((localDescription) => localDescription + tag.label);
     } else if (label) {
       setSearchFilter({ ...searchFilter, searchString: label });
+      setLocalDescription("");
     }
   };
 
@@ -67,7 +77,13 @@ function Navbar() {
       <div id="searchArea">
         <div id="searchAreaContainer">
           <div id="searchAreaInput">
-            <AutoComplete ref={inputRef} dropdownList={tags} callback={search} placeholder="Search..." placement="bottom-start" />
+            <AutoComplete
+              ref={inputRef}
+              dropdownList={tags}
+              callback={search}
+              placeholder="Search..."
+              placement="bottom-start"
+            />
           </div>
           {someFilter(searchFilter, treeFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
         </div>

@@ -1,6 +1,6 @@
 import "../../App.css";
 import { Editor } from "@tinymce/tinymce-react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { Dispatch, useContext, useEffect, useRef, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
 import { saveNewFlashcard, saveNewTag } from "../flashcardActions";
@@ -66,18 +66,31 @@ export default function FlashcardForm({
     }
   };
 
-  const addTag = ({ _id, label }: { _id?: string; label?: string }) => {
+  const addTag = ({
+    _id,
+    label,
+    setLocalDescription,
+  }: {
+    _id?: string;
+    label?: string;
+    setLocalDescription: Dispatch<React.SetStateAction<string>>;
+  }) => {
     if (_id && (!flashcard || !flashcard.tags.map((tag) => tag._id).includes(_id))) {
       updateUnsavedData(flashcard._id, { tags: [...flashcard.tags, tags.find((tag: Tag) => tag._id === _id)!] });
+      setLocalDescription("");
     } else if (label && !tags.map((tag) => tag.label).includes(label)) {
       saveNewTag({ label }).then(({ data: tag }) => {
         setTags((tags: Tag[]) => [...tags, tag]);
         updateUnsavedData(flashcard._id, { tags: [...flashcard.tags, tag] });
+        setLocalDescription("");
       });
     }
   };
 
   const availableTags = tags.filter((tag) => !flashcard.tags.map((tag) => tag._id).includes(tag._id));
+  const availableFlashcardIds = flashcards
+    .map(({ _id, title }) => ({ _id, label: title }))
+    .filter(({ _id }) => !flashcard.prerequisites.includes(_id));
 
   const onPastePrerequisiteId = (e: React.ClipboardEvent) => {
     e.preventDefault();
@@ -91,15 +104,23 @@ export default function FlashcardForm({
     }
   };
 
-  const addPrerequisite = ({ _id, label }: { _id?: string; label?: string }) => {
+  const addPrerequisite = ({
+    _id,
+    label,
+    setLocalDescription,
+  }: {
+    _id?: string;
+    label?: string;
+    setLocalDescription: Dispatch<React.SetStateAction<string>>;
+  }) => {
     if (_id && (!flashcard || !flashcard.tags.map((tag) => tag._id).includes(_id))) {
-      updateUnsavedData(flashcard._id, {
-        prerequisites: [...flashcard.prerequisites, _id],
-      });
-    } else if (label && !tags.map((tag) => tag.label).includes(label)) {
-      saveAsNewFlashcard({ title: label }).then(({_id}) => updateUnsavedData(flashcard._id, {
-        prerequisites: [...flashcard.prerequisites, _id],
-      }));
+      updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, _id] });
+      setLocalDescription("");
+    } else if (label) {
+      saveAsNewFlashcard({ title: label }).then(({ _id }) =>
+        updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, _id] })
+      );
+      setLocalDescription("");
     }
   };
 
@@ -205,7 +226,7 @@ export default function FlashcardForm({
           ))}
           <div className="prerequisiteInput">
             <AutoComplete
-              dropdownList={flashcards.map(({ _id, title }) => ({ _id, label: title }))}
+              dropdownList={availableFlashcardIds}
               callback={addPrerequisite}
               placeholder="Add a flashcard id"
               placement="top-start"
