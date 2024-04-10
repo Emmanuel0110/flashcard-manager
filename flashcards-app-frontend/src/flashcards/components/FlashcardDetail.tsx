@@ -6,6 +6,7 @@ import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
 import { editUserFlashcardInfo, readRemoteFlashcard } from "../flashcardActions";
 import { FlashcardLine } from "./FlashcardLine";
+import { Editor } from "@tinymce/tinymce-react";
 
 export default function FlashcardDetail({
   flashcard,
@@ -271,10 +272,37 @@ export default function FlashcardDetail({
           {hasPreviousFlashcard() && <div id="previousArrow" onClick={goToPreviousFlashcard}></div>}
         </div>
         <div id="middle">
-          <div id="question" dangerouslySetInnerHTML={{ __html: flashcard?.question || "" }} />
+          <Editor
+            tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/js/tinymce/tinymce.min.js'}
+            initialValue={flashcard.question}
+            init={{
+              height: "25vh",
+              editable_root: false,
+              menubar: false,
+              statusbar: false,
+              toolbar: "fullscreen",
+              plugins: "fullscreen codesample",
+              codesample_global_prismjs: true,
+              content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+            }}
+
+          />
           {answerVisible ? (
             <>
-              <div id="answer" dangerouslySetInnerHTML={{ __html: flashcard?.answer || "" }} />
+              <Editor
+                tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/js/tinymce/tinymce.min.js'}
+                initialValue={flashcard.answer}
+                init={{
+                  height: "40vh",
+                  editable_root: false,
+                  menubar: false,
+                  statusbar: false,
+                  toolbar: "fullscreen",
+                  plugins: "fullscreen codesample",
+                  codesample_global_prismjs: true,
+                  content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                }}
+              />
               {filter !== "To be reviewed" && (
                 <>
                   <div id="tags">

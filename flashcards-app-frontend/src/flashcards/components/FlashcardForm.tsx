@@ -1,9 +1,9 @@
 import "../../App.css";
 import { Editor } from "@tinymce/tinymce-react";
-import { Dispatch, useContext, useEffect, useRef, useState } from "react";
+import { Dispatch, useContext, useEffect, useRef } from "react";
 import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
-import { saveNewFlashcard, saveNewTag } from "../flashcardActions";
+import { saveNewTag } from "../flashcardActions";
 import { ConfigContext } from "../../App";
 import { Flashcard, OpenFlashcardData, Tag } from "../../types";
 import AutoComplete from "../../utils/Autocomplete";
@@ -143,7 +143,7 @@ export default function FlashcardForm({
       <div id="form">
         <div id="question">
           <Editor
-            tinymceScriptSrc="/public/to/tinymce.min.js"
+            tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/js/tinymce/tinymce.min.js'}
             onInit={(evt, editor) => {
               questionRef.current = editor;
               questionRef.current.setContent(flashcard.question);
@@ -163,18 +163,24 @@ export default function FlashcardForm({
               menubar: false,
               statusbar: false,
               plugins:
-                "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table code help wordcount",
+                "advlist autolink lists link image charmap preview anchor searchreplace visualblocks codesample fullscreen insertdatetime media table help wordcount",
               toolbar:
                 "undo redo | formatselect | " +
                 "bold italic backcolor | alignleft aligncenter " +
                 "alignright alignjustify | bullist numlist outdent indent | " +
-                "removeformat | help",
+                "codesample removeformat | help fullscreen",
+              codesample_global_prismjs: true,
+              codesample_languages: [
+                { text: "JavaScript", value: "javascript" },
+                { text: "Lisp", value: "lisp" },
+              ],
               content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
             }}
           />
         </div>
         <div id="answer">
           <Editor
+            tinymceScriptSrc={process.env.PUBLIC_URL + "/tinymce/js/tinymce/tinymce.min.js"}
             onInit={(evt, editor) => {
               answerRef.current = editor;
               answerRef.current.setContent(flashcard.answer);
@@ -193,7 +199,12 @@ export default function FlashcardForm({
                 "undo redo | formatselect | " +
                 "bold italic backcolor | alignleft aligncenter " +
                 "alignright alignjustify | bullist numlist outdent indent | " +
-                "removeformat | help",
+                "removeformat | help fullscreen",
+              codesample_global_prismjs: true,
+              codesample_languages: [
+                { text: "JavaScript", value: "javascript" },
+                { text: "Lisp", value: "lisp" },
+              ],
               content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
             }}
           />
