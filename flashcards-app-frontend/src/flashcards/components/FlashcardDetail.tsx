@@ -26,8 +26,8 @@ export default function FlashcardDetail({
     openedFlashcards,
     setOpenedFlashcards,
     user,
-    filter,
-    setFilter,
+    status,
+    setStatus,
     setSearchFilter,
     tags,
     saveFlashcard,
@@ -42,8 +42,8 @@ export default function FlashcardDetail({
     openedFlashcards: OpenFlashcardData[];
     setOpenedFlashcards: Dispatch<SetStateAction<OpenFlashcardData[]>>;
     user: User;
-    filter: string;
-    setFilter: Dispatch<SetStateAction<string>>;
+    status: string;
+    setStatus: Dispatch<SetStateAction<string>>;
     setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
     tags: Tag[];
     saveFlashcard: (infos: Partial<Flashcard>) => void;
@@ -52,7 +52,7 @@ export default function FlashcardDetail({
     subscribeToFlashcard: (flashcard: Flashcard) => void;
     setTreeFilter: Dispatch<SetStateAction<string[]>>;
   } = useContext(ConfigContext);
-  const [answerVisible, setAnswerVisible] = useState(filter !== "To be reviewed");
+  const [answerVisible, setAnswerVisible] = useState(status !== "To be reviewed");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,12 +75,12 @@ export default function FlashcardDetail({
       });
     }
     if (!hasNextFlashcard()) {
-      fetchMoreFlashcards(url + "flashcards?filter=" + filter, setFlashcards, flashcards.length, 30);
+      fetchMoreFlashcards(url + "flashcards?status=" + status, setFlashcards, flashcards.length, 30);
     }
   }, [flashcardId]);
 
   useEffect(() => {
-    setAnswerVisible(filter !== "To be reviewed");
+    setAnswerVisible(status !== "To be reviewed");
   }, [flashcardId]);
 
   const currentIndex = useMemo(
@@ -217,7 +217,7 @@ export default function FlashcardDetail({
     if (hasNextFlashcard()) {
       goToNextFlashcard();
     } else {
-      setFilter("My favorites");
+      setStatus("My favorites");
       navigate("/flashcards/");
     }
   };
@@ -301,7 +301,7 @@ export default function FlashcardDetail({
                   codesample_global_prismjs: true,
                 }}
               />
-              {filter !== "To be reviewed" && (
+              {status !== "To be reviewed" && (
                 <>
                   <div id="tags">
                     {flashcard &&
@@ -330,7 +330,7 @@ export default function FlashcardDetail({
                   )}
                 </>
               )}
-              {filter === "To be reviewed" && (
+              {status === "To be reviewed" && (
                 <div id="answerButtons">
                   <Button onClick={() => reviewIn(1, "day")} style={{ backgroundColor: "#75beff", border: "none" }}>
                     I forgot <br /> +1day
@@ -349,7 +349,7 @@ export default function FlashcardDetail({
           )}
         </div>
         <div id="next">
-          {options.length > 0 && filter !== "To be reviewed" && <DotOptions obj={flashcard} options={options} />}
+          {options.length > 0 && status !== "To be reviewed" && <DotOptions obj={flashcard} options={options} />}
           {hasNextFlashcard() && <div id="nextArrow" onClick={goToNextFlashcard}></div>}
         </div>
       </div>

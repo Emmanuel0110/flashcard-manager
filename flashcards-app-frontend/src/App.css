@@ -82,7 +82,7 @@
   padding: 10px;
 }
 
-#filterSection > div {
+#statusSection > div {
   cursor: pointer;
   color: white;
   padding: 6px;
@@ -91,16 +91,16 @@
   letter-spacing: 0.2px;
 }
 
-#filterSection > div:hover {
+#statusSection > div:hover {
   background-color: #3f51b5;
 }
 
-#filterSection .selected {
+#statusSection .selected {
   width: 5px;
   background-color: rgb(131, 150, 236);
 }
 
-#filterSection .unselected {
+#statusSection .unselected {
   width: 5px;
 }
 

@@ -5,12 +5,12 @@ import { Flashcard, OpenFlashcardData } from "../types";
 
 function LeftMenuBar() {
   const {
-    filter,
-    setFilter,
+    status,
+    setStatus,
     saveAsNewFlashcard,
   }: {
-    filter: string;
-    setFilter: React.Dispatch<React.SetStateAction<string>>;
+    status: string;
+    setStatus: React.Dispatch<React.SetStateAction<string>>;
     saveAsNewFlashcard: (infos: Partial<Flashcard>) => Promise<Flashcard>;
   } = useContext(ConfigContext);
 
@@ -33,7 +33,7 @@ function LeftMenuBar() {
   };
   
   const startReview = () => {
-    setFilter("To be reviewed");
+    setStatus("To be reviewed");
   };
 
   const openNewDraft = () => {
@@ -48,21 +48,21 @@ function LeftMenuBar() {
             New flashcard
           </Button>
         </div>
-        <div id="filterSection">
-          <div onClick={() => setFilter("Published")}>
-            <div className={filter === "Published" ? "selected" : "unselected"}></div>
+        <div id="statusSection">
+          <div onClick={() => setStatus("Published")}>
+            <div className={status === "Published" ? "selected" : "unselected"}></div>
             <div>All flashcards</div>
           </div>
-          <div onClick={() => setFilter("Draft")}>
-            <div className={filter === "Draft" ? "selected" : "unselected"}></div>
+          <div onClick={() => setStatus("Draft")}>
+            <div className={status === "Draft" ? "selected" : "unselected"}></div>
             <div>Drafts</div>
           </div>
-          <div onClick={() => setFilter("To be validated")}>
-            <div className={filter === "To be validated" ? "selected" : "unselected"}></div>
+          <div onClick={() => setStatus("To be validated")}>
+            <div className={status === "To be validated" ? "selected" : "unselected"}></div>
             <div>To be validated</div>
           </div>
-          <div onClick={() => setFilter("My favorites")}>
-            <div className={filter === "My favorites" ? "selected" : "unselected"}></div>
+          <div onClick={() => setStatus("My favorites")}>
+            <div className={status === "My favorites" ? "selected" : "unselected"}></div>
             <div>My favorites</div>
           </div>
         </div>

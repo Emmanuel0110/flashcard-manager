@@ -75,7 +75,7 @@ export default function App() {
   const [searchFilter, setSearchFilter] = useState<SearchFilter>({ searchString: "", tag: undefined });
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
   const [openedFlashcards, setOpenedFlashcards] = useState([] as OpenFlashcardData[]);
-  const [filter, setFilter] = useState("Published");
+  const [status, setStatus] = useState("Published");
   const [tags, setTags] = useState([] as Tag[]);
   const navigate = useNavigate();
 
@@ -87,20 +87,20 @@ export default function App() {
     const { searchString, tag } = searchFilter;
     fetchMoreFlashcards(
       url +
-        "flashcards?filter=" +
-        filter +
+        "flashcards?status=" +
+        status +
         (searchString ? "&searchString=" + searchString : "") +
         (tag ? "&tagId=" + tag._id : ""),
       setFlashcards,
       0,
       30
     ).then(() => {
-      if (filter === "To be reviewed" && filteredFlashcards.length > 0) {
+      if (status === "To be reviewed" && filteredFlashcards.length > 0) {
         setOpenedFlashcards([]);
         navigate("/flashcards/" + filteredFlashcards[0]._id);
       }
     });
-  }, [filter, searchFilter, isAuthenticated]);
+  }, [status, searchFilter, isAuthenticated]);
 
   useEffect(() => {
     setOpenedFlashcards((openFlashcards) =>
@@ -114,17 +114,17 @@ export default function App() {
   const filteredFlashcards = useMemo(() => {
     return flashcards.filter((flashcard) => {
       return (
-        ((filter === "Draft" && flashcard.status === "Draft") ||
-          (filter === "To be validated" && flashcard.status === "To be validated") ||
-          (filter === "Published" && flashcard.status === "Published") ||
-          (filter === "My favorites" && flashcard.nextReviewDate instanceof Date) ||
-          (filter === "To be reviewed" &&
+        ((status === "Draft" && flashcard.status === "Draft") ||
+          (status === "To be validated" && flashcard.status === "To be validated") ||
+          (status === "Published" && flashcard.status === "Published") ||
+          (status === "My favorites" && flashcard.nextReviewDate instanceof Date) ||
+          (status === "To be reviewed" &&
             flashcard.nextReviewDate instanceof Date &&
             flashcard.nextReviewDate.getTime() <= new Date().getTime())) &&
         (!someFilter(searchFilter, treeFilter) || isFiltered(flashcard, searchFilter, treeFilter))
       );
     });
-  }, [flashcards, filter, searchFilter, treeFilter]);
+  }, [flashcards, status, searchFilter, treeFilter]);
 
   const viewHistory = useRef<View[]>([]);
   const viewIndex = useRef(0);
@@ -141,7 +141,7 @@ export default function App() {
       }
       viewIndex.current = viewHistory.current.push({
         openedFlashcards,
-        filter,
+        status,
         searchFilter,
         treeFilter,
         location: location.pathname,
@@ -183,9 +183,9 @@ export default function App() {
 
   const refreshView = (index: number) => {
     preventHistorization.current = true;
-    const { openedFlashcards, filter, searchFilter, treeFilter, location } = viewHistory.current[index];
+    const { openedFlashcards, status, searchFilter, treeFilter, location } = viewHistory.current[index];
     setOpenedFlashcards(openedFlashcards);
-    setFilter(filter);
+    setStatus(status);
     setSearchFilter(searchFilter);
     setTreeFilter(treeFilter);
     navigate(location);
@@ -319,8 +319,8 @@ export default function App() {
         setSearchFilter,
         user,
         setUser,
-        filter,
-        setFilter,
+        status,
+        setStatus,
         tags,
         setTags,
         deleteFlashcard,

@@ -37,7 +37,7 @@ export interface OpenFlashcardData {
 
 export interface View {
   openedFlashcards: OpenFlashcardData[];
-  filter: string;
+  status: string;
   searchFilter: SearchFilter;
   treeFilter: string[];
   location: string;

@@ -47,24 +47,25 @@ const completeFlashcard = async (flashcard, userFlashcardInfos) => {
 };
 
 app.get("/api/flashcards", auth, (req, res) => {
-  const { filter, searchString, tagId, prerequisitesAndUsedIn } = req.query;
+  const { status, filter, prerequisitesAndUsedIn } = req.query;
   if (
-    filter === "Draft" ||
-    filter === "To be validated" ||
-    filter === "Published" ||
+    status === "Draft" ||
+    status === "To be validated" ||
+    status === "Published" ||
     prerequisitesAndUsedIn !== undefined
   ) {
     UserFlashcardInfoModel.find({ user: req.user._id })
       .then((userFlashcardInfos) => {
-        const status = filter ? { status: filter } : {};
-        const stringSearch = searchString ? { $text: { $search: searchString } } : {};
-        const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
+        const statusSearch = status ? { status } : {};
+        console.log(filter);
+        //const stringSearch = searchString ? { $text: { $search: searchString } } : {};
+        //const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
         const prerequisitesAndUsedInSearch = prerequisitesAndUsedIn ? { _id: { $in: prerequisitesAndUsedIn } } : {};
-        const otherFilter = filter === "Draft" ? { author: req.user._id } : {};
+        const otherFilter = status === "Draft" ? { author: req.user._id } : {};
         FlashcardModel.find({
-          ...status,
-          ...stringSearch,
-          ...tagSearch,
+          ...statusSearch,
+          //...stringSearch,
+          //...tagSearch,
           ...prerequisitesAndUsedInSearch,
           ...otherFilter,
         })
@@ -88,10 +89,10 @@ app.get("/api/flashcards", auth, (req, res) => {
           .catch((err) => console.log(err));
       })
       .catch((err) => console.log(err));
-  } else if (filter === "My favorites" || filter === "To be reviewed") {
+  } else if (status === "My favorites" || status === "To be reviewed") {
     UserFlashcardInfoModel.find({
       user: req.user._id,
-      nextReviewDate: filter === "To be reviewed" ? { $lt: new Date() } : { $exists: true, $ne: null },
+      nextReviewDate: status === "To be reviewed" ? { $lt: new Date() } : { $exists: true, $ne: null },
     })
       .then((userFlashcardInfos) => {
         FlashcardModel.find({ _id: userFlashcardInfos.map((el) => el.flashcard) })
