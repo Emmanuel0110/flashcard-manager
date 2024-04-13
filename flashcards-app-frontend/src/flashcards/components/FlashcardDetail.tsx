@@ -283,7 +283,6 @@ export default function FlashcardDetail({
               toolbar: "fullscreen",
               plugins: "fullscreen codesample",
               codesample_global_prismjs: true,
-              content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
             }}
 
           />
@@ -300,7 +299,6 @@ export default function FlashcardDetail({
                   toolbar: "fullscreen",
                   plugins: "fullscreen codesample",
                   codesample_global_prismjs: true,
-                  content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                 }}
               />
               {filter !== "To be reviewed" && (

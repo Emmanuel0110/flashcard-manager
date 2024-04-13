@@ -174,7 +174,6 @@ export default function FlashcardForm({
                 { text: "JavaScript", value: "javascript" },
                 { text: "Lisp", value: "lisp" },
               ],
-              content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
             }}
           />
         </div>
@@ -194,18 +193,17 @@ export default function FlashcardForm({
               menubar: false,
               statusbar: false,
               plugins:
-                "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table code help wordcount",
+                "advlist autolink lists link image charmap preview anchor searchreplace visualblocks codesample fullscreen insertdatetime media table code help wordcount",
               toolbar:
                 "undo redo | formatselect | " +
                 "bold italic backcolor | alignleft aligncenter " +
                 "alignright alignjustify | bullist numlist outdent indent | " +
-                "removeformat | help fullscreen",
+                "codesample removeformat | help fullscreen",
               codesample_global_prismjs: true,
               codesample_languages: [
                 { text: "JavaScript", value: "javascript" },
                 { text: "Lisp", value: "lisp" },
               ],
-              content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
             }}
           />
         </div>
