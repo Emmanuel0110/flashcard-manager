@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ConfigContext, fetchMoreFlashcards } from "../../App";
+import { ConfigContext } from "../../App";
 import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
@@ -28,7 +28,7 @@ export default function FlashcardDetail({
     user,
     status,
     setStatus,
-    searchFilter,
+    fetchMoreFlashcards,
     setSearchFilter,
     tags,
     saveFlashcard,
@@ -45,7 +45,7 @@ export default function FlashcardDetail({
     user: User;
     status: string;
     setStatus: Dispatch<SetStateAction<string>>;
-    searchFilter: SearchFilter;
+    fetchMoreFlashcards: (skip: number, limit: number) => void;
     setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
     tags: Tag[];
     saveFlashcard: (infos: Partial<Flashcard>) => void;
@@ -77,7 +77,7 @@ export default function FlashcardDetail({
       });
     }
     if (!hasNextFlashcard()) {
-      fetchMoreFlashcards(status, searchFilter, setFlashcards, flashcards.length, 30);
+      fetchMoreFlashcards(flashcards.length, 30);
     }
   }, [flashcardId]);
 
@@ -224,8 +224,8 @@ export default function FlashcardDetail({
     }
   };
 
-  const searchTag = (tagId: string) => {
-    setSearchFilter((searchFilter) => ({ ...searchFilter, tag: tags.find((tag) => tag._id === tagId) }));
+  const searchTag = (tagLabel: string) => {
+    setSearchFilter((searchFilter) => ([ ...searchFilter, ["#" + tagLabel] ]));
   };
 
   let options = [];
@@ -275,7 +275,7 @@ export default function FlashcardDetail({
         </div>
         <div id="middle">
           <Editor
-            tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/js/tinymce/tinymce.min.js'}
+            tinymceScriptSrc={process.env.PUBLIC_URL + "/tinymce/js/tinymce/tinymce.min.js"}
             initialValue={flashcard.question}
             init={{
               height: "25vh",
@@ -286,12 +286,11 @@ export default function FlashcardDetail({
               plugins: "fullscreen codesample",
               codesample_global_prismjs: true,
             }}
-
           />
           {answerVisible ? (
             <>
               <Editor
-                tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/js/tinymce/tinymce.min.js'}
+                tinymceScriptSrc={process.env.PUBLIC_URL + "/tinymce/js/tinymce/tinymce.min.js"}
                 initialValue={flashcard.answer}
                 init={{
                   height: "40vh",
@@ -308,7 +307,7 @@ export default function FlashcardDetail({
                   <div id="tags">
                     {flashcard &&
                       flashcard.tags.map((tag, index) => (
-                        <div key={index} className="tag" onClick={(e) => searchTag(tag._id)}>
+                        <div key={index} className="tag" onClick={(e) => searchTag(tag.label)}>
                           {"#" + tag.label}
                         </div>
                       ))}

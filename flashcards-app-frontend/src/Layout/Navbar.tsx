@@ -5,6 +5,26 @@ import { SearchFilter, Tag, User } from "../types";
 import { logout } from "../auth/authActions";
 import AutoComplete from "../utils/Autocomplete";
 
+const parseLabel = (label: string) => {
+  let result: string[] = [];
+  //For instance "bla bla" not #blo not "blo blo" => [not "blo blo", not #blo, bla bla]
+  const regex1 = /not\s\".*?\"/gi; //finds not "blo blo"
+  const matches1 = label.match(regex1);
+  matches1?.forEach((match) => {result.push(match);label = label.replace(match, "");});
+
+  const regex2 = /not\s\S+/gi; //finds not #blo
+  const matches2 = label.match(regex2);
+  matches2?.forEach((match) => {result.push(match);label = label.replace(match, "");});
+
+  const regex3 = /\".*?\"/gi; //finds "bla bla"
+  const matches3 = label.match(regex3);
+  matches3?.forEach((match) => {result.push(match);label = label.replace(match, "");});
+
+  label.split(" ").forEach(el => {if (el) result.push(el)});
+
+  return result;
+};
+
 function Navbar() {
   const {
     user,
@@ -62,7 +82,7 @@ function Navbar() {
       const tag = tags.find((tag) => tag._id === _id)!;
       setLocalDescription((localDescription) => localDescription + tag.label);
     } else if (label) {
-      setSearchFilter([...searchFilter, [label]]);
+      setSearchFilter([...searchFilter, parseLabel(label)]);
       setLocalDescription("");
     }
   };

@@ -40,37 +40,36 @@ export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcar
   }, flashcards);
 };
 
-export const fetchMoreFlashcards = (
-  status: string,
-  searchFilter: SearchFilter,
-  setFlashcards: Dispatch<SetStateAction<Flashcard[]>>,
-  skip: number,
-  limit: number
-) => {
-  return customFetch(url + "search", {
-    method: "POST", // we want to GET flashcards but with a complex filter (string[][])
-    headers: authHeaders(),
-    body: JSON.stringify({ status, searchFilter, skip, limit }),
-  })
-    .then((newFlashcards: any) => {
-      setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, newFlashcards));
-    })
-    .catch((err: Error) => {
-      console.log(err);
-    });
-};
-
 export const someFilter = (searchFilter: SearchFilter, treeFilter: string[]): boolean =>
   searchFilter.length !== 0 || treeFilter.length !== 0;
 
-const isFilterBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilter) => {
-  return true;
-}
+const isFilteredBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilter) => {
+  return searchFilter.every((el) =>
+    el.some((filterString) => {
+      if (filterString.toLowerCase().startsWith("not ")) {
+        if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
+          return !flashcard.tags.find(({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(5));
+        } else {
+          return !flashcard.title
+            .toLowerCase()
+            .includes(filterString.toLowerCase().trim().slice(4).replace(/^\"/, "").replace(/\"$/, ""));
+        }
+      } else {
+        if (filterString.toLowerCase().trim().startsWith("#")) {
+          return flashcard.tags.find(({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(1));
+        } else {
+          return flashcard.title
+            .toLowerCase()
+            .includes(filterString.toLowerCase().replace(/^\"/, "").replace(/\"$/, ""));
+        }
+      }
+    })
+  );
+};
 
 const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) => {
   return (
-    isFilterBySearchFilter(flashcard, searchFilter) &&
-    (treeFilter.length === 0 || treeFilter.includes(flashcard._id))
+    isFilteredBySearchFilter(flashcard, searchFilter) && (treeFilter.length === 0 || treeFilter.includes(flashcard._id))
   );
 };
 
@@ -92,7 +91,8 @@ export default function App() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchMoreFlashcards(status, searchFilter, setFlashcards, 0, 30).then(() => {
+    console.log(searchFilter);
+    fetchMoreFlashcards(0, 30).then(() => {
       if (status === "To be reviewed" && filteredFlashcards.length > 0) {
         setOpenedFlashcards([]);
         navigate("/flashcards/" + filteredFlashcards[0]._id);
@@ -111,6 +111,7 @@ export default function App() {
 
   const filteredFlashcards = useMemo(() => {
     return flashcards.filter((flashcard) => {
+      console.log(searchFilter);
       return (
         ((status === "Draft" && flashcard.status === "Draft") ||
           (status === "To be validated" && flashcard.status === "To be validated") ||
@@ -199,6 +200,30 @@ export default function App() {
         ? "/flashcards/" + (openedFlashcards[tabIndex + 1]?.id || openedFlashcards[tabIndex - 1]?.id)
         : "/flashcards"
     );
+  };
+
+  const fetchMoreFlashcards = (skip: number, limit: number) => {
+    //Replace tag label by tag id
+    const filter = searchFilter.map((el) =>
+      el.map((el) =>
+        el.replace(/\#\S+/, (substring) =>
+          substring.length > 1 && tags.map(({ label }) => label).includes(substring.slice(1))
+            ? "#" + tags.find(({ label }) => label === substring.slice(1))!._id
+            : ""
+        )
+      )
+    );
+    return customFetch(url + "search", {
+      method: "POST", // we want to GET flashcards but with a complex filter (string[][])
+      headers: authHeaders(),
+      body: JSON.stringify({ status, filter, skip, limit }),
+    })
+      .then((newFlashcards: any) => {
+        setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, newFlashcards));
+      })
+      .catch((err: Error) => {
+        console.log(err);
+      });
   };
 
   const deleteFlashcard = (flashcardId: string) => {
@@ -322,6 +347,7 @@ export default function App() {
         setStatus,
         tags,
         setTags,
+        fetchMoreFlashcards,
         deleteFlashcard,
         closeTab,
         openFlashcard,

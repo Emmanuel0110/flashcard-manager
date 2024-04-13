@@ -46,12 +46,30 @@ const completeFlashcard = async (flashcard, userFlashcardInfos) => {
   };
 };
 
-const getFilterSearch = (filter) => {
-  return {};
-}
+const getFilterSearch = (filter) => ({
+  $and: filter.map((el) => ({
+    $or: el.map((filterString) => {
+      if (filterString.toLowerCase().startsWith("not ")) {
+        if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
+          const tagId = filterString.toLowerCase().trim().slice(5);
+          return { tags: { $nin: [tagId] } };
+        } else {
+          return {}; //the $text operator requires at least one inclusive word to match before negating a word
+        }
+      } else {
+        if (filterString.toLowerCase().trim().startsWith("#")) {
+          const tagId = filterString.toLowerCase().trim().slice(1);
+          return { tags: { $in: [tagId] } };
+        } else {
+          return { $text: { $search: filterString.replace(/^\"/, "").replace(/\"$/, "") } };
+        }
+      }
+    }),
+  })),
+});
 
 app.post("/api/search", auth, (req, res) => {
-  const { status, filter, prerequisitesAndUsedIn } = req.body;
+  const { status, filter, prerequisitesAndUsedIn, skip, limit } = req.body;
   if (
     status === "Draft" ||
     status === "To be validated" ||
@@ -60,25 +78,16 @@ app.post("/api/search", auth, (req, res) => {
   ) {
     UserFlashcardInfoModel.find({ user: req.user._id })
       .then((userFlashcardInfos) => {
-        const filterSearch = getFilterSearch(filter);
+        const filterSearch = filter?.length ? getFilterSearch(filter) : {};
         const statusSearch = status ? { status } : {};
-        console.log(filter);
-        console.log(filterSearch);
-        //const stringSearch = searchString ? { $text: { $search: searchString } } : {};
-        //const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
         const prerequisitesAndUsedInSearch = prerequisitesAndUsedIn ? { _id: { $in: prerequisitesAndUsedIn } } : {};
         const otherFilter = status === "Draft" ? { author: req.user._id } : {};
         FlashcardModel.find({
-          $and: [
-            filterSearch,
-            statusSearch,
-            prerequisitesAndUsedInSearch,
-            otherFilter,
-          ],
+          $and: [filterSearch, statusSearch, prerequisitesAndUsedInSearch, otherFilter],
         })
           .sort("-creationDate")
-          .skip(parseInt(req.body.skip) || 0)
-          .limit(parseInt(req.body.limit) || 30)
+          .skip(parseInt(skip) || 0)
+          .limit(parseInt(limit) || 30)
           .populate("author", "username")
           .populate({
             path: "tags",
