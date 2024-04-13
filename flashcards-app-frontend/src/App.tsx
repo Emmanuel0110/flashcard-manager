@@ -80,7 +80,9 @@ export default function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTags().then((tags) => setTags(tags));
+    if (isAuthenticated) {
+      fetchTags().then((tags) => setTags(tags));
+    }
   }, [isAuthenticated]);
 
   useEffect(() => {
@@ -139,13 +141,14 @@ export default function App() {
       if (viewHistory.current.length > 0) {
         viewHistory.current = viewHistory.current.slice(0, viewIndex.current + 1);
       }
-      viewIndex.current = viewHistory.current.push({
-        openedFlashcards,
-        status,
-        searchFilter,
-        treeFilter,
-        location: location.pathname,
-      }) - 1;
+      viewIndex.current =
+        viewHistory.current.push({
+          openedFlashcards,
+          status,
+          searchFilter,
+          treeFilter,
+          location: location.pathname,
+        }) - 1;
     }
   }, [location]);
 
@@ -170,7 +173,7 @@ export default function App() {
       case "ArrowRight":
         if (e.altKey) {
           e.preventDefault();
-          console.log(viewIndex.current < viewHistory.current.length)
+          console.log(viewIndex.current < viewHistory.current.length);
           if (viewIndex.current < viewHistory.current.length - 1) {
             viewIndex.current++;
             refreshView(viewIndex.current);
