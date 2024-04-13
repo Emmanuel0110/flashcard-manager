@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ConfigContext, fetchMoreFlashcards, url } from "../../App";
+import { ConfigContext, fetchMoreFlashcards } from "../../App";
 import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
@@ -28,6 +28,7 @@ export default function FlashcardDetail({
     user,
     status,
     setStatus,
+    searchFilter,
     setSearchFilter,
     tags,
     saveFlashcard,
@@ -44,6 +45,7 @@ export default function FlashcardDetail({
     user: User;
     status: string;
     setStatus: Dispatch<SetStateAction<string>>;
+    searchFilter: SearchFilter;
     setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
     tags: Tag[];
     saveFlashcard: (infos: Partial<Flashcard>) => void;
@@ -75,7 +77,7 @@ export default function FlashcardDetail({
       });
     }
     if (!hasNextFlashcard()) {
-      fetchMoreFlashcards(url + "flashcards?status=" + status, setFlashcards, flashcards.length, 30);
+      fetchMoreFlashcards(status, searchFilter, setFlashcards, flashcards.length, 30);
     }
   }, [flashcardId]);
 

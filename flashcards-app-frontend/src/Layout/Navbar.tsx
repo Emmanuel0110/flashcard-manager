@@ -1,6 +1,6 @@
 import { Dispatch, useContext, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ConfigContext, emptyFilter, someFilter } from "../App";
+import { ConfigContext, someFilter } from "../App";
 import { SearchFilter, Tag, User } from "../types";
 import { logout } from "../auth/authActions";
 import AutoComplete from "../utils/Autocomplete";
@@ -45,7 +45,7 @@ function Navbar() {
   };
 
   const cancelFilter = () => {
-    setSearchFilter(emptyFilter);
+    setSearchFilter([]);
     setTreeFilter([]);
   };
 
@@ -62,7 +62,7 @@ function Navbar() {
       const tag = tags.find((tag) => tag._id === _id)!;
       setLocalDescription((localDescription) => localDescription + tag.label);
     } else if (label) {
-      setSearchFilter({ ...searchFilter, searchString: label });
+      setSearchFilter([...searchFilter, [label]]);
       setLocalDescription("");
     }
   };

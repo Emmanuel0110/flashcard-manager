@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import { ConfigContext } from "../App";
-import { Flashcard, OpenFlashcardData } from "../types";
+import { Flashcard } from "../types";
 
 function LeftMenuBar() {
   const {

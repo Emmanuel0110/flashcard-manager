@@ -46,8 +46,12 @@ const completeFlashcard = async (flashcard, userFlashcardInfos) => {
   };
 };
 
-app.get("/api/flashcards", auth, (req, res) => {
-  const { status, filter, prerequisitesAndUsedIn } = req.query;
+const getFilterSearch = (filter) => {
+  return {};
+}
+
+app.post("/api/search", auth, (req, res) => {
+  const { status, filter, prerequisitesAndUsedIn } = req.body;
   if (
     status === "Draft" ||
     status === "To be validated" ||
@@ -56,22 +60,25 @@ app.get("/api/flashcards", auth, (req, res) => {
   ) {
     UserFlashcardInfoModel.find({ user: req.user._id })
       .then((userFlashcardInfos) => {
+        const filterSearch = getFilterSearch(filter);
         const statusSearch = status ? { status } : {};
         console.log(filter);
+        console.log(filterSearch);
         //const stringSearch = searchString ? { $text: { $search: searchString } } : {};
         //const tagSearch = tagId ? { tags: { $in: [tagId] } } : {};
         const prerequisitesAndUsedInSearch = prerequisitesAndUsedIn ? { _id: { $in: prerequisitesAndUsedIn } } : {};
         const otherFilter = status === "Draft" ? { author: req.user._id } : {};
         FlashcardModel.find({
-          ...statusSearch,
-          //...stringSearch,
-          //...tagSearch,
-          ...prerequisitesAndUsedInSearch,
-          ...otherFilter,
+          $and: [
+            filterSearch,
+            statusSearch,
+            prerequisitesAndUsedInSearch,
+            otherFilter,
+          ],
         })
           .sort("-creationDate")
-          .skip(parseInt(req.query.skip) || 0)
-          .limit(parseInt(req.query.limit) || 30)
+          .skip(parseInt(req.body.skip) || 0)
+          .limit(parseInt(req.body.limit) || 30)
           .populate("author", "username")
           .populate({
             path: "tags",
@@ -149,7 +156,7 @@ app.post("/api/flashcards", auth, function (req, res) {
     .save()
     .then((newElement) => newElement.populate("author", "username"))
     .then((newElement) => newElement.populate("tags", "label"))
-    .then((newElement) => res.send({ data: {...newElement.toObject(), usedIn: []} }))
+    .then((newElement) => res.send({ data: { ...newElement.toObject(), usedIn: [] } }))
     .catch(function (err) {
       console.log("save error ", err);
       if (err.name === "MongoError" && err.code === 11000) {

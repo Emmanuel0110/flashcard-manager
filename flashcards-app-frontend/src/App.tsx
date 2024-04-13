@@ -41,12 +41,17 @@ export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcar
 };
 
 export const fetchMoreFlashcards = (
-  url: string,
+  status: string,
+  searchFilter: SearchFilter,
   setFlashcards: Dispatch<SetStateAction<Flashcard[]>>,
   skip: number,
   limit: number
 ) => {
-  return customFetch(url + `&skip=${skip}&limit=${limit}`, { headers: authHeaders() })
+  return customFetch(url + "search", {
+    method: "POST", // we want to GET flashcards but with a complex filter (string[][])
+    headers: authHeaders(),
+    body: JSON.stringify({ status, searchFilter, skip, limit }),
+  })
     .then((newFlashcards: any) => {
       setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, newFlashcards));
     })
@@ -55,15 +60,16 @@ export const fetchMoreFlashcards = (
     });
 };
 
-export const emptyFilter: SearchFilter = { searchString: "", tag: undefined };
 export const someFilter = (searchFilter: SearchFilter, treeFilter: string[]): boolean =>
-  searchFilter.searchString !== "" || searchFilter.tag !== undefined || treeFilter.length !== 0;
+  searchFilter.length !== 0 || treeFilter.length !== 0;
+
+const isFilterBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilter) => {
+  return true;
+}
 
 const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) => {
-  const { searchString, tag } = searchFilter;
   return (
-    (!searchString || flashcard.title.toLowerCase().includes(searchString.toLowerCase())) &&
-    (!tag || flashcard.tags.map((tag) => tag._id).includes(tag._id)) &&
+    isFilterBySearchFilter(flashcard, searchFilter) &&
     (treeFilter.length === 0 || treeFilter.includes(flashcard._id))
   );
 };
@@ -72,7 +78,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null as boolean | null);
   const [user, setUser] = useState(null as User | null);
   const [treeFilter, setTreeFilter] = useState<string[]>([]);
-  const [searchFilter, setSearchFilter] = useState<SearchFilter>({ searchString: "", tag: undefined });
+  const [searchFilter, setSearchFilter] = useState<SearchFilter>([]);
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
   const [openedFlashcards, setOpenedFlashcards] = useState([] as OpenFlashcardData[]);
   const [status, setStatus] = useState("Published");
@@ -86,17 +92,7 @@ export default function App() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    const { searchString, tag } = searchFilter;
-    fetchMoreFlashcards(
-      url +
-        "flashcards?status=" +
-        status +
-        (searchString ? "&searchString=" + searchString : "") +
-        (tag ? "&tagId=" + tag._id : ""),
-      setFlashcards,
-      0,
-      30
-    ).then(() => {
+    fetchMoreFlashcards(status, searchFilter, setFlashcards, 0, 30).then(() => {
       if (status === "To be reviewed" && filteredFlashcards.length > 0) {
         setOpenedFlashcards([]);
         navigate("/flashcards/" + filteredFlashcards[0]._id);

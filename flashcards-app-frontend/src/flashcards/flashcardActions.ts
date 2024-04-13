@@ -49,9 +49,10 @@ export const saveNewTag = async ({ label }: { label: string }) => {
 };
 
 export const getRemotePrerequisiteAndUsedIn = async (ids: string[]): Promise<Flashcard[]> => {
-  return customFetch(url + "flashcards?prerequisitesAndUsedIn=" + ids.join(","), {
-    method: "GET",
+  return customFetch(url + "search", {
+    method: "POST", // we want to GET flashcards but sometimes with a complex filter (string[][])
     headers: authHeaders(),
+    body: JSON.stringify({ prerequisitesAndUsedIn: ids }),
   });
 };
 
