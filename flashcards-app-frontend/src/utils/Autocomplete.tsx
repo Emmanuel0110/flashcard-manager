@@ -1,10 +1,27 @@
-import React, { Dispatch, ForwardedRef, forwardRef, useEffect, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  Dispatch,
+  ForwardedRef,
+  MutableRefObject,
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Overlay } from "react-bootstrap";
 import { Placement } from "react-bootstrap/esm/types";
 
 interface AutoCompleteProps {
   dropdownList: { _id: string; label: string }[];
-  callback: ({ _id, label, setLocalDescription }: { _id?: string; label?: string; setLocalDescription: Dispatch<React.SetStateAction<string>>;}) => void;
+  callback: ({
+    _id,
+    label,
+    setLocalDescription,
+  }: {
+    _id?: string;
+    label?: string;
+    setLocalDescription: Dispatch<React.SetStateAction<string>>;
+  }) => void;
   placeholder: string;
   placement: string;
   onPaste?: any;
@@ -62,12 +79,28 @@ const DropdownItem = ({
   );
 };
 
+const getCurrentSearch = (e: ChangeEvent<HTMLInputElement>, forwardedRef: MutableRefObject<HTMLInputElement>) => {
+  return forwardedRef.current.selectionStart
+    ? e.target.value
+        .slice(
+          e.target.value.lastIndexOf(" ", forwardedRef.current.selectionStart - 1) + 1,
+          forwardedRef.current.selectionStart
+        )
+        .replace(/^\#/, "")
+    : "";
+};
+
 const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
   ({ dropdownList, callback, placeholder, placement, onPaste }, ref) => {
     const [editingMode, setEditingMode] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [localDescription, setLocalDescription] = useState("");
+    const [currentSearch, setCurrentSearch] = useState("");
     const forwardedRef = useForwardRef<HTMLInputElement>(ref);
+
+    useEffect(() => {
+      setEditingMode(currentSearch !== "");
+    }, [currentSearch]);
 
     //Click outside feature ------------------
     const dropdownMenuRef: any = useRef();
@@ -87,7 +120,7 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
     };
 
     const filteredDropdownList = dropdownList?.length
-      ? dropdownList.filter((el) => el.label.toUpperCase().includes(localDescription.toUpperCase()))
+      ? dropdownList.filter((el) => el.label.toUpperCase().includes(currentSearch.toUpperCase()))
       : [];
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -124,8 +157,8 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
           type="text"
           placeholder={placeholder}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setEditingMode(true);
             setLocalDescription(e.target.value);
+            setCurrentSearch(getCurrentSearch(e, forwardedRef));
           }}
           onKeyDown={onKeyDown}
           value={localDescription}
@@ -135,7 +168,15 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
           <Overlay target={forwardedRef.current} show={true} placement={placement as Placement}>
             <ul className="dropdownList" style={{ width: forwardedRef.current.offsetWidth, zIndex: 10 }}>
               {filteredDropdownList.map(({ _id, label }, index) => (
-                <DropdownItem key={index} _id={_id} label={label} index={index} selectedIndex={selectedIndex} callback={callback} setLocalDescription={setLocalDescription} />
+                <DropdownItem
+                  key={index}
+                  _id={_id}
+                  label={label}
+                  index={index}
+                  selectedIndex={selectedIndex}
+                  callback={callback}
+                  setLocalDescription={setLocalDescription}
+                />
               ))}
             </ul>
           </Overlay>

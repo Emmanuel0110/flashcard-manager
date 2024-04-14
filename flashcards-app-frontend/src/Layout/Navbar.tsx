@@ -1,4 +1,4 @@
-import { Dispatch, useContext, useEffect, useRef } from "react";
+import { Dispatch, RefObject, useContext, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ConfigContext, someFilter } from "../App";
 import { SearchFilter, Tag, User } from "../types";
@@ -10,19 +10,40 @@ const parseLabel = (label: string) => {
   //For instance "bla bla" not #blo not "blo blo" => [not "blo blo", not #blo, bla bla]
   const regex1 = /not\s\".*?\"/gi; //finds not "blo blo"
   const matches1 = label.match(regex1);
-  matches1?.forEach((match) => {result.push(match);label = label.replace(match, "");});
+  matches1?.forEach((match) => {
+    result.push(match);
+    label = label.replace(match, "");
+  });
 
   const regex2 = /not\s\S+/gi; //finds not #blo
   const matches2 = label.match(regex2);
-  matches2?.forEach((match) => {result.push(match);label = label.replace(match, "");});
+  matches2?.forEach((match) => {
+    result.push(match);
+    label = label.replace(match, "");
+  });
 
   const regex3 = /\".*?\"/gi; //finds "bla bla"
   const matches3 = label.match(regex3);
-  matches3?.forEach((match) => {result.push(match);label = label.replace(match, "");});
+  matches3?.forEach((match) => {
+    result.push(match);
+    label = label.replace(match, "");
+  });
 
-  label.split(" ").forEach(el => {if (el) result.push(el)});
+  label.split(" ").forEach((el) => {
+    if (el) result.push(el);
+  });
 
   return result;
+};
+
+const insertTag = (tagLabel: string, inputRef: RefObject<HTMLInputElement>) => {
+  if (inputRef.current?.selectionStart) {
+    const currentBloc = inputRef.current.value.slice(0, inputRef.current.selectionStart).split(" ").length - 1;
+    let arr = inputRef.current.value.split(" ");
+    arr.splice(currentBloc, 1, "#" + tagLabel);
+    return arr.join(" ");
+  }
+  return "";
 };
 
 function Navbar() {
@@ -80,7 +101,7 @@ function Navbar() {
   }) => {
     if (_id) {
       const tag = tags.find((tag) => tag._id === _id)!;
-      setLocalDescription((localDescription) => localDescription + tag.label);
+      setLocalDescription(insertTag(tag.label, inputRef));
     } else if (label) {
       setSearchFilter([...searchFilter, parseLabel(label)]);
       setLocalDescription("");
