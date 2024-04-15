@@ -149,7 +149,7 @@ export default function FlashcardForm({
               questionRef.current.setContent(flashcard.question);
               editor.focus();
             }}
-            onChange={() =>
+            onBlur={() =>
               updateUnsavedData(flashcard._id, {
                 title: questionRef.current?.getContent({ format: "text" }) || "",
                 question: questionRef.current?.getContent() || "",
@@ -184,7 +184,7 @@ export default function FlashcardForm({
               answerRef.current = editor;
               answerRef.current.setContent(flashcard.answer);
             }}
-            onChange={() => updateUnsavedData(flashcard._id, { answer: answerRef.current?.getContent() || "" })}
+            onBlur={() => updateUnsavedData(flashcard._id, { answer: answerRef.current?.getContent() || "" })}
             initialValue={flashcard.answer}
             init={{
               placeholder: "Answer",
