@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, createContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 import Register from "./auth/components/Register";
@@ -48,7 +48,9 @@ const isFilteredBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilt
     el.some((filterString) => {
       if (filterString.toLowerCase().startsWith("not ")) {
         if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
-          return !flashcard.tags.find(({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(5));
+          return !flashcard.tags.find(
+            ({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(5)
+          );
         } else {
           return !flashcard.title
             .toLowerCase()
@@ -91,27 +93,30 @@ export default function App() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    console.log(searchFilter);
-    fetchMoreFlashcards(0, 30).then(() => {
-      if (status === "To be reviewed" && filteredFlashcards.length > 0) {
-        setOpenedFlashcards([]);
-        navigate("/flashcards/" + filteredFlashcards[0]._id);
-      }
-    });
+    if (isAuthenticated && filteredFlashcards.length < 30) {
+      fetchMoreFlashcards(0, 30).then(() => {
+        if (status === "To be reviewed" && filteredFlashcards.length > 0) {
+          setOpenedFlashcards([]);
+          navigate("/flashcards/" + filteredFlashcards[0]._id);
+        }
+      });
+    }
   }, [status, searchFilter, isAuthenticated]);
 
   useEffect(() => {
-    setOpenedFlashcards((openFlashcards) =>
-      openFlashcards.map((openFlashcard) => {
-        const flashcard = flashcards.find(({ _id }) => _id === openFlashcard.id);
-        return flashcard ? { ...openFlashcard, data: flashcard } : openFlashcard;
-      })
-    );
+    if (openedFlashcards.length !== 0) {
+      setOpenedFlashcards((openFlashcards) =>
+        openFlashcards.map((openFlashcard) => {
+          const flashcard = flashcards.find(({ _id }) => _id === openFlashcard.id);
+          return flashcard ? { ...openFlashcard, data: flashcard } : openFlashcard;
+        })
+      );
+    }
   }, [flashcards]);
 
   const filteredFlashcards = useMemo(() => {
+    console.log(searchFilter);
     return flashcards.filter((flashcard) => {
-      console.log(searchFilter);
       return (
         ((status === "Draft" && flashcard.status === "Draft") ||
           (status === "To be validated" && flashcard.status === "To be validated") ||
@@ -170,7 +175,6 @@ export default function App() {
       case "ArrowRight":
         if (e.altKey) {
           e.preventDefault();
-          console.log(viewIndex.current < viewHistory.current.length);
           if (viewIndex.current < viewHistory.current.length - 1) {
             viewIndex.current++;
             refreshView(viewIndex.current);
