@@ -119,7 +119,7 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
       setSelectedIndex(null);
     };
 
-    const filteredDropdownList = dropdownList?.length
+    const filteredDropdownList = dropdownList?.length && currentSearch !== ""
       ? dropdownList.filter((el) => el.label.toUpperCase().includes(currentSearch.toUpperCase()))
       : [];
 
