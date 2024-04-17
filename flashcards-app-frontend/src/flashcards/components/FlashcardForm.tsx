@@ -124,6 +124,10 @@ export default function FlashcardForm({
     }
   };
 
+  const removePrerequisite = (index: number) => {
+    updateUnsavedData(flashcard._id, { prerequisites: flashcard.prerequisites.filter((el, idx) => idx !== index) });
+  };
+
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key) {
       case "s":
@@ -143,7 +147,7 @@ export default function FlashcardForm({
       <div id="form">
         <div id="question">
           <Editor
-            tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/js/tinymce/tinymce.min.js'}
+            tinymceScriptSrc={process.env.PUBLIC_URL + "/tinymce/js/tinymce/tinymce.min.js"}
             onInit={(evt, editor) => {
               questionRef.current = editor;
               questionRef.current.setContent(flashcard.question);
@@ -231,7 +235,13 @@ export default function FlashcardForm({
         <div id="prerequisites">
           <div className="flashcardSection">Prerequisites</div>
           {prerequisiteFlashcards.map((flashcardData, index) => (
-            <FlashcardLine key={index} flashcardData={flashcardData} />
+            <div className="lineContainer">
+              <FlashcardLine key={index} flashcardData={flashcardData} />
+              <span
+                className="lineClose"
+                onClick={(e: React.MouseEvent<HTMLSpanElement>) => removePrerequisite(index)}
+              ></span>
+            </div>
           ))}
           <div className="prerequisiteInput">
             <AutoComplete

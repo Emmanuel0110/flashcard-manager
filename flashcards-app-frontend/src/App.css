@@ -210,7 +210,7 @@ button:focus {
 #flashcard {
   padding: 10px;
   display: flex;
-  flex-flow:row;
+  flex-flow: row;
   width: 100%;
 }
 
@@ -439,14 +439,16 @@ button:focus {
   margin-right: 7px;
 }
 
-.tagInput, .prerequisiteInput {
+.tagInput,
+.prerequisiteInput {
   padding: 5px;
   background: white;
   border: 1px solid lightgray;
   border-radius: 4px;
 }
 
-.tagInput input, .prerequisiteInput input {
+.tagInput input,
+.prerequisiteInput input {
   border: none;
   width: 100%;
 }
@@ -491,6 +493,26 @@ button:focus {
   top: 50%;
   right: 0.5em;
   transform: translate(0%, -50%);
+}
+
+.lineClose {
+  cursor: pointer;
+  mask: url(images/times-solid.svg); /*https://fontawesome.com/license*/
+  background: rgb(151, 151, 151);
+  width: 1.5ch;
+  height: 1.5ch;
+  mask-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(0%, -50%);
+}
+
+.lineContainer {
+  padding-right: 25px;
+  position: relative;
 }
 
 .tabClose {
@@ -620,4 +642,3 @@ a.nav-link {
   background-position: center;
   vertical-align: middle;
 }
-
