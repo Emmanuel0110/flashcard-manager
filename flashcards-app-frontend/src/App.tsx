@@ -152,7 +152,7 @@ export default function App() {
           location: location.pathname,
         }) - 1;
     }
-  }, [location]);
+  }, [location, status, searchFilter]);
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
