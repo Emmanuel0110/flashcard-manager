@@ -1,3 +1,7 @@
+body {
+  overflow: hidden; /* To avoid random flickering on opening of bootstrap overlay (https://github.com/react-bootstrap/react-bootstrap/issues/3393) */
+}
+
 .buttonHeader {
   position: sticky;
   top: 0;
