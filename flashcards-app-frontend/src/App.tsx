@@ -115,7 +115,6 @@ export default function App() {
   }, [flashcards]);
 
   const filteredFlashcards = useMemo(() => {
-    console.log(searchFilter);
     return flashcards.filter((flashcard) => {
       return (
         ((status === "Draft" && flashcard.status === "Draft") ||
