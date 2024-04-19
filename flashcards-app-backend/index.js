@@ -54,14 +54,23 @@ const getFilterSearch = (filter) => ({
           const tagId = filterString.toLowerCase().trim().slice(5);
           return { tags: { $nin: [tagId] } };
         } else {
-          return {}; //the $text operator requires at least one inclusive word to match before negating a word
+          return {
+            $and: [
+            { question: { $regex: "^((?!" + filterString.replace(/^\"/, "").replace(/\"$/, "") + ").)*$" } }, // regex for "does not contain bla" : ^((?!bla).)*$
+            { answer: { $regex: "^((?!" + filterString.replace(/^\"/, "").replace(/\"$/, "") + ").)*$" } },
+          ],};
         }
       } else {
         if (filterString.toLowerCase().trim().startsWith("#")) {
           const tagId = filterString.toLowerCase().trim().slice(1);
           return { tags: { $in: [tagId] } };
         } else {
-          return { $text: { $search: filterString.replace(/^\"/, "").replace(/\"$/, "") } };
+          return {
+            $or: [
+              { question: { $regex: filterString.replace(/^\"/, "").replace(/\"$/, "") } },
+              { answer: { $regex: filterString.replace(/^\"/, "").replace(/\"$/, "") } },
+            ],
+          };
         }
       }
     }),
@@ -83,7 +92,10 @@ app.post("/api/search", auth, (req, res) => {
         const prerequisitesAndUsedInSearch = prerequisitesAndUsedIn ? { _id: { $in: prerequisitesAndUsedIn } } : {};
         const otherFilter = status === "Draft" ? { author: req.user._id } : {};
         FlashcardModel.find({
-          $and: [filterSearch, statusSearch, prerequisitesAndUsedInSearch, otherFilter],
+          ...filterSearch,
+          ...statusSearch,
+          ...prerequisitesAndUsedInSearch,
+          ...otherFilter,
         })
           .sort("-creationDate")
           .skip(parseInt(skip) || 0)
@@ -282,14 +294,18 @@ const flashcardSchema = new Schema({
   _id: Schema.Types.ObjectId,
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   title: String,
-  question: String,
-  answer: String,
+  question: { type: String },
+  answer: { type: String },
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag", required: true }],
   creationDate: Date,
   status: String,
   prerequisites: [{ type: Schema.Types.ObjectId, ref: "Flashcard", required: true }],
 });
-flashcardSchema.index({ title: "text" });
+// flashcardSchema.index({ question: "text", answer: "text" }); //for full text search
+//Only one text index by collection in mongoDB. Can be solved by adding a merged attribute question+answer
+//Does not allow regex search
+//A query can specify, at most, one $text expression.
+//To use a $text query in an $or expression, all clauses in the $or array must be indexed.
 export const FlashcardModel = model("Flashcard", flashcardSchema);
 
 const userFlashcardInfoSchema = new Schema({

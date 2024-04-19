@@ -60,7 +60,7 @@ const isFilteredBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilt
         if (filterString.toLowerCase().trim().startsWith("#")) {
           return flashcard.tags.find(({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(1));
         } else {
-          return flashcard.title
+          return (flashcard.question + flashcard.answer)
             .toLowerCase()
             .includes(filterString.toLowerCase().replace(/^\"/, "").replace(/\"$/, ""));
         }
