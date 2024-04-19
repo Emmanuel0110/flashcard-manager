@@ -32,8 +32,8 @@ app.use(function (req, res, next) {
 });
 
 const completeFlashcard = async (flashcard, userFlashcardInfos) => {
-  const usedInFlashcard = await FlashcardModel.find({ prerequisites: { $in: [flashcard._id] } }).lean();
-  const usedInFlashcardIds = usedInFlashcard.map((_) => _._id);
+  const usedInFlashcards = await FlashcardModel.find({ prerequisites: { $in: [flashcard._id] } }).lean();
+  const usedInFlashcardIds = usedInFlashcards.map((_) => _._id);
   const info =
     userFlashcardInfos.find((info) => {
       return info.flashcard.equals(flashcard._id);
