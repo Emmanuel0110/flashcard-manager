@@ -104,9 +104,7 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
     }, [currentSearch]);
 
     useEffect(() => {
-      console.log("searchInput" + searchInput);
       if (searchInput !== undefined) setLocalDescription(searchInput);
-      console.log("searchInput" + searchInput);
     }, [searchInput]);
 
     //Click outside feature ------------------
@@ -155,6 +153,7 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
           return 0;
         });
       }
+      e.stopPropagation();
     };
 
     return (
