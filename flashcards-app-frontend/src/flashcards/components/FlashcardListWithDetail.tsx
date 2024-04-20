@@ -78,9 +78,23 @@ export default function FlashcardListWithDetail({
         getRemotePrerequisiteAndUsedIn(missingPrerequisitesAndUsedIn).then(
           (missingPrerequisitesAndUsedInFlashcards) => {
             prerequisitesAndusedInLoading.current = false;
-            setFlashcards((flashcards) =>
-              updateListWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards)
-            );
+
+            setFlashcards((flashcards) => {
+              if (missingPrerequisitesAndUsedIn.length === missingPrerequisitesAndUsedInFlashcards.length) {
+                return updateListWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards);
+              } else {
+                return updateListWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards).map((el) =>
+                  el._id === flashcardId
+                    ? {
+                        ...el,
+                        prerequisites: el.prerequisites.filter((id) => !missingPrerequisitesAndUsedIn.includes(id) ||
+                          missingPrerequisitesAndUsedInFlashcards.some(({ _id }) => _id === id)
+                        ),
+                      }
+                    : el
+                );
+              }
+            });
           }
         );
       }
@@ -98,7 +112,7 @@ export default function FlashcardListWithDetail({
     setOpenedFlashcards((openedFlashcards) =>
       openedFlashcards.map((openedFlashcard) =>
         openedFlashcard.id === id && openedFlashcard.unsavedData
-          ? { ...openedFlashcard, unsavedData: {...openedFlashcard.unsavedData, ...args} }
+          ? { ...openedFlashcard, unsavedData: { ...openedFlashcard.unsavedData, ...args } }
           : openedFlashcard
       )
     );

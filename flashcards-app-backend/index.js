@@ -56,9 +56,10 @@ const getFilterSearch = (filter) => ({
         } else {
           return {
             $and: [
-            { question: { $regex: "^((?!" + filterString.replace(/^\"/, "").replace(/\"$/, "") + ").)*$" } }, // regex for "does not contain bla" : ^((?!bla).)*$
-            { answer: { $regex: "^((?!" + filterString.replace(/^\"/, "").replace(/\"$/, "") + ").)*$" } },
-          ],};
+              { question: { $regex: "^((?!" + filterString.replace(/^\"/, "").replace(/\"$/, "") + ").)*$" } }, // regex for "does not contain bla" : ^((?!bla).)*$
+              { answer: { $regex: "^((?!" + filterString.replace(/^\"/, "").replace(/\"$/, "") + ").)*$" } },
+            ],
+          };
         }
       } else {
         if (filterString.toLowerCase().trim().startsWith("#")) {
@@ -215,15 +216,18 @@ app.patch("/api/flashcards/:id", auth, function (req, res) {
     });
 });
 
-app.delete("/api/flashcards/:id", auth, function (req, res) {
-  FlashcardModel.findOneAndDelete({ _id: req.params.id })
-    .then((flashcard) => {
-      res.json({ success: true });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json({ success: false, message: "Failed to delete flashcard" });
-    });
+app.delete("/api/flashcards/:id", auth, async function (req, res) {
+  try {
+    const deletedFlashcard = await FlashcardModel.findOneAndDelete({ _id: req.params.id });
+    await FlashcardModel.updateMany(
+      { prerequisites: { $in: [deletedFlashcard._id] } },
+      { $pull: { prerequisites: deletedFlashcard._id } }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Failed to delete flashcard" });
+  }
 });
 
 app.put("/api/userflashcardinfo/:id", auth, function (req, res) {
