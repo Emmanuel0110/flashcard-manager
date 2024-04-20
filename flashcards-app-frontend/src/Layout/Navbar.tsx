@@ -55,6 +55,7 @@ function Navbar() {
     tags,
     treeFilter,
     setTreeFilter,
+    searchInput,
   }: {
     user: User;
     searchFilter: SearchFilter;
@@ -63,6 +64,7 @@ function Navbar() {
     tags: Tag[];
     treeFilter: string[];
     setTreeFilter: React.Dispatch<React.SetStateAction<string[]>>;
+    searchInput: string;
   } = useContext(ConfigContext);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -103,7 +105,7 @@ function Navbar() {
       const tag = tags.find((tag) => tag._id === _id)!;
       setLocalDescription(insertTag(tag.label, inputRef));
     } else if (label) {
-      setSearchFilter([...searchFilter, parseLabel(label)]);
+      setSearchFilter([...searchFilter, { isActive: true, data: parseLabel(label) }]);
       setLocalDescription("");
     }
   };
@@ -124,6 +126,7 @@ function Navbar() {
               callback={search}
               placeholder="Search..."
               placement="bottom-start"
+              searchInput={searchInput}
             />
           </div>
           {someFilter(searchFilter, treeFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}

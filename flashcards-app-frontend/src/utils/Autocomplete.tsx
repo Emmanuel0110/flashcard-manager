@@ -26,6 +26,7 @@ interface AutoCompleteProps {
   placement: string;
   onPaste?: any;
   onClick?: any;
+  searchInput?: string;
 }
 
 const useForwardRef = <T,>(ref: ForwardedRef<T>, initialValue: any = null) => {
@@ -91,7 +92,7 @@ const getCurrentSearch = (e: ChangeEvent<HTMLInputElement>, forwardedRef: Mutabl
 };
 
 const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
-  ({ dropdownList, callback, placeholder, placement, onPaste }, ref) => {
+  ({ dropdownList, callback, placeholder, placement, onPaste, searchInput }, ref) => {
     const [editingMode, setEditingMode] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [localDescription, setLocalDescription] = useState("");
@@ -101,6 +102,12 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
     useEffect(() => {
       setEditingMode(currentSearch !== "");
     }, [currentSearch]);
+
+    useEffect(() => {
+      console.log("searchInput" + searchInput);
+      if (searchInput !== undefined) setLocalDescription(searchInput);
+      console.log("searchInput" + searchInput);
+    }, [searchInput]);
 
     //Click outside feature ------------------
     const dropdownMenuRef: any = useRef();

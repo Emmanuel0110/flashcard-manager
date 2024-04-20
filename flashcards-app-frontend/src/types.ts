@@ -24,7 +24,7 @@ export interface Tag {
   label: string;
 }
 
-export type SearchFilter = string[][];
+export type SearchFilter = {isActive: boolean, data: string[]}[];
 
 export interface OpenFlashcardData {
   id: string;

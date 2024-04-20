@@ -41,11 +41,11 @@ export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcar
 };
 
 export const someFilter = (searchFilter: SearchFilter, treeFilter: string[]): boolean =>
-  searchFilter.length !== 0 || treeFilter.length !== 0;
+  searchFilter.filter(({isActive}) => isActive).length !== 0 || treeFilter.length !== 0;
 
 const isFilteredBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilter) => {
-  return searchFilter.every((el) =>
-    el.some((filterString) => {
+  return searchFilter.filter(({isActive}) => isActive).every((el) =>
+    el.data.some((filterString) => {
       if (filterString.toLowerCase().startsWith("not ")) {
         if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
           return !flashcard.tags.find(
@@ -78,6 +78,7 @@ const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null as boolean | null);
   const [user, setUser] = useState(null as User | null);
+  const [searchInput, setSearchInput] = useState("");
   const [treeFilter, setTreeFilter] = useState<string[]>([]);
   const [searchFilter, setSearchFilter] = useState<SearchFilter>([]);
   const [flashcards, setFlashcards] = useState([] as Flashcard[]);
@@ -207,8 +208,8 @@ export default function App() {
 
   const fetchMoreFlashcards = (skip: number, limit: number) => {
     //Replace tag label by tag id
-    const filter = searchFilter.map((el) =>
-      el.map((el) =>
+    const filter = searchFilter.filter(({isActive}) => isActive).map((el) =>
+      el.data.map((el) =>
         el.replace(/\#\S+/, (substring) =>
           substring.length > 1 && tags.map(({ label }) => label).includes(substring.slice(1))
             ? "#" + tags.find(({ label }) => label === substring.slice(1))!._id
@@ -362,6 +363,8 @@ export default function App() {
         getFlashcardById,
         treeFilter,
         setTreeFilter,
+        searchInput,
+        setSearchInput
       }}
     >
       <Routes>

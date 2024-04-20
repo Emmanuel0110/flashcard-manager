@@ -225,7 +225,7 @@ export default function FlashcardDetail({
   };
 
   const searchTag = (tagLabel: string) => {
-    setSearchFilter((searchFilter) => ([ ...searchFilter, ["#" + tagLabel] ]));
+    setSearchFilter([{isActive: true, data: ["#" + tagLabel]}]);
   };
 
   let options = [];
