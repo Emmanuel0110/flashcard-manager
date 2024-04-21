@@ -43,6 +43,8 @@ const completeFlashcard = async (flashcard, userFlashcardInfos) => {
     usedIn: usedInFlashcardIds,
     hasBeenRead: info.hasBeenRead || false,
     nextReviewDate: info.nextReviewDate,
+    subscriptionDate: info.subscriptionDate,
+    learntDate: info.learntDate,
   };
 };
 
@@ -238,11 +240,15 @@ app.put("/api/userflashcardinfo/:id", auth, function (req, res) {
       $set: {
         hasBeenRead: req.body.hasBeenRead || false,
         nextReviewDate: req.body.nextReviewDate ? new Date(req.body.nextReviewDate) : undefined,
+        subscriptionDate: req.body.subscriptionDate ? new Date(req.body.subscriptionDate) : undefined,
       },
     },
   ];
   if (req.body.nextReviewDate === null) {
     update.push({ $unset: "nextReviewDate" });
+  }
+  if (req.body.subscriptionDate === null) {
+    update.push({ $unset: "subscriptionDate" });
   }
 
   UserFlashcardInfoModel.updateOne(filter, update, { upsert: true }).then((data) => res.json({ success: true }));
@@ -302,6 +308,10 @@ const flashcardSchema = new Schema({
   answer: { type: String },
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag", required: true }],
   creationDate: Date,
+  submitDate: Date,
+  publishDate: Date,
+  publishAuthor: { type: Schema.Types.ObjectId, ref: "User"},
+  lastModificationDate: Date,
   status: String,
   prerequisites: [{ type: Schema.Types.ObjectId, ref: "Flashcard", required: true }],
 });
@@ -318,6 +328,8 @@ const userFlashcardInfoSchema = new Schema({
   flashcard: { type: Schema.Types.ObjectId, ref: "Flashcard", required: true },
   hasBeenRead: Boolean,
   nextReviewDate: Date,
+  subscriptionDate: Date,
+  learntDate: Date,
 });
 export const UserFlashcardInfoModel = model("UserFlashcardInfo", userFlashcardInfoSchema);
 

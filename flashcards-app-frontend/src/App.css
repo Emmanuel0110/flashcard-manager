@@ -327,6 +327,17 @@ button:focus {
   background-position: center;
 }
 
+.learnt {
+  cursor: pointer;
+  mask: url(./images/done_FILL0_wght400_GRAD0_opsz24.svg); /*google icons*/
+  background: #6bc901;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  mask-repeat: no-repeat;
+  background-position: center;
+}
+
 #answerButtons {
   display: flex;
   justify-content: space-around;

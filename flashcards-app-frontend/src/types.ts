@@ -15,6 +15,11 @@ export interface Flashcard {
   status: Status;
   nextReviewDate: Date | undefined;
   hasBeenRead: boolean;
+  submitDate: Date | undefined;
+  publishDate: Date | undefined;
+  publishAuthor: { _id: string; name: string };
+  lastModificationDate: Date | undefined;
+  learntDate: Date | undefined;
   prerequisites: string[];
   usedIn: string[];
 }
@@ -24,7 +29,7 @@ export interface Tag {
   label: string;
 }
 
-export type SearchFilter = {isActive: boolean, data: string[]}[];
+export type SearchFilter = { isActive: boolean; data: string[] }[];
 
 export interface OpenFlashcardData {
   id: string;

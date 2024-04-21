@@ -186,7 +186,7 @@ export default function FlashcardDetail({
 
   const submitForValidation = () => {
     if (flashcard) {
-      saveFlashcard({ _id: flashcard._id, status: "To be validated" });
+      saveFlashcard({ _id: flashcard._id, status: "To be validated", submitDate: new Date() });
       if (hasNextFlashcard()) {
         goToNextFlashcard();
       } else navigate("/flashcards/");
@@ -195,7 +195,12 @@ export default function FlashcardDetail({
 
   const publish = () => {
     if (flashcard) {
-      saveFlashcard({ _id: flashcard._id, status: "Published" });
+      saveFlashcard({
+        _id: flashcard._id,
+        status: "Published",
+        publishDate: new Date(),
+        publishAuthor: { _id: user._id, name: user.username },
+      });
       if (hasNextFlashcard()) {
         goToNextFlashcard();
       } else navigate("/flashcards/");
@@ -225,7 +230,7 @@ export default function FlashcardDetail({
   };
 
   const searchTag = (tagLabel: string) => {
-    setSearchFilter([{isActive: true, data: ["#" + tagLabel]}]);
+    setSearchFilter([{ isActive: true, data: ["#" + tagLabel] }]);
   };
 
   let options = [];
@@ -249,7 +254,17 @@ export default function FlashcardDetail({
   });
   options.push({
     callback: (flashcard: Flashcard) => {
-      subscribeToFlashcard(flashcard);
+      if (flashcard) {
+        editUserFlashcardInfo({ _id: flashcard._id, learntDate: new Date() }).then((res) => {
+          if (res.success) {
+            setFlashcards((flashcards) =>
+              flashcards.map((flashcard) => {
+                return flashcard._id === flashcardId ? { ...flashcard, learntDate: new Date() } : flashcard;
+              })
+            );
+          }
+        });
+      }
     },
     label: "Mark as known",
   });

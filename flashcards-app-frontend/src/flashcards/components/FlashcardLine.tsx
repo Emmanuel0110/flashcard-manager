@@ -3,11 +3,7 @@ import { Flashcard, User } from "../../types";
 import { useContext, useEffect, useRef } from "react";
 import { ConfigContext } from "../../App";
 
-export const FlashcardLine = ({
-  flashcardData,
-}: {
-  flashcardData: Flashcard;
-}) => {
+export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) => {
   const { flashcardId } = useParams();
   const {
     user,
@@ -27,11 +23,11 @@ export const FlashcardLine = ({
   useEffect(() => {
     const { current } = lineRef;
     if (current !== null && _id === flashcardId) {
-      current.scrollIntoView({ behavior: "smooth", block:'nearest' });
+      current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [flashcardId]);
 
-  const { _id, author, title, status, nextReviewDate, hasBeenRead } = flashcardData;
+  const { _id, author, title, status, nextReviewDate, hasBeenRead, learntDate } = flashcardData;
 
   const onEdit = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -47,16 +43,22 @@ export const FlashcardLine = ({
     e.stopPropagation();
     subscribeToFlashcard({ _id, hasBeenRead, nextReviewDate });
   };
-
+  console.log(learntDate);
   return (
-    <div ref={lineRef} className={"line" + (_id === flashcardId ? " selectedFlashcard" : "")} onClick={() => openFlashcard(_id)}>
+    <div
+      ref={lineRef}
+      className={"line" + (_id === flashcardId ? " selectedFlashcard" : "")}
+      onClick={() => openFlashcard(_id)}
+    >
       <div className={"lineTitle" + (hasBeenRead ? " hasBeenRead" : "")}>{title}</div>
       <div className="lineOptions">
         {(user._id === author._id || status === "Published") && (
           <>
-            {nextReviewDate instanceof Date && nextReviewDate.getTime() <= new Date().getTime() && (
+            {learntDate instanceof Date ? (
+              <div className="learnt"></div>
+            ) : nextReviewDate instanceof Date && nextReviewDate.getTime() <= new Date().getTime() ? (
               <div className="review"></div>
-            )}
+            ) : null}
             <div
               className={"subscribe" + (nextReviewDate instanceof Date ? " subscribed" : "")}
               onClick={(e) => onSubscribe(e, { _id, hasBeenRead, nextReviewDate })}

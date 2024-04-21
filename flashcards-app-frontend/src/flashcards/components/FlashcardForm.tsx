@@ -55,6 +55,7 @@ export default function FlashcardForm({
         answer: answerRef.current.getContent(),
         tags,
         prerequisites,
+        lastModificationDate: new Date(),
       });
       setOpenedFlashcards((openedFlashcards) =>
         openedFlashcards.map((openedFlashcard) =>

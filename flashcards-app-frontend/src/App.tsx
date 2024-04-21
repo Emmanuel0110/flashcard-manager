@@ -29,7 +29,14 @@ export const ConfigContext = createContext(null as any);
 
 export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcards: any): Flashcard[] => {
   return newFlashcards.reduce((acc: Flashcard[], value: any) => {
-    value = { ...value, nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined };
+    value = {
+      ...value,
+      nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined,
+      learntDate: value.learntDate ? new Date(value.learntDate) : undefined,
+      submitDate: value.submitDate ? new Date(value.submitDate) : undefined,
+      publishDate: value.publishDate ? new Date(value.publishDate) : undefined,
+      lastModificationDate: value.lastModificationDate ? new Date(value.lastModificationDate) : undefined,
+    };
     var index: number = acc.findIndex((flashcard) => flashcard._id === value._id);
     if (index === -1) {
       return [...acc, value];
@@ -41,32 +48,36 @@ export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcar
 };
 
 export const someFilter = (searchFilter: SearchFilter, treeFilter: string[]): boolean =>
-  searchFilter.filter(({isActive}) => isActive).length !== 0 || treeFilter.length !== 0;
+  searchFilter.filter(({ isActive }) => isActive).length !== 0 || treeFilter.length !== 0;
 
 const isFilteredBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilter) => {
-  return searchFilter.filter(({isActive}) => isActive).every((el) =>
-    el.data.some((filterString) => {
-      if (filterString.toLowerCase().startsWith("not ")) {
-        if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
-          return !flashcard.tags.find(
-            ({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(5)
-          );
+  return searchFilter
+    .filter(({ isActive }) => isActive)
+    .every((el) =>
+      el.data.some((filterString) => {
+        if (filterString.toLowerCase().startsWith("not ")) {
+          if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
+            return !flashcard.tags.find(
+              ({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(5)
+            );
+          } else {
+            return !flashcard.title
+              .toLowerCase()
+              .includes(filterString.toLowerCase().trim().slice(4).replace(/^\"/, "").replace(/\"$/, ""));
+          }
         } else {
-          return !flashcard.title
-            .toLowerCase()
-            .includes(filterString.toLowerCase().trim().slice(4).replace(/^\"/, "").replace(/\"$/, ""));
+          if (filterString.toLowerCase().trim().startsWith("#")) {
+            return flashcard.tags.find(
+              ({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(1)
+            );
+          } else {
+            return (flashcard.question + flashcard.answer)
+              .toLowerCase()
+              .includes(filterString.toLowerCase().replace(/^\"/, "").replace(/\"$/, ""));
+          }
         }
-      } else {
-        if (filterString.toLowerCase().trim().startsWith("#")) {
-          return flashcard.tags.find(({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(1));
-        } else {
-          return (flashcard.question + flashcard.answer)
-            .toLowerCase()
-            .includes(filterString.toLowerCase().replace(/^\"/, "").replace(/\"$/, ""));
-        }
-      }
-    })
-  );
+      })
+    );
 };
 
 const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) => {
@@ -208,15 +219,17 @@ export default function App() {
 
   const fetchMoreFlashcards = (skip: number, limit: number) => {
     //Replace tag label by tag id
-    const filter = searchFilter.filter(({isActive}) => isActive).map((el) =>
-      el.data.map((el) =>
-        el.replace(/\#\S+/, (substring) =>
-          substring.length > 1 && tags.map(({ label }) => label).includes(substring.slice(1))
-            ? "#" + tags.find(({ label }) => label === substring.slice(1))!._id
-            : ""
+    const filter = searchFilter
+      .filter(({ isActive }) => isActive)
+      .map((el) =>
+        el.data.map((el) =>
+          el.replace(/\#\S+/, (substring) =>
+            substring.length > 1 && tags.map(({ label }) => label).includes(substring.slice(1))
+              ? "#" + tags.find(({ label }) => label === substring.slice(1))!._id
+              : ""
+          )
         )
-      )
-    );
+      );
     return customFetch(url + "search", {
       method: "POST", // we want to GET flashcards but with a complex filter (string[][])
       headers: authHeaders(),
@@ -364,7 +377,7 @@ export default function App() {
         treeFilter,
         setTreeFilter,
         searchInput,
-        setSearchInput
+        setSearchInput,
       }}
     >
       <Routes>

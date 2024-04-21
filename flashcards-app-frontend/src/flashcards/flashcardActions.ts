@@ -26,6 +26,7 @@ export const subscribeToRemoteFlashcard = async ({ _id, hasBeenRead, nextReviewD
   const body = JSON.stringify({
     hasBeenRead,
     nextReviewDate: nextReviewDate ? null : new Date(),
+    subscriptionDate: nextReviewDate ? null : new Date(),
   });
   return customFetch(url + "userflashcardinfo/" + _id, { method: "PUT", headers: authHeaders(), body });
 };
