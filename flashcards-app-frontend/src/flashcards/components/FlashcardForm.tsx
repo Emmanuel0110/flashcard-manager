@@ -118,7 +118,7 @@ export default function FlashcardForm({
       updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, _id] });
       setLocalDescription("");
     } else if (label) {
-      saveAsNewFlashcard({ title: label }).then(({ _id }) =>
+      saveAsNewFlashcard({title: "", question: label, answer: "" }).then(({ _id }) =>
         updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, _id] })
       );
       setLocalDescription("");
