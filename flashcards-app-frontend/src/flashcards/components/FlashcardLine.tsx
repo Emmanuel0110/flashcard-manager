@@ -43,7 +43,7 @@ export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) =
     e.stopPropagation();
     subscribeToFlashcard({ _id, hasBeenRead, nextReviewDate });
   };
-  console.log(learntDate);
+  
   return (
     <div
       ref={lineRef}

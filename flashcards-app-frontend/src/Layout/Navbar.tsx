@@ -15,14 +15,14 @@ const parseLabel = (label: string) => {
     label = label.replace(match, "");
   });
 
-  const regex2 = /not\s\S+/gi; //finds not #blo
+  const regex2 = /\".*?\"/gi; //finds "bla bla"
   const matches2 = label.match(regex2);
   matches2?.forEach((match) => {
     result.push(match);
     label = label.replace(match, "");
   });
 
-  const regex3 = /\".*?\"/gi; //finds "bla bla"
+  const regex3 = /not\s\S+/gi; //finds not #blo
   const matches3 = label.match(regex3);
   matches3?.forEach((match) => {
     result.push(match);
