@@ -403,7 +403,7 @@ app.post("/api/auth", function (req, res) {
   if (!username || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
-  UserModel.findOne({ username }).then((user) => {
+  UserModel.findOne({ username }).lean().then((user) => {
     if (!user) return res.status(400).json({ msg: "User does not exist" });
 
     //Validate password
