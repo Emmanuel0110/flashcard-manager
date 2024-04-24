@@ -80,8 +80,14 @@ const DropdownItem = ({
   );
 };
 
+const isOdd = (num: number) => num % 2;
+
+const numberOfQuotesbeforeCurrentPosition = (currentPosition: number, text: string) => text.slice(currentPosition).split("\"").length - 1;
+
+const isBetweenQuotes = (currentPosition: number, text: string) => isOdd(numberOfQuotesbeforeCurrentPosition(currentPosition, text));
+
 const getCurrentSearch = (e: ChangeEvent<HTMLInputElement>, forwardedRef: MutableRefObject<HTMLInputElement>) => {
-  return forwardedRef.current.selectionStart
+  return forwardedRef.current.selectionStart && !isBetweenQuotes(forwardedRef.current.selectionStart, e.target.value)
     ? e.target.value
         .slice(
           e.target.value.lastIndexOf(" ", forwardedRef.current.selectionStart - 1) + 1,
