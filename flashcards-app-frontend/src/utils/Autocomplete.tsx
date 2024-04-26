@@ -75,16 +75,18 @@ const DropdownItem = ({
       className={"dropdownItem" + (selectedIndex === index ? " selected" : "")}
       onClick={(e: React.MouseEvent) => callback({ _id, setLocalDescription })}
     >
-      {"#" + label}
+      {label}
     </li>
   );
 };
 
 const isOdd = (num: number) => num % 2;
 
-const numberOfQuotesbeforeCurrentPosition = (currentPosition: number, text: string) => text.slice(currentPosition).split("\"").length - 1;
+const numberOfQuotesbeforeCurrentPosition = (currentPosition: number, text: string) =>
+  text.slice(currentPosition).split('"').length - 1;
 
-const isBetweenQuotes = (currentPosition: number, text: string) => isOdd(numberOfQuotesbeforeCurrentPosition(currentPosition, text));
+const isBetweenQuotes = (currentPosition: number, text: string) =>
+  isOdd(numberOfQuotesbeforeCurrentPosition(currentPosition, text));
 
 const getCurrentSearch = (e: ChangeEvent<HTMLInputElement>, forwardedRef: MutableRefObject<HTMLInputElement>) => {
   return forwardedRef.current.selectionStart && !isBetweenQuotes(forwardedRef.current.selectionStart, e.target.value)
@@ -130,9 +132,10 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
       setSelectedIndex(null);
     };
 
-    const filteredDropdownList = dropdownList?.length && currentSearch !== ""
-      ? dropdownList.filter((el) => el.label.toUpperCase().includes(currentSearch.toUpperCase()))
-      : [];
+    const filteredDropdownList =
+      dropdownList?.length && currentSearch !== ""
+        ? dropdownList.filter((el) => el.label.toUpperCase().includes(currentSearch.toUpperCase()))
+        : [];
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Escape") {

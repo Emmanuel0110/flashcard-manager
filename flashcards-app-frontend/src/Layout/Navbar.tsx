@@ -122,7 +122,7 @@ function Navbar() {
           <div id="searchAreaInput">
             <AutoComplete
               ref={inputRef}
-              dropdownList={tags}
+              dropdownList={tags.map((tag) => ({ ...tag, label: "#" + tag.label }))}
               callback={search}
               placeholder="Search..."
               placement="bottom-start"

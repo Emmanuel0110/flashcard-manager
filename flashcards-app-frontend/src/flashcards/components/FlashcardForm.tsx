@@ -88,7 +88,9 @@ export default function FlashcardForm({
     }
   };
 
-  const availableTags = tags.filter((tag) => !flashcard.tags.map((tag) => tag._id).includes(tag._id));
+  const availableTags = tags
+    .filter((tag) => !flashcard.tags.map((tag) => tag._id).includes(tag._id))
+    .map((tag) => ({ ...tag, label: "#" + tag.label }));
   const availableFlashcardIds = flashcards
     .map(({ _id, title }) => ({ _id, label: title }))
     .filter(({ _id }) => !flashcard.prerequisites.includes(_id));
@@ -118,7 +120,7 @@ export default function FlashcardForm({
       updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, _id] });
       setLocalDescription("");
     } else if (label) {
-      saveAsNewFlashcard({title: "", question: label, answer: "" }).then(({ _id }) =>
+      saveAsNewFlashcard({ title: "", question: label, answer: "" }).then(({ _id }) =>
         updateUnsavedData(flashcard._id, { prerequisites: [...flashcard.prerequisites, _id] })
       );
       setLocalDescription("");
