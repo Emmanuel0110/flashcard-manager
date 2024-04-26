@@ -294,6 +294,7 @@ export default function FlashcardDetail({
             initialValue={flashcard.question}
             init={{
               height: "25vh",
+              setup: (editor) => editor.on("keydown", handleKeyDown),
               editable_root: false,
               menubar: false,
               statusbar: false,
@@ -309,6 +310,7 @@ export default function FlashcardDetail({
                 initialValue={flashcard.answer}
                 init={{
                   height: "40vh",
+                  setup: (editor) => editor.on("keydown", handleKeyDown),
                   editable_root: false,
                   menubar: false,
                   statusbar: false,
