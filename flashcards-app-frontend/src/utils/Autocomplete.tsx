@@ -158,8 +158,9 @@ const AutoComplete = forwardRef<HTMLInputElement, AutoCompleteProps>(
           }
           return 0;
         });
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.stopPropagation();
       }
-      e.stopPropagation();
     };
 
     return (
