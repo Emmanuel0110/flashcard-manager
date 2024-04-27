@@ -32,15 +32,12 @@ app.use(function (req, res, next) {
 });
 
 const completeFlashcard = async (flashcard, userFlashcardInfos) => {
-  const usedInFlashcards = await FlashcardModel.find({ prerequisites: { $in: [flashcard._id] } }).lean();
-  const usedInFlashcardIds = usedInFlashcards.map((_) => _._id);
   const info =
     userFlashcardInfos.find((info) => {
       return info.flashcard.equals(flashcard._id);
     }) || {};
   return {
     ...flashcard,
-    usedIn: usedInFlashcardIds,
     hasBeenRead: info.hasBeenRead || false,
     nextReviewDate: info.nextReviewDate,
     subscriptionDate: info.subscriptionDate,
@@ -178,9 +175,16 @@ app.post("/api/flashcards", auth, function (req, res) {
   });
   newFlashcard
     .save()
+    .then(async (newElement) => {
+      const prerequisites = newElement.prerequisites;
+      if (Array.isArray(prerequisites) && prerequisites.length) {
+        await FlashcardModel.updateMany({ _id: { $in: prerequisites } }, { $addToSet: { usedIn: newElement._id } });
+      }
+      return newElement;
+    })
     .then((newElement) => newElement.populate("author", "username"))
     .then((newElement) => newElement.populate("tags", "label"))
-    .then((newElement) => res.send({ data: { ...newElement.toObject(), usedIn: [] } }))
+    .then((newElement) => res.send({ data: newElement }))
     .catch(function (err) {
       console.log("save error ", err);
       if (err.name === "MongoError" && err.code === 11000) {
@@ -200,20 +204,34 @@ app.patch("/api/flashcards/:id", auth, function (req, res) {
     ...req.body,
   };
 
-  FlashcardModel.findByIdAndUpdate(_id, newFlashcard, { returnDocument: "after" })
+  FlashcardModel.findByIdAndUpdate(_id, newFlashcard)
     .populate("author", "username")
     .populate({
       path: "tags",
       populate: { path: "label" },
     })
-    .then((updatedFlashcard) => {
-      res.send({ data: updatedFlashcard });
+    .then(async (originalFlashcard) => {
+      const prerequisites = newFlashcard.prerequisites;
+      if (Array.isArray(prerequisites) && prerequisites.length) {
+        const newPrerequisites = prerequisites.filter((el) => !(el in originalFlashcard.prerequisites));
+        if (newPrerequisites.length) await FlashcardModel.updateMany(
+          { _id: { $in: newPrerequisites } },
+          { $addToSet: { usedIn: newFlashcard._id } }
+        );
+
+        const removedPrerequisites = originalFlashcard.filter((el) => !(el in prerequisites));
+        if (removedPrerequisites.length) await FlashcardModel.updateMany(
+          { _id: { $in: removedPrerequisites } },
+          { $pull: { usedIn: newFlashcard._id } }
+        );
+      }
+
+      res.json({ success: true });
     })
     .catch((err) => {
       res.json({
-        updatedFlashcard,
         success: false,
-        msg: "Failed to update flashcard",
+        msg: err.message,
       });
     });
 });
@@ -224,6 +242,10 @@ app.delete("/api/flashcards/:id", auth, async function (req, res) {
     await FlashcardModel.updateMany(
       { prerequisites: { $in: [deletedFlashcard._id] } },
       { $pull: { prerequisites: deletedFlashcard._id } }
+    );
+    await FlashcardModel.updateMany(
+      { usedIn: { $in: [deletedFlashcard._id] } },
+      { $pull: { usedIn: deletedFlashcard._id } }
     );
     res.json({ success: true });
   } catch (err) {
@@ -310,11 +332,13 @@ const flashcardSchema = new Schema({
   creationDate: Date,
   submitDate: Date,
   publishDate: Date,
-  publishAuthor: { type: Schema.Types.ObjectId, ref: "User"},
+  publishAuthor: { type: Schema.Types.ObjectId, ref: "User" },
   lastModificationDate: Date,
   status: String,
   prerequisites: [{ type: Schema.Types.ObjectId, ref: "Flashcard", required: true }],
+  usedIn: [{ type: Schema.Types.ObjectId, ref: "Flashcard" }],
 });
+
 // flashcardSchema.index({ question: "text", answer: "text" }); //for full text search
 //Only one text index by collection in mongoDB. Can be solved by adding a merged attribute question+answer
 //Does not allow regex search
@@ -387,7 +411,7 @@ app.post("/api/users", function (req, res) {
           return;
         }
 
-        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600*8 }, (err, token) => {
+        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600 * 8 }, (err, token) => {
           if (err) throw err;
           delete user.password;
           res.json({ token, user });
@@ -403,20 +427,22 @@ app.post("/api/auth", function (req, res) {
   if (!username || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
-  UserModel.findOne({ username }).lean().then((user) => {
-    if (!user) return res.status(400).json({ msg: "User does not exist" });
+  UserModel.findOne({ username })
+    .lean()
+    .then((user) => {
+      if (!user) return res.status(400).json({ msg: "User does not exist" });
 
-    //Validate password
-    bcrypt.compare(password, user.password).then((isMatch) => {
-      if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+      //Validate password
+      bcrypt.compare(password, user.password).then((isMatch) => {
+        if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
-      jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600*8 }, (err, token) => {
-        if (err) throw err;
-        delete user.password;
-        res.json({ token, user });
+        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600 * 8 }, (err, token) => {
+          if (err) throw err;
+          delete user.password;
+          res.json({ token, user });
+        });
       });
     });
-  });
 });
 
 app.get("/api/auth/user", auth, function (req, res) {

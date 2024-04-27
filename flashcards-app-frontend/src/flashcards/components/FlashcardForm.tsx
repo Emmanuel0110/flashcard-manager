@@ -238,8 +238,8 @@ export default function FlashcardForm({
         <div id="prerequisites">
           <div className="flashcardSection">Prerequisites</div>
           {prerequisiteFlashcards.map((flashcardData, index) => (
-            <div className="lineContainer">
-              <FlashcardLine key={index} flashcardData={flashcardData} />
+            <div key={index} className="lineContainer">
+              <FlashcardLine flashcardData={flashcardData} />
               <span
                 className="lineClose"
                 onClick={(e: React.MouseEvent<HTMLSpanElement>) => removePrerequisite(index)}

@@ -76,8 +76,8 @@ const isFilteredBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilt
     .every(({ data }) => data.some((filterString) => flashcardHasTagOrIncludeString(flashcard, filterString)));
 };
 
-const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) => 
-    isFilteredBySearchFilter(flashcard, searchFilter) && (treeFilter.length === 0 || treeFilter.includes(flashcard._id))
+const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) =>
+  isFilteredBySearchFilter(flashcard, searchFilter) && (treeFilter.length === 0 || treeFilter.includes(flashcard._id));
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null as boolean | null);
@@ -298,17 +298,12 @@ export default function App() {
   };
 
   const saveFlashcard = (infos: Partial<Flashcard>) => {
-    editRemoteFlashcard(infos)
-      .then(({ data: updatedFlashcard }: { data: Flashcard }) => {
-        setFlashcards((flashcards: Flashcard[]) =>
-          flashcards.map((flashcard) => {
-            return flashcard._id === updatedFlashcard._id ? { ...flashcard, ...updatedFlashcard } : flashcard; //updatedFlashcard does not have hasBeenRead and nextReviewDate attributes, so we merge it in flashcard instead of replacing it
-          })
-        );
+    editRemoteFlashcard(infos).catch((err: Error) => console.log(err));
+    setFlashcards((flashcards: Flashcard[]) =>
+      flashcards.map((flashcard) => {
+        return flashcard._id === infos._id ? { ...flashcard, ...infos } : flashcard;
       })
-      .catch((err: Error) => {
-        console.log(err);
-      });
+    );
   };
 
   const saveAsNewFlashcard = (infos: Partial<Flashcard>): Promise<Flashcard> => {
