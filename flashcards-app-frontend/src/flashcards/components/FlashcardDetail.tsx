@@ -30,7 +30,6 @@ export default function FlashcardDetail({
     setStatus,
     fetchMoreFlashcards,
     setSearchFilter,
-    tags,
     saveFlashcard,
     saveAsNewFlashcard,
     editCurrentFlashcard,
@@ -186,7 +185,12 @@ export default function FlashcardDetail({
 
   const submitForValidation = () => {
     if (flashcard) {
-      saveFlashcard({ _id: flashcard._id, status: "To be validated", submitDate: new Date() });
+      saveFlashcard({
+        _id: flashcard._id,
+        status: "To be validated",
+        submitDate: new Date(),
+        lastModificationDate: new Date(),
+      });
       if (hasNextFlashcard()) {
         goToNextFlashcard();
       } else navigate("/flashcards/");
@@ -199,6 +203,7 @@ export default function FlashcardDetail({
         _id: flashcard._id,
         status: "Published",
         publishDate: new Date(),
+        lastModificationDate: new Date(),
         publishAuthor: { _id: user._id, name: user.username },
       });
       if (hasNextFlashcard()) {

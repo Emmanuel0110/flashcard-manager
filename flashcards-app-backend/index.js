@@ -97,7 +97,7 @@ app.post("/api/search", auth, (req, res) => {
           ...prerequisitesAndUsedInSearch,
           ...otherFilter,
         })
-          .sort("-creationDate")
+          .sort("-lastModificationDate")
           .skip(parseInt(skip) || 0)
           .limit(parseInt(limit) || 30)
           .populate("author", "username")
@@ -169,6 +169,7 @@ app.post("/api/flashcards", auth, function (req, res) {
   const newFlashcard = new FlashcardModel({
     _id: new mongoose.Types.ObjectId(),
     creationDate: new Date(),
+    lastModificationDate: new Date(),
     status: "Draft",
     author: req.user._id,
     ...req.body,
