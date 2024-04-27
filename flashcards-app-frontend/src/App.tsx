@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === "production") {
 
 export const ConfigContext = createContext(null as any);
 
-export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcards: any): Flashcard[] => {
+export const updateCacheWithNewFlashcards = (flashcards: Flashcard[], newFlashcards: any): Flashcard[] => {
   return newFlashcards.reduce((acc: Flashcard[], value: any) => {
     value = {
       ...value,
@@ -50,41 +50,34 @@ export const updateListWithNewFlashcards = (flashcards: Flashcard[], newFlashcar
 export const someFilter = (searchFilter: SearchFilter, treeFilter: string[]): boolean =>
   searchFilter.filter(({ isActive }) => isActive).length !== 0 || treeFilter.length !== 0;
 
+const flashcardHasTagOrIncludeString = (flashcard: Flashcard, filterString: string) => {
+  if (filterString.toLowerCase().startsWith("not ")) {
+    if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
+      return !flashcard.tags.find(({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(5));
+    } else {
+      return !flashcard.title
+        .toLowerCase()
+        .includes(filterString.toLowerCase().trim().slice(4).replace(/^\"/, "").replace(/\"$/, ""));
+    }
+  } else {
+    if (filterString.toLowerCase().trim().startsWith("#")) {
+      return flashcard.tags.find(({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(1));
+    } else {
+      return (flashcard.question + flashcard.answer)
+        .toLowerCase()
+        .includes(filterString.toLowerCase().replace(/^\"/, "").replace(/\"$/, ""));
+    }
+  }
+};
+
 const isFilteredBySearchFilter = (flashcard: Flashcard, searchFilter: SearchFilter) => {
   return searchFilter
     .filter(({ isActive }) => isActive)
-    .every((el) =>
-      el.data.some((filterString) => {
-        if (filterString.toLowerCase().startsWith("not ")) {
-          if (filterString.toLowerCase().slice(4).trim().startsWith("#")) {
-            return !flashcard.tags.find(
-              ({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(5)
-            );
-          } else {
-            return !flashcard.title
-              .toLowerCase()
-              .includes(filterString.toLowerCase().trim().slice(4).replace(/^\"/, "").replace(/\"$/, ""));
-          }
-        } else {
-          if (filterString.toLowerCase().trim().startsWith("#")) {
-            return flashcard.tags.find(
-              ({ label }) => label.toLowerCase() === filterString.toLowerCase().trim().slice(1)
-            );
-          } else {
-            return (flashcard.question + flashcard.answer)
-              .toLowerCase()
-              .includes(filterString.toLowerCase().replace(/^\"/, "").replace(/\"$/, ""));
-          }
-        }
-      })
-    );
+    .every(({ data }) => data.some((filterString) => flashcardHasTagOrIncludeString(flashcard, filterString)));
 };
 
-const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) => {
-  return (
+const isFiltered = (flashcard: Flashcard, searchFilter: SearchFilter, treeFilter: string[]) => 
     isFilteredBySearchFilter(flashcard, searchFilter) && (treeFilter.length === 0 || treeFilter.includes(flashcard._id))
-  );
-};
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null as boolean | null);
@@ -236,7 +229,7 @@ export default function App() {
       body: JSON.stringify({ status, filter, skip, limit }),
     })
       .then((newFlashcards: any) => {
-        setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, newFlashcards));
+        setFlashcards((flashcards) => updateCacheWithNewFlashcards(flashcards, newFlashcards));
       })
       .catch((err: Error) => {
         console.log(err);
@@ -340,7 +333,7 @@ export default function App() {
       ? Promise.resolve(flashcard)
       : getRemoteFlashcardById(id).then((flashcard) => {
           if (flashcard) {
-            setFlashcards((flashcards) => updateListWithNewFlashcards(flashcards, [flashcard]));
+            setFlashcards((flashcards) => updateCacheWithNewFlashcards(flashcards, [flashcard]));
             return flashcard;
           } else navigate("/flashcards");
         });

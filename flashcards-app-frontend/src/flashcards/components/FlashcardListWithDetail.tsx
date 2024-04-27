@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import useSplitPane from "../../utils/useSplitPane";
 import FlashcardList from "./FlashcardList";
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { ConfigContext, updateListWithNewFlashcards } from "../../App";
+import { ConfigContext, updateCacheWithNewFlashcards } from "../../App";
 import FlashcardForm from "./FlashcardForm";
 import { getRemotePrerequisiteAndUsedIn } from "../flashcardActions";
 import TabNav from "../../Layout/TabNav";
@@ -81,9 +81,9 @@ export default function FlashcardListWithDetail({
 
             setFlashcards((flashcards) => {
               if (missingPrerequisitesAndUsedIn.length === missingPrerequisitesAndUsedInFlashcards.length) {
-                return updateListWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards);
+                return updateCacheWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards);
               } else {
-                return updateListWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards).map((el) =>
+                return updateCacheWithNewFlashcards(flashcards, missingPrerequisitesAndUsedInFlashcards).map((el) =>
                   el._id === flashcardId
                     ? {
                         ...el,
