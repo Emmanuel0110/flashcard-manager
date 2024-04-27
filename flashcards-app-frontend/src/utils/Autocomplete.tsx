@@ -80,10 +80,10 @@ const DropdownItem = ({
   );
 };
 
-const isOdd = (num: number) => num % 2;
+const isOdd = (num: number): boolean => !!(num % 2);
 
 const numberOfQuotesbeforeCurrentPosition = (currentPosition: number, text: string) =>
-  text.slice(currentPosition).split('"').length - 1;
+  text.slice(0, currentPosition).split('"').length - 1;
 
 const isBetweenQuotes = (currentPosition: number, text: string) =>
   isOdd(numberOfQuotesbeforeCurrentPosition(currentPosition, text));
