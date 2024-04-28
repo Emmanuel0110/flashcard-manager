@@ -1,7 +1,8 @@
-import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfigContext } from "../../App";
-import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User } from "../../types";
+import { Context } from "../../types";
+import { Flashcard } from "../../types";
 import DotOptions from "../../utils/DotOptions/DotOptions";
 import { Button } from "react-bootstrap";
 import { editUserFlashcardInfo, readRemoteFlashcard } from "../flashcardActions";
@@ -35,24 +36,7 @@ export default function FlashcardDetail({
     editCurrentFlashcard,
     subscribeToFlashcard,
     setTreeFilter,
-  }: {
-    flashcards: Flashcard[];
-    filteredFlashcards: Flashcard[];
-    setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
-    openedFlashcards: OpenFlashcardData[];
-    setOpenedFlashcards: Dispatch<SetStateAction<OpenFlashcardData[]>>;
-    user: User;
-    status: string;
-    setStatus: Dispatch<SetStateAction<string>>;
-    fetchMoreFlashcards: (skip: number, limit: number) => void;
-    setSearchFilter: Dispatch<SetStateAction<SearchFilter>>;
-    tags: Tag[];
-    saveFlashcard: (infos: Partial<Flashcard>) => void;
-    saveAsNewFlashcard: (infos: Partial<Flashcard>) => Promise<Flashcard>;
-    editCurrentFlashcard: (flashcard: Flashcard) => void;
-    subscribeToFlashcard: (flashcard: Flashcard) => void;
-    setTreeFilter: Dispatch<SetStateAction<string[]>>;
-  } = useContext(ConfigContext);
+  } = useContext(ConfigContext) as Context;
   const [answerVisible, setAnswerVisible] = useState(status !== "To be reviewed");
   const navigate = useNavigate();
 
@@ -204,7 +188,7 @@ export default function FlashcardDetail({
         status: "Published",
         publishDate: new Date(),
         lastModificationDate: new Date(),
-        publishAuthor: { _id: user._id, name: user.username },
+        publishAuthor: { _id: user!._id, name: user!.username },
       });
       if (hasNextFlashcard()) {
         goToNextFlashcard();

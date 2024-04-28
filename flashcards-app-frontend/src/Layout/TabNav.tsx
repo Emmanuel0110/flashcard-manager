@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import { Nav } from "react-bootstrap";
 import { ConfigContext } from "../App";
+import { Context } from "../types";
 import { OpenFlashcardData } from "../types";
 import { useNavigate } from "react-router-dom";
 
@@ -11,13 +12,7 @@ function TabNav({
   openedFlashcards: OpenFlashcardData[];
   currentFlashcardId: string;
 }) {
-  const {
-    setOpenedFlashcards,
-    closeTab,
-  }: {
-    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
-    closeTab: (index: number) => void;
-  } = useContext(ConfigContext);
+  const { setOpenedFlashcards, closeTab } = useContext(ConfigContext) as Context;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,7 +27,7 @@ function TabNav({
       case "q":
         if (e.ctrlKey) {
           e.preventDefault();
-          closeTab(openedFlashcards.findIndex(({id}) => id === currentFlashcardId));
+          closeTab(openedFlashcards.findIndex(({ id }) => id === currentFlashcardId));
         }
         break;
     }
@@ -42,7 +37,7 @@ function TabNav({
     e.preventDefault();
     navigate("/flashcards/" + openedFlashcards[index].id);
     setOpenedFlashcards([openedFlashcards[index]]);
-  }
+  };
 
   return (
     <div id="tabNav">
@@ -54,28 +49,29 @@ function TabNav({
         >
           {openedFlashcards.length > 0 &&
             openedFlashcards.map((openedFlashcard, index) => {
-              return (<div key={index} onContextMenu={(e) => closeOtherTabs(e, index)}>
-                <Nav.Item>
-                  <Nav.Link eventKey={openedFlashcard.data._id}>
-                    {
-                      <>
-                        {openedFlashcard.data.title.substring(0, 15) + "..."}
-                        <div className="tabCloseContainer">
-                          <div
-                            className="tabCloseHover"
-                            onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
-                              e.stopPropagation();
-                              closeTab(index);
-                            }}
-                          >
-                            <div className="tabClose"></div>
+              return (
+                <div key={index} onContextMenu={(e) => closeOtherTabs(e, index)}>
+                  <Nav.Item>
+                    <Nav.Link eventKey={openedFlashcard.data._id}>
+                      {
+                        <>
+                          {openedFlashcard.data.title.substring(0, 15) + "..."}
+                          <div className="tabCloseContainer">
+                            <div
+                              className="tabCloseHover"
+                              onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
+                                e.stopPropagation();
+                                closeTab(index);
+                              }}
+                            >
+                              <div className="tabClose"></div>
+                            </div>
+                            {openedFlashcard.unsavedData && <div className="dot"></div>}
                           </div>
-                          {openedFlashcard.unsavedData && <div className="dot"></div>}
-                        </div>
-                      </>
-                    }
-                  </Nav.Link>
-                </Nav.Item>
+                        </>
+                      }
+                    </Nav.Link>
+                  </Nav.Item>
                 </div>
               );
             })}

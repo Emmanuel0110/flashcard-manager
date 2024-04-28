@@ -1,12 +1,13 @@
 import { useContext } from "react";
 import { Flashcard } from "../../types";
 import { ConfigContext } from "../../App";
+import { Context } from "../../types";
 import InfiniteScrollComponent from "../../utils/InfiniteScrollComponent";
 import FilterBar from "./FilterBar";
 import { FlashcardLine } from "./FlashcardLine";
 
 export default function FlashcardList({ filteredFlashcards }: { filteredFlashcards: Flashcard[] }) {
-  const { fetchMoreFlashcards } = useContext(ConfigContext);
+  const { fetchMoreFlashcards } = useContext(ConfigContext) as Context;
 
   return (
     <InfiniteScrollComponent

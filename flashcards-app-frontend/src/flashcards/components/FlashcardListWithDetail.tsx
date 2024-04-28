@@ -2,8 +2,9 @@ import { Flashcard, OpenFlashcardData } from "../../types";
 import { useParams } from "react-router-dom";
 import useSplitPane from "../../utils/useSplitPane";
 import FlashcardList from "./FlashcardList";
-import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { ConfigContext, updateCacheWithNewFlashcards } from "../../App";
+import { Context } from "../../types";
 import FlashcardForm from "./FlashcardForm";
 import { getRemotePrerequisiteAndUsedIn } from "../flashcardActions";
 import TabNav from "../../Layout/TabNav";
@@ -22,17 +23,7 @@ export default function FlashcardListWithDetail({
   filteredFlashcards: Flashcard[];
   openedFlashcards: OpenFlashcardData[];
 }) {
-  const {
-    flashcards,
-    setFlashcards,
-    setOpenedFlashcards,
-    getFlashcardById,
-  }: {
-    flashcards: Flashcard[];
-    setFlashcards: Dispatch<SetStateAction<Flashcard[]>>;
-    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
-    getFlashcardById: (id: string) => Promise<Flashcard>;
-  } = useContext(ConfigContext);
+  const { flashcards, setFlashcards, setOpenedFlashcards, getFlashcardById } = useContext(ConfigContext) as Context;
   const flashcardId = useParams().flashcardId!;
   const [currentOpenedFlashcard, setCurrentOpenedFlashcard] = useState<OpenFlashcardData | null>(null);
   const [prerequisites, setPrerequisites] = useState<Flashcard[]>([]);
@@ -87,8 +78,10 @@ export default function FlashcardListWithDetail({
                   el._id === flashcardId
                     ? {
                         ...el,
-                        prerequisites: el.prerequisites.filter((id) => !missingPrerequisitesAndUsedIn.includes(id) ||
-                          missingPrerequisitesAndUsedInFlashcards.some(({ _id }) => _id === id)
+                        prerequisites: el.prerequisites.filter(
+                          (id) =>
+                            !missingPrerequisitesAndUsedIn.includes(id) ||
+                            missingPrerequisitesAndUsedInFlashcards.some(({ _id }) => _id === id)
                         ),
                       }
                     : el

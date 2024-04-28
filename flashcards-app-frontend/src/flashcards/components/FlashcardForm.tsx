@@ -5,7 +5,8 @@ import { Button } from "react-bootstrap";
 import { Editor as TinyMCEEditor } from "tinymce";
 import { saveNewTag } from "../flashcardActions";
 import { ConfigContext } from "../../App";
-import { Flashcard, OpenFlashcardData, Tag } from "../../types";
+import { Context } from "../../types";
+import { Flashcard, Tag } from "../../types";
 import AutoComplete from "../../utils/Autocomplete";
 import { FlashcardLine } from "./FlashcardLine";
 
@@ -20,23 +21,8 @@ export default function FlashcardForm({
 }) {
   const questionRef = useRef<TinyMCEEditor | null>(null);
   const answerRef = useRef<TinyMCEEditor | null>(null);
-  const {
-    flashcards,
-    tags,
-    setTags,
-    setOpenedFlashcards,
-    saveFlashcard,
-    getFlashcardById,
-    saveAsNewFlashcard,
-  }: {
-    flashcards: Flashcard[];
-    tags: Tag[];
-    setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
-    setOpenedFlashcards: React.Dispatch<React.SetStateAction<OpenFlashcardData[]>>;
-    saveFlashcard: (infos: Partial<Flashcard>) => void;
-    getFlashcardById: (id: string) => Promise<Flashcard>;
-    saveAsNewFlashcard: (infos: Partial<Flashcard>) => Promise<Flashcard>;
-  } = useContext(ConfigContext);
+  const { flashcards, tags, setTags, setOpenedFlashcards, saveFlashcard, getFlashcardById, saveAsNewFlashcard } =
+    useContext(ConfigContext) as Context;
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);

@@ -1,17 +1,9 @@
-import React, { Dispatch, useContext } from "react";
-import { SearchFilter } from "../../types";
+import React, { useContext } from "react";
 import { ConfigContext } from "../../App";
+import { Context } from "../../types";
 
 export default function FilterBar() {
-  const {
-    searchFilter,
-    setSearchFilter,
-    setSearchInput,
-  }: {
-    searchFilter: SearchFilter;
-    setSearchFilter: Dispatch<React.SetStateAction<SearchFilter>>;
-    setSearchInput: Dispatch<React.SetStateAction<string>>;
-  } = useContext(ConfigContext);
+  const { searchFilter, setSearchFilter, setSearchInput } = useContext(ConfigContext) as Context;
 
   const toggleActive = (index: number) =>
     setSearchFilter((searchFilter) =>

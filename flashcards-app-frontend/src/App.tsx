@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, createContext, useEffect, useMemo, useRef, useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 import Register from "./auth/components/Register";
@@ -6,7 +6,7 @@ import Layout from "./Layout/Layout";
 import ProtectedRoute from "./ProtectedRoute";
 import Profile from "./Profile";
 import Login from "./auth/components/Login";
-import { Flashcard, OpenFlashcardData, SearchFilter, Tag, User, View } from "./types";
+import { Context, Flashcard, OpenFlashcardData, SearchFilter, Tag, User, View } from "./types";
 import FlashcardList from "./flashcards/components/FlashcardList";
 import { authHeaders, customFetch } from "./utils/http-helpers";
 import FlashcardListWithDetail from "./flashcards/components/FlashcardListWithDetail";
@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === "production") {
   url = process.env.PUBLIC_URL + url;
 }
 
-export const ConfigContext = createContext(null as any);
+export const ConfigContext = createContext<Context | null>(null);
 
 export const updateCacheWithNewFlashcards = (flashcards: Flashcard[], newFlashcards: any): Flashcard[] => {
   return newFlashcards.reduce((acc: Flashcard[], value: any) => {
@@ -283,7 +283,7 @@ export default function App() {
     );
   };
 
-  const subscribeToFlashcard = (flashcardToSubscribe: Flashcard) => {
+  const subscribeToFlashcard = (flashcardToSubscribe: Partial<Flashcard>) => {
     subscribeToRemoteFlashcard(flashcardToSubscribe).then((res) => {
       if (res.success) {
         setFlashcards((flashcards: Flashcard[]) =>

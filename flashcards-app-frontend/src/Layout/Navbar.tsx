@@ -1,7 +1,7 @@
 import { Dispatch, RefObject, useContext, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ConfigContext, someFilter } from "../App";
-import { SearchFilter, Tag, User } from "../types";
+import { Context } from "../types";
 import { logout } from "../auth/authActions";
 import AutoComplete from "../utils/Autocomplete";
 
@@ -47,25 +47,8 @@ const insertTag = (tagLabel: string, inputRef: RefObject<HTMLInputElement>) => {
 };
 
 function Navbar() {
-  const {
-    user,
-    searchFilter,
-    setSearchFilter,
-    setIsAuthenticated,
-    tags,
-    treeFilter,
-    setTreeFilter,
-    searchInput,
-  }: {
-    user: User;
-    searchFilter: SearchFilter;
-    setSearchFilter: React.Dispatch<React.SetStateAction<SearchFilter>>;
-    setIsAuthenticated: (arg: boolean) => void;
-    tags: Tag[];
-    treeFilter: string[];
-    setTreeFilter: React.Dispatch<React.SetStateAction<string[]>>;
-    searchInput: string;
-  } = useContext(ConfigContext);
+  const { user, searchFilter, setSearchFilter, setIsAuthenticated, tags, treeFilter, setTreeFilter, searchInput } =
+    useContext(ConfigContext) as Context;
 
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {

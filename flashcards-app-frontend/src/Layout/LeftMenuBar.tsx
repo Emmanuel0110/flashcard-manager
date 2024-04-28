@@ -1,18 +1,10 @@
 import { useContext, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import { ConfigContext } from "../App";
-import { Flashcard } from "../types";
+import { Context } from "../types";
 
 function LeftMenuBar() {
-  const {
-    status,
-    setStatus,
-    saveAsNewFlashcard,
-  }: {
-    status: string;
-    setStatus: React.Dispatch<React.SetStateAction<string>>;
-    saveAsNewFlashcard: (infos: Partial<Flashcard>) => Promise<Flashcard>;
-  } = useContext(ConfigContext);
+  const { status, setStatus, saveAsNewFlashcard } = useContext(ConfigContext) as Context;
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -31,7 +23,7 @@ function LeftMenuBar() {
         break;
     }
   };
-  
+
   const startReview = () => {
     setStatus("To be reviewed");
   };

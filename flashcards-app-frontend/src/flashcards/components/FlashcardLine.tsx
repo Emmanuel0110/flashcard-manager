@@ -1,23 +1,14 @@
 import { useParams } from "react-router-dom";
-import { Flashcard, User } from "../../types";
+import { Flashcard } from "../../types";
 import { useContext, useEffect, useRef } from "react";
 import { ConfigContext } from "../../App";
+import { Context } from "../../types";
 
 export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) => {
   const { flashcardId } = useParams();
-  const {
-    user,
-    deleteFlashcard,
-    openFlashcard,
-    editFlashcard,
-    subscribeToFlashcard,
-  }: {
-    user: User;
-    deleteFlashcard: (id: string) => void;
-    openFlashcard: (id: string) => void;
-    editFlashcard: (id: string) => void;
-    subscribeToFlashcard: ({ _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => void;
-  } = useContext(ConfigContext);
+  const { user, deleteFlashcard, openFlashcard, editFlashcard, subscribeToFlashcard } = useContext(
+    ConfigContext
+  ) as Context;
 
   const lineRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -43,7 +34,7 @@ export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) =
     e.stopPropagation();
     subscribeToFlashcard({ _id, hasBeenRead, nextReviewDate });
   };
-  
+
   return (
     <div
       ref={lineRef}
@@ -52,7 +43,7 @@ export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) =
     >
       <div className={"lineTitle" + (hasBeenRead ? " hasBeenRead" : "")}>{title}</div>
       <div className="lineOptions">
-        {(user._id === author._id || status === "Published") && (
+        {(user!._id === author._id || status === "Published") && (
           <>
             {learntDate instanceof Date ? (
               <div className="learnt"></div>
@@ -65,7 +56,7 @@ export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) =
             ></div>
           </>
         )}
-        {user._id === author._id && (
+        {user!._id === author._id && (
           <>
             <div className="edit" onClick={(e) => onEdit(e, _id)}></div>
             <div className="delete" onClick={(e) => onDelete(e, _id)}></div>
