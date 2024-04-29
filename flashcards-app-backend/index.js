@@ -101,6 +101,7 @@ app.post("/api/search", auth, (req, res) => {
           .skip(parseInt(skip) || 0)
           .limit(parseInt(limit) || 30)
           .populate("author", "username")
+          .populate("publishAuthor", "username")
           .populate({
             path: "tags",
             populate: { path: "label" },
@@ -125,6 +126,7 @@ app.post("/api/search", auth, (req, res) => {
       .then((userFlashcardInfos) => {
         FlashcardModel.find({ _id: userFlashcardInfos.map((el) => el.flashcard) })
           .populate("author", "username")
+          .populate("publishAuthor", "username")
           .populate("tags", "label")
           .lean()
           .then(async (flashcards) => {
@@ -148,6 +150,7 @@ app.get("/api/flashcards/:id", auth, (req, res) => {
       UserFlashcardInfoModel.find({ user: req.user._id }).then((userFlashcardInfos) => {
         FlashcardModel.findById(id)
           .populate("author", "username")
+          .populate("publishAuthor", "username")
           .populate({
             path: "tags",
             populate: { path: "label" },
@@ -184,6 +187,7 @@ app.post("/api/flashcards", auth, function (req, res) {
       return newElement;
     })
     .then((newElement) => newElement.populate("author", "username"))
+    .then((newElement) => newElement.populate("publishAuthor", "username"))
     .then((newElement) => newElement.populate("tags", "label"))
     .then((newElement) => res.send({ data: newElement }))
     .catch(function (err) {
@@ -207,6 +211,7 @@ app.patch("/api/flashcards/:id", auth, function (req, res) {
 
   FlashcardModel.findByIdAndUpdate(_id, newFlashcard)
     .populate("author", "username")
+    .populate("publishAuthor", "username")
     .populate({
       path: "tags",
       populate: { path: "label" },
