@@ -33,6 +33,7 @@ export const updateCacheWithNewFlashcards = (flashcards: Flashcard[], newFlashca
       ...value,
       nextReviewDate: value.nextReviewDate ? new Date(value.nextReviewDate) : undefined,
       learntDate: value.learntDate ? new Date(value.learntDate) : undefined,
+      creationDate: value.creationDate ? new Date(value.creationDate) : undefined,
       submitDate: value.submitDate ? new Date(value.submitDate) : undefined,
       publishDate: value.publishDate ? new Date(value.publishDate) : undefined,
       lastModificationDate: value.lastModificationDate ? new Date(value.lastModificationDate) : undefined,

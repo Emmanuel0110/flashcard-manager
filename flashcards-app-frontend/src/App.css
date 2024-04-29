@@ -658,3 +658,26 @@ a.nav-link {
   background-position: center;
   vertical-align: middle;
 }
+
+#above {
+  width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 150px;
+  margin-top: 50vh; /* poussé de la moitié de hauteur de viewport */
+  transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */
+  background-color: white;
+  border-radius: 15px;
+  overflow: auto;
+  padding: 20px;
+}
+
+.blockerDarkBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 20;
+  background-color: rgba(0, 0, 0, 0.5);
+}

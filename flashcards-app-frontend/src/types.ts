@@ -9,7 +9,7 @@ export type Status = "Draft" | "To be validated" | "Published" | "Obsolete";
 
 export interface Flashcard {
   _id: string;
-  author: { _id: string; name: string };
+  author: User;
   title: string;
   question: string;
   answer: string;
@@ -17,9 +17,10 @@ export interface Flashcard {
   status: Status;
   nextReviewDate: Date | undefined;
   hasBeenRead: boolean;
+  creationDate: Date | undefined;
   submitDate: Date | undefined;
   publishDate: Date | undefined;
-  publishAuthor: { _id: string; name: string };
+  publishAuthor: User;
   lastModificationDate: Date | undefined;
   learntDate: Date | undefined;
   prerequisites: string[];
