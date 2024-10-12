@@ -1,0 +1,30 @@
+
+#shortcuts {
+  position: relative;
+  max-width: 30px;
+  max-height: 30px;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: max-width 0.5s, max-height 0.5s;
+  z-index: 100;
+  display: flex;
+}
+
+#shortcuts:hover {
+  max-width: 1000px;
+  max-height: 1000px;
+}
+
+#questionMark {
+  position: absolute;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+#table td:first-child{ 
+  font-weight: 700 
+}
+
+table tr td {
+  text-wrap: nowrap;
+}

@@ -9,6 +9,8 @@ import { Context } from "../../types";
 import { Flashcard, Tag } from "../../types";
 import AutoComplete from "../../utils/Autocomplete";
 import { FlashcardLine } from "./FlashcardLine";
+import FormShortCuts from "./shortcuts/FormShortCuts";
+import Shortcuts from "./shortcuts/Shortcuts";
 
 export default function FlashcardForm({
   flashcard,
@@ -161,7 +163,7 @@ export default function FlashcardForm({
                 "undo redo | formatselect | " +
                 "bold italic backcolor | alignleft aligncenter " +
                 "alignright alignjustify | bullist numlist outdent indent | " +
-                "codesample removeformat | help fullscreen",
+                "link codesample removeformat | help fullscreen",
               codesample_global_prismjs: true,
               codesample_languages: [
                 { text: "JavaScript", value: "javascript" },
@@ -242,6 +244,11 @@ export default function FlashcardForm({
             />
           </div>
         </div>
+      </div>
+      <div id="formShortcuts">
+        <Shortcuts position="bottom-left" color="white" backgroundColor="gray">
+          <FormShortCuts/>
+        </Shortcuts>
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import { ConfigContext, someFilter } from "../App";
 import { Context } from "../types";
 import { logout } from "../auth/authActions";
 import AutoComplete from "../utils/Autocomplete";
+import Shortcuts from "../flashcards/components/shortcuts/Shortcuts";
+import FilterShortCuts from "../flashcards/components/shortcuts/FilterShortCuts";
 
 const parseLabel = (label: string) => {
   let result: string[] = [];
@@ -113,6 +115,11 @@ function Navbar() {
             />
           </div>
           {someFilter(searchFilter, treeFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
+        </div>
+        <div id="filterShortcuts">
+          <Shortcuts position="bottom-right" color="gray" backgroundColor="#f8f8f8">
+            <FilterShortCuts />
+          </Shortcuts>
         </div>
       </div>
       <div id="nameLabel">{user?.username}</div>

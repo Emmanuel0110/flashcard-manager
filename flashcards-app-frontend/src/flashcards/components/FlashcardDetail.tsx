@@ -8,6 +8,9 @@ import { Button } from "react-bootstrap";
 import { editUserFlashcardInfo, readRemoteFlashcard } from "../flashcardActions";
 import { FlashcardLine } from "./FlashcardLine";
 import { Editor } from "@tinymce/tinymce-react";
+import Shortcuts from "./shortcuts/Shortcuts";
+import FormShortCuts from "./shortcuts/FormShortCuts";
+import DetailShortCuts from "./shortcuts/DetailShortCuts";
 
 export default function FlashcardDetail({
   flashcard,
@@ -295,7 +298,7 @@ export default function FlashcardDetail({
               menubar: false,
               statusbar: false,
               toolbar: "fullscreen",
-              plugins: "fullscreen codesample",
+              plugins: "fullscreen codesample link",
               codesample_global_prismjs: true,
             }}
           />
@@ -311,7 +314,7 @@ export default function FlashcardDetail({
                   menubar: false,
                   statusbar: false,
                   toolbar: "fullscreen",
-                  plugins: "fullscreen codesample",
+                  plugins: "fullscreen codesample link",
                   codesample_global_prismjs: true,
                 }}
               />
@@ -377,6 +380,11 @@ export default function FlashcardDetail({
           </div>
         </div>
       )}
+      <div id="detailShortcuts">
+        <Shortcuts position="top-left" color="white" backgroundColor="gray">
+          <DetailShortCuts />
+        </Shortcuts>
+      </div>
     </div>
   );
 }
