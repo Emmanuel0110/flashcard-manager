@@ -2,26 +2,29 @@ import "./shortcut.css";
 
 function FilterShortCuts() {
   return (
-    <table id="table">
-      <tbody>
-        <tr>
-          <td>Spacebar</td>
-          <td>Show answer</td>
-        </tr>
-        <tr>
-          <td>Right arrow</td>
-          <td>Next</td>
-        </tr>
-        <tr>
-          <td>Tab</td>
-          <td>Focus filter</td>
-        </tr>
-        <tr>
-          <td>Escape</td>
-          <td>Reset and exit filter</td>
-        </tr>
-      </tbody>
-    </table>
+    <div>
+      <table id="table">
+        <tbody>
+          <tr>
+            <td>Tab</td>
+            <td>Focus the search bar</td>
+          </tr>
+          <tr>
+            <td>Escape</td>
+            <td>Empty and leave the search bar</td>
+          </tr>
+          <tr>
+            <td>Enter</td>
+            <td>Add the filter</td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+      <div>
+        <p>Exemples of filter: attribute, "attribute field", attribute field <span style={{fontStyle: "italic"}}>(which means it contains "attribute" OR "field")</span>, #model, not #model</p>
+        <p>Once a filter is added, click on its name to hide it or on the cross to remove it</p>
+      </div>
+    </div>
   );
 }
 
