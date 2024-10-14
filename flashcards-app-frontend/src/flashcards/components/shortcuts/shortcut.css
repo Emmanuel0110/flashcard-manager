@@ -22,7 +22,8 @@
 }
 
 #table td:first-child{ 
-  font-weight: 700 
+  font-weight: 700;
+  padding-right: 20px;
 }
 
 table tr td {

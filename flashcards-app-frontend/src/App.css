@@ -512,9 +512,21 @@ button:focus {
   background-position: center;
   vertical-align: middle;
   position: absolute;
+}
+
+.filterCloseHover {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  position: absolute;
+  padding: 5px;
   top: 50%;
-  right: 0.5em;
+  right: 2px;
   transform: translate(0%, -50%);
+}
+
+.filterCloseHover:hover {
+  background-color: rgb(227, 227, 227);
 }
 
 .lineClose {

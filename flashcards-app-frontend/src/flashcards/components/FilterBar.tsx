@@ -31,13 +31,17 @@ export default function FilterBar() {
             }}
           >
             {filterArrayOR.data.join(" ")}
-            <div
-              className="filterClose"
-              onClick={(e) => {
-                e.stopPropagation();
-                close(index);
-              }}
-            ></div>
+            <div className="filterCloseContainer">
+              <div
+                className="filterCloseHover"
+                onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
+                  e.stopPropagation();
+                  close(index);
+                }}
+              >
+                <div className="filterClose"></div>
+              </div>
+            </div>
           </li>
         );
       })}

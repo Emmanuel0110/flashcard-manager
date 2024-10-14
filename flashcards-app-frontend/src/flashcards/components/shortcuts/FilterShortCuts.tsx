@@ -7,23 +7,31 @@ function FilterShortCuts() {
         <tbody>
           <tr>
             <td>Tab</td>
-            <td>Focus the search bar</td>
+            <td>Move the focus to the search bar</td>
           </tr>
           <tr>
             <td>Escape</td>
-            <td>Empty and leave the search bar</td>
+            <td>Clear the search bar and exit it</td>
           </tr>
           <tr>
             <td>Enter</td>
-            <td>Add the filter</td>
+            <td>Add the current filter</td>
           </tr>
         </tbody>
       </table>
       <br/>
       <div>
-        <p>Exemples of filter: attribute, "attribute field", attribute field <span style={{fontStyle: "italic"}}>(which means it contains "attribute" OR "field")</span>, #model, not #model</p>
-        <p>Once a filter is added, click on its name to hide it or on the cross to remove it</p>
-      </div>
+      <p><strong>Filter Examples:</strong></p>
+  <ul>
+    <li><code>attribute</code></li>
+    <li><code>"attribute field"</code> (exact match)</li>
+    <li><code>attribute field</code> (matches either "attribute" <strong>OR</strong> "field")</li>
+    <li><code>#model</code></li>
+    <li><code>not #model</code></li>
+  </ul>
+  <p>After adding a filter, click on its name to hide it or click on the <strong>x</strong> icon to remove it.</p>
+  <p>When you add additional filters, they will be combined with the existing ones using an <strong>AND</strong> relationship.</p>
+</div>
     </div>
   );
 }

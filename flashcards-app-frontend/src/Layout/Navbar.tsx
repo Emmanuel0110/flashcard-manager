@@ -49,7 +49,7 @@ const insertTag = (tagLabel: string, inputRef: RefObject<HTMLInputElement>) => {
 };
 
 function Navbar() {
-  const { user, searchFilter, setSearchFilter, setIsAuthenticated, tags, treeFilter, setTreeFilter, searchInput } =
+  const { user, searchFilter, setSearchFilter, setIsAuthenticated, tags, treeFilter, setTreeFilter, searchInput, setSearchInput } =
     useContext(ConfigContext) as Context;
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,14 +61,22 @@ function Navbar() {
   }, []);
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    switch (e.key) {
-      case "k":
-        if (e.ctrlKey) {
+    if ((e.target as HTMLInputElement).nodeName.toLowerCase() !== "input") {
+      switch (e.key) {
+        case "Tab":
           e.preventDefault();
           inputRef.current?.focus();
-        }
-        break;
-      default:
+          break;
+        default:
+      }
+    } else {
+      switch (e.key) {
+        case "Escape":
+          setSearchInput("");
+          (e.target as HTMLInputElement).blur();
+          break;
+        default:
+      }
     }
   };
 
