@@ -381,7 +381,7 @@ export default function FlashcardDetail({
         </div>
       )}
       <div id="detailShortcuts">
-        <Shortcuts position="top-left" color="white" backgroundColor="gray">
+        <Shortcuts position="top-left" color="#e3e3e3" backgroundColor="#565656">
           <DetailShortCuts />
         </Shortcuts>
       </div>

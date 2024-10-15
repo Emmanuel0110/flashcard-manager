@@ -246,7 +246,7 @@ export default function FlashcardForm({
         </div>
       </div>
       <div id="formShortcuts">
-        <Shortcuts position="bottom-left" color="white" backgroundColor="gray">
+        <Shortcuts position="bottom-left" color="#e3e3e3" backgroundColor="#565656">
           <FormShortCuts/>
         </Shortcuts>
       </div>

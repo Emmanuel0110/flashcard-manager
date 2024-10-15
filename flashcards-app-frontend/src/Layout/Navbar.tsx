@@ -125,7 +125,7 @@ function Navbar() {
           {someFilter(searchFilter, treeFilter) && <div id="cancelFilterForSearch" onClick={cancelFilter}></div>}
         </div>
         <div id="filterShortcuts">
-          <Shortcuts position="bottom-right" color="gray" backgroundColor="#f8f8f8">
+          <Shortcuts position="bottom-right" color="gray" backgroundColor="white">
             <FilterShortCuts />
           </Shortcuts>
         </div>
