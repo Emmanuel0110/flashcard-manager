@@ -9,8 +9,8 @@ import { editUserFlashcardInfo, readRemoteFlashcard } from "../flashcardActions"
 import { FlashcardLine } from "./FlashcardLine";
 import { Editor } from "@tinymce/tinymce-react";
 import Shortcuts from "./shortcuts/Shortcuts";
-import FormShortCuts from "./shortcuts/FormShortCuts";
 import DetailShortCuts from "./shortcuts/DetailShortCuts";
+import ReviewShortCuts from "./shortcuts/ReviewShortCuts";
 
 export default function FlashcardDetail({
   flashcard,
@@ -70,7 +70,7 @@ export default function FlashcardDetail({
 
   useEffect(() => {
     setAnswerVisible(status !== "To be reviewed");
-  }, [flashcardId]);
+  }, [flashcardId, status]);
 
   const currentIndex = useMemo(
     () => filteredFlashcards.findIndex((flashcard: Flashcard) => flashcard._id === flashcardId),
@@ -362,7 +362,7 @@ export default function FlashcardDetail({
               )}
             </>
           ) : (
-            <Button onClick={() => setAnswerVisible(true)}>See answer</Button>
+            <Button onClick={() => setAnswerVisible(true)}>Show answer</Button>
           )}
         </div>
         <div id="next">
@@ -382,7 +382,7 @@ export default function FlashcardDetail({
       )}
       <div id="detailShortcuts">
         <Shortcuts position="top-left" color="#e3e3e3" backgroundColor="#565656">
-          <DetailShortCuts />
+          {status === "To be reviewed" ? <ReviewShortCuts /> : <DetailShortCuts /> }
         </Shortcuts>
       </div>
     </div>

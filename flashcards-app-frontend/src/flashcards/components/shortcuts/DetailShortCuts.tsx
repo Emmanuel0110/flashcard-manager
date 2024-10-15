@@ -5,40 +5,40 @@ function DetailShortCuts() {
     <table id="table">
       <tbody>
         <tr>
-          <td>Spacebar</td>
-          <td>Show answer</td>
+          <td>Ctrl + E</td>
+          <td>Edit</td>
         </tr>
         <tr>
-          <td>Spacebar</td>
-          <td>Show answer</td>
+          <td>Ctrl + L</td>
+          <td>Save as new</td>
         </tr>
         <tr>
-          <td>Spacebar</td>
-          <td>Show answer</td>
+          <td>Ctrl + Q</td>
+          <td>Close tab</td>
         </tr>
         <tr>
-          <td>Spacebar</td>
-          <td>Show answer</td>
+          <td>Right click</td>
+          <td>Close other tabs</td>
         </tr>
         <tr>
-          <td>Spacebar</td>
-          <td>Show answer</td>
+          <td>4</td>
+          <td>Mark as known</td>
         </tr>
         <tr>
-          <td>Spacebar</td>
-          <td>Show answer</td>
+          <td>Arrow left</td>
+          <td>Previous card</td>
         </tr>
         <tr>
-          <td>Right arrow</td>
-          <td>Next</td>
+          <td>Arrow right</td>
+          <td>Next card</td>
         </tr>
         <tr>
-          <td>Tab</td>
-          <td>Focus filter</td>
+          <td>Arrow up</td>
+          <td style={{whiteSpace: "pre-line"}}>{"Show the list of cards using \n this card as prerequisite"}</td>
         </tr>
         <tr>
-          <td>Escape</td>
-          <td>Reset and exit filter</td>
+          <td>Arrow down</td>
+          <td>Show the list of prerequisites</td>
         </tr>
       </tbody>
     </table>
