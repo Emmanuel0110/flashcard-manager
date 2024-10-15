@@ -43,7 +43,7 @@ function LeftMenuBar() {
         <div id="statusSection">
           <div onClick={() => setStatus("Published")}>
             <div className={status === "Published" ? "selected" : "unselected"}></div>
-            <div title="Published flashcards">All flashcards</div>
+            <div title="Validated flashcards">All flashcards</div>
           </div>
           <div onClick={() => setStatus("Draft")}>
             <div className={status === "Draft" ? "selected" : "unselected"}></div>

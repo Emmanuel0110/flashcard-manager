@@ -277,7 +277,7 @@ export default function FlashcardDetail({
     <div id="flashCardComponent">
       <div className="buttonHeader">
         {flashcard?.status === "Draft" && <Button onClick={submitForValidation}>Submit for validation</Button>}
-        {flashcard?.status === "To be validated" && <Button onClick={publish}>Publish</Button>}
+        {flashcard?.status === "To be validated" && <Button onClick={publish}>Validate</Button>}
       </div>
       <div id="flashcard">
         <div id="previous">
