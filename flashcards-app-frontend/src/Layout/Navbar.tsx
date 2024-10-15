@@ -72,7 +72,6 @@ function Navbar() {
     } else {
       switch (e.key) {
         case "Escape":
-          setSearchInput("");
           (e.target as HTMLInputElement).blur();
           break;
         default:
