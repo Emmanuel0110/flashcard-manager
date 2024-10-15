@@ -43,15 +43,15 @@ function LeftMenuBar() {
         <div id="statusSection">
           <div onClick={() => setStatus("Published")}>
             <div className={status === "Published" ? "selected" : "unselected"}></div>
-            <div>All flashcards</div>
+            <div title="Published flashcards">All flashcards</div>
           </div>
           <div onClick={() => setStatus("Draft")}>
             <div className={status === "Draft" ? "selected" : "unselected"}></div>
-            <div>Drafts</div>
+            <div title="Your drafts are private and cannot be seen by anyone else">Drafts</div>
           </div>
           <div onClick={() => setStatus("To be validated")}>
             <div className={status === "To be validated" ? "selected" : "unselected"}></div>
-            <div>To be validated</div>
+            <div title="Can be validated by anyone">To be validated</div>
           </div>
           <div onClick={() => setStatus("My favorites")}>
             <div className={status === "My favorites" ? "selected" : "unselected"}></div>
@@ -60,7 +60,7 @@ function LeftMenuBar() {
         </div>
       </div>
       <div>
-        <Button id="startAReviewButton" variant="outline-primary" onClick={startReview}>
+        <Button id="startAReviewButton" variant="outline-primary" onClick={startReview} title="Start a review of your favorite cards">
           Start a review
         </Button>
       </div>

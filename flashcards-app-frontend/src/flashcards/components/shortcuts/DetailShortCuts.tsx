@@ -6,7 +6,7 @@ function DetailShortCuts() {
       <tbody>
         <tr>
           <td>Ctrl + E</td>
-          <td>Edit</td>
+          <td>Edit (only author)</td>
         </tr>
         <tr>
           <td>Ctrl + L</td>
@@ -39,6 +39,10 @@ function DetailShortCuts() {
         <tr>
           <td>Arrow down</td>
           <td>Show the list of prerequisites</td>
+        </tr>
+        <tr>
+          <td>Alt + Arrow left/right</td>
+          <td>Go back/forward</td>
         </tr>
       </tbody>
     </table>

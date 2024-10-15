@@ -27,7 +27,9 @@ export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) =
 
   const onDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    deleteFlashcard(id);
+    if (window.confirm("Are you sure you want to delete this flashcard?")) {
+      deleteFlashcard(id);
+    }
   };
 
   const onSubscribe = (e: React.MouseEvent, { _id, hasBeenRead, nextReviewDate }: Partial<Flashcard>) => {
@@ -53,6 +55,7 @@ export const FlashcardLine = ({ flashcardData }: { flashcardData: Flashcard }) =
             <div
               className={"subscribe" + (nextReviewDate instanceof Date ? " subscribed" : "")}
               onClick={(e) => onSubscribe(e, { _id, hasBeenRead, nextReviewDate })}
+              title="Mark all the flashcards you want to learn as favorites"
             ></div>
           </>
         )}
