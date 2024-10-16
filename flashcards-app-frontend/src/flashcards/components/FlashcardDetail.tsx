@@ -179,9 +179,6 @@ export default function FlashcardDetail({
         submitDate: new Date(),
         lastModificationDate: new Date(),
       });
-      if (hasNextFlashcard()) {
-        goToNextFlashcard();
-      } else navigate("/flashcards/");
     }
   };
 
@@ -196,7 +193,7 @@ export default function FlashcardDetail({
       });
       if (hasNextFlashcard()) {
         goToNextFlashcard();
-      } else navigate("/flashcards/");
+      }
     }
   };
 
@@ -401,7 +398,7 @@ export default function FlashcardDetail({
       )}
       <div id="detailShortcuts">
         <Shortcuts position="top-left" color="#e3e3e3" backgroundColor="#565656">
-          {status === "To be reviewed" ? <ReviewShortCuts /> : <DetailShortCuts /> }
+          {status === "To be reviewed" ? <ReviewShortCuts /> : <DetailShortCuts />}
         </Shortcuts>
       </div>
     </div>
