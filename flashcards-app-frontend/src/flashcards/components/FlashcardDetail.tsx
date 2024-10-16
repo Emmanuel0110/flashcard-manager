@@ -373,10 +373,29 @@ export default function FlashcardDetail({
       {showHistory && (
         <div className="blockerDarkBackground" onClick={(e) => setShowHistory(false)}>
           <div id="above" onClick={(e) => e.stopPropagation()}>
-          <div>{flashcard.creationDate ? "Created on " + flashcard.creationDate.toLocaleString() + " by " + flashcard.author.username : ""}</div>
-          <div>{flashcard.submitDate ? "Submitted on " + flashcard.submitDate.toLocaleString() + " by " + flashcard.author.username : ""}</div>
-          <div>{flashcard.publishDate ? "Published on " + flashcard.publishDate.toLocaleString() + " by " + flashcard.publishAuthor.username : ""}</div>
-          <div>{flashcard.lastModificationDate ? "Last modified on " + flashcard.lastModificationDate.toLocaleString() + " by " + flashcard.author.username : ""}</div>
+            <div>
+              {flashcard.creationDate
+                ? "Created on " + flashcard.creationDate.toLocaleString() + " by " + flashcard.author.username
+                : ""}
+            </div>
+            <div>
+              {flashcard.submitDate
+                ? "Submitted on " + flashcard.submitDate.toLocaleString() + " by " + flashcard.author.username
+                : ""}
+            </div>
+            <div>
+              {flashcard.publishDate
+                ? "Published on " + flashcard.publishDate.toLocaleString() + " by " + flashcard.publishAuthor.username
+                : ""}
+            </div>
+            <div>
+              {flashcard.lastModificationDate
+                ? "Last modified on " +
+                  flashcard.lastModificationDate.toLocaleString() +
+                  " by " +
+                  flashcard.author.username
+                : ""}
+            </div>
           </div>
         </div>
       )}
