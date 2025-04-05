@@ -17,6 +17,10 @@ function DetailShortCuts() {
           <td>Close tab</td>
         </tr>
         <tr>
+          <td>Ctrl + M</td>
+          <td>Open new flashcard</td>
+        </tr>
+        <tr>
           <td>Right click</td>
           <td>Close other tabs</td>
         </tr>
@@ -34,7 +38,7 @@ function DetailShortCuts() {
         </tr>
         <tr>
           <td>Arrow up</td>
-          <td style={{whiteSpace: "pre-line"}}>{"Show the list of cards using \n this card as prerequisite"}</td>
+          <td style={{ whiteSpace: "pre-line" }}>{"Show the list of cards using \n this card as prerequisite"}</td>
         </tr>
         <tr>
           <td>Arrow down</td>
