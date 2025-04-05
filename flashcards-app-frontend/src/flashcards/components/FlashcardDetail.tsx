@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfigContext } from "../../App";
 import { Context } from "../../types";
@@ -43,8 +43,10 @@ export default function FlashcardDetail({
   const [answerVisible, setAnswerVisible] = useState(status !== "To be reviewed");
   const [showHistory, setShowHistory] = useState(false);
   const navigate = useNavigate();
+  const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => {});
 
   useEffect(() => {
+    console.log("flashcardId", flashcardId);
     document.addEventListener("keydown", handleKeyDown); // TODO: only one time on component mount
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -116,6 +118,7 @@ export default function FlashcardDetail({
       case "e":
         if (e.ctrlKey) {
           e.preventDefault();
+          console.log("flashcardId", flashcardId);
           editCurrentFlashcard(flashcard);
         }
         break;
@@ -170,6 +173,7 @@ export default function FlashcardDetail({
       default:
     }
   };
+  handleKeyDownRef.current = handleKeyDown;
 
   const submitForValidation = () => {
     if (flashcard) {
@@ -290,7 +294,10 @@ export default function FlashcardDetail({
             initialValue={flashcard.question}
             init={{
               height: "25vh",
-              setup: (editor) => editor.on("keydown", handleKeyDown),
+              setup: (editor) =>
+                editor.on("keydown", (e: KeyboardEvent) => {
+                  handleKeyDownRef.current(e);
+                }),
               editable_root: false,
               menubar: false,
               statusbar: false,
@@ -306,7 +313,10 @@ export default function FlashcardDetail({
                 initialValue={flashcard.answer}
                 init={{
                   height: "40vh",
-                  setup: (editor) => editor.on("keydown", handleKeyDown),
+                  setup: (editor) =>
+                    editor.on("keydown", (e: KeyboardEvent) => {
+                      handleKeyDownRef.current(e);
+                    }),
                   editable_root: false,
                   menubar: false,
                   statusbar: false,
