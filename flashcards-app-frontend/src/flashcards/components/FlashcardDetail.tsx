@@ -46,7 +46,6 @@ export default function FlashcardDetail({
   const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => {});
 
   useEffect(() => {
-    console.log("flashcardId", flashcardId);
     document.addEventListener("keydown", handleKeyDown); // TODO: only one time on component mount
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -118,7 +117,6 @@ export default function FlashcardDetail({
       case "e":
         if (e.ctrlKey) {
           e.preventDefault();
-          console.log("flashcardId", flashcardId);
           editCurrentFlashcard(flashcard);
         }
         break;
@@ -169,6 +167,9 @@ export default function FlashcardDetail({
         break;
       case "3":
         reviewIn(1, "month");
+        break;
+      case "4":
+        markAsKnown(flashcard);
         break;
       default:
     }
@@ -227,6 +228,23 @@ export default function FlashcardDetail({
     setSearchFilter([{ isActive: true, data: ["#" + tagLabel] }]);
   };
 
+  const markAsKnown = (flashcard: Flashcard) => {
+    if (flashcard) {
+      editUserFlashcardInfo({ _id: flashcard._id, learntDate: new Date() }).then((res) => {
+        if (res.success) {
+          setFlashcards((flashcards) =>
+            flashcards.map((flashcard) => {
+              return flashcard._id === flashcardId ? { ...flashcard, learntDate: new Date() } : flashcard;
+            })
+          );
+        }
+      });
+      if (hasNextFlashcard()) {
+        goToNextFlashcard();
+      }
+    }
+  };
+
   let options = [];
   if (flashcard?.author._id === user?._id) {
     options.push({
@@ -247,19 +265,7 @@ export default function FlashcardDetail({
     label: "Save as new",
   });
   options.push({
-    callback: (flashcard: Flashcard) => {
-      if (flashcard) {
-        editUserFlashcardInfo({ _id: flashcard._id, learntDate: new Date() }).then((res) => {
-          if (res.success) {
-            setFlashcards((flashcards) =>
-              flashcards.map((flashcard) => {
-                return flashcard._id === flashcardId ? { ...flashcard, learntDate: new Date() } : flashcard;
-              })
-            );
-          }
-        });
-      }
-    },
+    callback: markAsKnown,
     label: "Mark as known",
   });
   options.push({
