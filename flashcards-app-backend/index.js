@@ -425,7 +425,7 @@ app.post("/api/users", function (req, res) {
           return;
         }
 
-        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600 * 8 }, (err, token) => {
+        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600 * 11 }, (err, token) => {
           if (err) throw err;
           delete user.password;
           res.json({ token, user });
