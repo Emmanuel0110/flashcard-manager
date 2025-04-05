@@ -193,7 +193,7 @@ export default function FlashcardForm({
                 "undo redo | formatselect | " +
                 "bold italic backcolor | alignleft aligncenter " +
                 "alignright alignjustify | bullist numlist outdent indent | " +
-                "codesample removeformat | help fullscreen",
+                "link codesample removeformat | help fullscreen",
               codesample_global_prismjs: true,
               codesample_languages: [
                 { text: "JavaScript", value: "javascript" },
@@ -247,7 +247,7 @@ export default function FlashcardForm({
       </div>
       <div id="formShortcuts">
         <Shortcuts position="bottom-left" color="#e3e3e3" backgroundColor="#565656">
-          <FormShortCuts/>
+          <FormShortCuts />
         </Shortcuts>
       </div>
     </div>
