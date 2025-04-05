@@ -220,16 +220,18 @@ app.patch("/api/flashcards/:id", auth, function (req, res) {
       const prerequisites = newFlashcard.prerequisites;
       if (Array.isArray(prerequisites) && prerequisites.length) {
         const newPrerequisites = prerequisites.filter((el) => !(el in originalFlashcard.prerequisites));
-        if (newPrerequisites.length) await FlashcardModel.updateMany(
-          { _id: { $in: newPrerequisites } },
-          { $addToSet: { usedIn: newFlashcard._id } }
-        );
+        if (newPrerequisites.length)
+          await FlashcardModel.updateMany(
+            { _id: { $in: newPrerequisites } },
+            { $addToSet: { usedIn: newFlashcard._id } }
+          );
 
         const removedPrerequisites = originalFlashcard.filter((el) => !(el in prerequisites));
-        if (removedPrerequisites.length) await FlashcardModel.updateMany(
-          { _id: { $in: removedPrerequisites } },
-          { $pull: { usedIn: newFlashcard._id } }
-        );
+        if (removedPrerequisites.length)
+          await FlashcardModel.updateMany(
+            { _id: { $in: removedPrerequisites } },
+            { $pull: { usedIn: newFlashcard._id } }
+          );
       }
 
       res.json({ success: true });
@@ -295,35 +297,41 @@ app.get("/api/tags", auth, (req, res) => {
 });
 
 app.post("/api/tags", auth, (req, res) => {
-  const newTag = new TagModel({
-    _id: new mongoose.Types.ObjectId(),
-    ...req.body,
+  TagModel.findOne({ label: req.body?.label || "" }).then((tag) => {
+    if (tag) {
+      res.send({ data: tag });
+    } else {
+      const newTag = new TagModel({
+        _id: new mongoose.Types.ObjectId(),
+        ...req.body,
+      });
+      newTag
+        .save()
+        .then((newElement) => {
+          res.send({ data: newElement });
+        })
+        .catch(function (err) {
+          console.log("save error ", err);
+          if (err.name === "MongoError" && err.code === 11000) {
+            res.json({ success: false, message: "already exists" });
+            return;
+          }
+          res.json({ success: false, message: "some error happened" });
+          return;
+        });
+    }
   });
-  newTag
-    .save()
-    .then((newElement) => {
-      res.send({ data: newElement });
-    })
-    .catch(function (err) {
-      console.log("save error ", err);
-      if (err.name === "MongoError" && err.code === 11000) {
-        res.json({ success: false, message: "already exists" });
-        return;
-      }
-      res.json({ success: false, message: "some error happened" });
-      return;
-    });
 });
 
 const tagSchema = new Schema({
   _id: Schema.Types.ObjectId,
-  label: { type: String, required: true },
+  label: { type: String, required: true, unique: true },
 });
 export const TagModel = model("Tag", tagSchema);
 
 const userSchema = new Schema({
   _id: Schema.Types.ObjectId,
-  username: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
 export const UserModel = model("User", userSchema);
