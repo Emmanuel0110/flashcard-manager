@@ -216,17 +216,22 @@ app.patch("/api/flashcards/:id", auth, function (req, res) {
       path: "tags",
       populate: { path: "label" },
     })
+    .lean()
     .then(async (originalFlashcard) => {
       const prerequisites = newFlashcard.prerequisites;
-      if (Array.isArray(prerequisites) && prerequisites.length) {
-        const newPrerequisites = prerequisites.filter((el) => !(el in originalFlashcard.prerequisites));
+      if (Array.isArray(prerequisites)) {
+        const newPrerequisites = prerequisites.filter(
+          (el) => !originalFlashcard.prerequisites.map((id) => id.toString()).includes(el)
+        );
         if (newPrerequisites.length)
           await FlashcardModel.updateMany(
             { _id: { $in: newPrerequisites } },
             { $addToSet: { usedIn: newFlashcard._id } }
           );
 
-        const removedPrerequisites = originalFlashcard.filter((el) => !(el in prerequisites));
+        const removedPrerequisites = originalFlashcard.prerequisites.filter(
+          (el) => !prerequisites.includes(el.toString())
+        );
         if (removedPrerequisites.length)
           await FlashcardModel.updateMany(
             { _id: { $in: removedPrerequisites } },
