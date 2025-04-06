@@ -60,7 +60,12 @@ function LeftMenuBar() {
         </div>
       </div>
       <div>
-        <Button id="startAReviewButton" variant="outline-primary" onClick={startReview} title="Start a review of your favorite cards">
+        <Button
+          id="startAReviewButton"
+          variant="outline-primary"
+          onClick={startReview}
+          title="Start a review of your favorite cards"
+        >
           Start a review
         </Button>
       </div>
