@@ -338,6 +338,7 @@ const userSchema = new Schema({
   _id: Schema.Types.ObjectId,
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  isAdmin: { type: Boolean, default: false },
 });
 export const UserModel = model("User", userSchema);
 

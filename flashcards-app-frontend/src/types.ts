@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 export interface User {
   _id: string;
   username: string;
+  isAdmin?: boolean;
 }
 
 export type Status = "Draft" | "To be validated" | "Published" | "Obsolete";
