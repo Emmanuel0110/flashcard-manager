@@ -328,6 +328,61 @@ app.post("/api/tags", auth, (req, res) => {
   });
 });
 
+app.get("/api/export", auth, async (req, res) => {
+  //export published flashcards as plain text
+  try {
+    // Check if user is admin
+    const user = await UserModel.findById(req.user._id);
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ message: "Unauthorized: Admin access required" });
+    }
+
+    // Get all published flashcards
+    const flashcards = await FlashcardModel.find({
+      status: "Published",
+    })
+      .populate("author", "username")
+      .populate("tags", "label")
+      .lean();
+
+    // Format the flashcards as plain text
+    let textContent = "EXPORTED FLASHCARDS\n\n";
+
+    flashcards.forEach((card, index) => {
+      textContent += `CARD #${index + 1}\n`;
+      textContent += `Author: ${card.author?.username || "Unknown"}\n`;
+      textContent += `Tags: ${card.tags.map((tag) => tag.label).join(", ") || "None"}\n`;
+      textContent += `Question:\n${stripHtml(card.question) || "No question"}\n\n`;
+      textContent += `Answer:\n${stripHtml(card.answer) || "No answer"}\n\n`;
+      textContent += `-------------------------------------------\n\n`;
+    });
+
+    // Set headers for file download
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Content-Disposition", "attachment; filename=published-flashcards.txt");
+
+    // Send the text content
+    res.send(textContent);
+  } catch (err) {
+    console.error("Error exporting flashcards:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Helper function to strip HTML tags
+function stripHtml(html) {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>?/gm, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&rarr;/g, "-->")
+    .trim();
+}
+
 const tagSchema = new Schema({
   _id: Schema.Types.ObjectId,
   label: { type: String, required: true, unique: true },

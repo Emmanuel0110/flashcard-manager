@@ -66,3 +66,9 @@ export const fetchTags = () => {
     console.log(err);
   });
 };
+
+export const fetchPublishedFlashcardsAsText = () => {
+  return fetch(url + "export", { headers: authHeaders() }).catch((err: Error) => {
+    console.log(err);
+  });
+};

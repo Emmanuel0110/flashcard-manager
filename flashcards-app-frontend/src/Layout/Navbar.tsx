@@ -6,6 +6,7 @@ import { logout } from "../auth/authActions";
 import AutoComplete from "../utils/Autocomplete";
 import Shortcuts from "../flashcards/components/shortcuts/Shortcuts";
 import FilterShortCuts from "../flashcards/components/shortcuts/FilterShortCuts";
+import { fetchPublishedFlashcardsAsText } from "../flashcards/flashcardActions";
 
 const parseLabel = (label: string) => {
   let result: string[] = [];
@@ -49,8 +50,17 @@ const insertTag = (tagLabel: string, inputRef: RefObject<HTMLInputElement>) => {
 };
 
 function Navbar() {
-  const { user, searchFilter, setSearchFilter, setIsAuthenticated, tags, treeFilter, setTreeFilter, searchInput, setSearchInput } =
-    useContext(ConfigContext) as Context;
+  const {
+    user,
+    searchFilter,
+    setSearchFilter,
+    setIsAuthenticated,
+    tags,
+    treeFilter,
+    setTreeFilter,
+    searchInput,
+    setSearchInput,
+  } = useContext(ConfigContext) as Context;
 
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -102,6 +112,27 @@ function Navbar() {
     }
   };
 
+  // Function to handle export
+  const handleExport = () => {
+    fetchPublishedFlashcardsAsText()
+      .then((response) => {
+        if (response && response.ok) {
+          return response.blob();
+        }
+        throw new Error("Network response was not ok");
+      })
+      .then((blob) => {
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "published-flashcards.txt";
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => console.error("Error exporting flashcards:", error));
+  };
   return (
     <div id="navbar" className="navb">
       <div id="githubIconArea">
@@ -129,6 +160,7 @@ function Navbar() {
           </Shortcuts>
         </div>
       </div>
+      {user && user.isAdmin && <div className="export-icon" onClick={handleExport}></div>}
       <div id="nameLabel">{user?.username}</div>
       <Link to="/profile">
         <div id="avatar-icon"></div>

@@ -145,7 +145,7 @@ body {
   /* text-decoration: none; */
 }
 
-#nameLabel{
+#nameLabel {
   padding: 5px 10px 10px 5px;
   color: #fafafa;
 }
@@ -704,17 +704,29 @@ a.nav-link {
 #detailShortcuts {
   position: absolute;
   bottom: 20px;
-  right: 20px;  
+  right: 20px;
 }
 
 #formShortcuts {
   position: absolute;
   top: 103px;
-  right: 30px;  
+  right: 30px;
 }
 
 #filterShortcuts {
   position: absolute;
   bottom: 29px;
   right: -5px;
+}
+
+.export-icon {
+  mask: url(images/file-arrow-down-solid.svg); /*https://fontawesome.com/license*/
+  background: #fafafa;
+  margin: 5px 10px 10px 5px;
+  cursor: pointer;
+  width: 3ch;
+  height: 3ch;
+  mask-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
 }
