@@ -100,14 +100,15 @@ export default function App() {
 
   useEffect(() => {
     if (isAuthenticated && filteredFlashcards.length < 30) {
-      fetchMoreFlashcards(0, 30).then(() => {
-        if (status === "To be reviewed" && filteredFlashcards.length > 0) {
-          setOpenedFlashcards([]);
-          navigate("/flashcards/" + filteredFlashcards[0]._id);
-        }
-      });
+      fetchMoreFlashcards(0, 30);
     }
   }, [status, searchFilter, isAuthenticated]);
+
+  useEffect(() => {
+    if (status === "To be reviewed" && filteredFlashcards.length > 0) {
+      navigate("/flashcards/" + filteredFlashcards[0]._id);
+    }
+  }, [status]);
 
   useEffect(() => {
     if (openedFlashcards.length !== 0) {
