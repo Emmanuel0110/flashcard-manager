@@ -511,7 +511,7 @@ app.post("/api/auth", function (req, res) {
       bcrypt.compare(password, user.password).then((isMatch) => {
         if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
-        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600 * 8 }, (err, token) => {
+        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600 * 11 }, (err, token) => {
           if (err) throw err;
           delete user.password;
           res.json({ token, user });
