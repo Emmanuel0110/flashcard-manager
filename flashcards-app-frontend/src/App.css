@@ -719,14 +719,3 @@ a.nav-link {
   right: -5px;
 }
 
-.export-icon {
-  mask: url(images/file-arrow-down-solid.svg); /*https://fontawesome.com/license*/
-  background: #fafafa;
-  margin: 5px 10px 10px 5px;
-  cursor: pointer;
-  width: 3ch;
-  height: 3ch;
-  mask-repeat: no-repeat;
-  background-position: center;
-  vertical-align: middle;
-}

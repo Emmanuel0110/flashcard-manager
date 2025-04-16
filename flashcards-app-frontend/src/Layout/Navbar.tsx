@@ -6,7 +6,8 @@ import { logout } from "../auth/authActions";
 import AutoComplete from "../utils/Autocomplete";
 import Shortcuts from "../flashcards/components/shortcuts/Shortcuts";
 import FilterShortCuts from "../flashcards/components/shortcuts/FilterShortCuts";
-import { fetchPublishedFlashcardsAsText } from "../flashcards/flashcardActions";
+import { fetchPublishedFlashcardsAsHtml, fetchPublishedFlashcardsAsMarkdown, fetchPublishedFlashcardsAsText } from "../flashcards/flashcardActions";
+import ExportOptions from "../utils/ExportOptions/ExportOptions";
 
 const parseLabel = (label: string) => {
   let result: string[] = [];
@@ -112,8 +113,8 @@ function Navbar() {
     }
   };
 
-  // Function to handle export
-  const handleExport = () => {
+  // Functions to handle export
+  const exportAsPlainText = () => {
     fetchPublishedFlashcardsAsText()
       .then((response) => {
         if (response && response.ok) {
@@ -133,6 +134,62 @@ function Navbar() {
       })
       .catch((error) => console.error("Error exporting flashcards:", error));
   };
+  const exportAsMarkdown = () => {
+    fetchPublishedFlashcardsAsMarkdown()
+      .then((response) => {
+        if (response && response.ok) {
+          return response.blob();
+        }
+        throw new Error("Network response was not ok");
+      })
+      .then((blob) => {
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "published-flashcards.txt";
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => console.error("Error exporting flashcards:", error));
+  };
+
+  const exportAsHtml = () => {
+    fetchPublishedFlashcardsAsHtml()
+      .then((response) => {
+        if (response && response.ok) {
+          return response.blob();
+        }
+        throw new Error("Network response was not ok");
+      })
+      .then((blob) => {
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "published-flashcards.html";
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => console.error("Error exporting flashcards:", error));
+  };
+
+  let options = [];
+  options.push({
+    callback: exportAsPlainText,
+    label: "Export as plain text",
+  });
+  options.push({
+    callback: exportAsMarkdown,
+    label: "Export as markdown",
+  });
+  options.push({
+    callback: exportAsHtml,
+    label: "Export as HTML",
+  });
+
   return (
     <div id="navbar" className="navb">
       <div id="githubIconArea">
@@ -160,7 +217,7 @@ function Navbar() {
           </Shortcuts>
         </div>
       </div>
-      {user && user.isAdmin && <div className="export-icon" onClick={handleExport}></div>}
+      {user && user.isAdmin && <ExportOptions options={options} />}
       <div id="nameLabel">{user?.username}</div>
       <Link to="/profile">
         <div id="avatar-icon"></div>

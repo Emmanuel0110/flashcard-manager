@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { Schema, model } from "mongoose";
 import auth from "./middleware/auth.js";
+import TurndownService from 'turndown';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -328,6 +329,52 @@ app.post("/api/tags", auth, (req, res) => {
   });
 });
 
+const getExportData = (flashcards, format) => {
+  let content = "";
+  let contentType = "";
+  let fileName = "";
+
+  switch (format) {
+    case "plaintext":
+      content = "EXPORTED FLASHCARDS\n\n";
+      flashcards.forEach((card, index) => {
+        content += `CARD #${index + 1}\n`;
+        content += `Author: ${card.author?.username || "Unknown"}\n`;
+        content += `Tags: ${card.tags.map((tag) => tag.label).join(", ") || "None"}\n`;
+        content += `Question:\n${stripHtml(card.question) || "No question"}\n\n`;
+        content += `Answer:\n${stripHtml(card.answer) || "No answer"}\n\n`;
+        content += `-------------------------------------------\n\n`;
+      });
+      contentType = "text/plain";
+      fileName = "published-flashcards.txt";
+      break;
+    case "markdown":
+      var turndownService = new TurndownService();
+      turndownService.addRule('keep', {
+        filter: ['code'],
+        replacement: function (content, node) {
+          return node.outerHTML
+        }
+      })
+      flashcards.forEach((card) => {
+        content += `== ${turndownService.turndown(card.question)} ==` + "\n\n";
+        content += turndownService.turndown(card.answer) + "\n\n";
+      });
+      contentType = "text/plain";
+      fileName = "published-flashcards.txt";
+      break;
+    case "html":
+      flashcards.forEach((card) => {
+        content += `<h2>${card.question}</h2>` + "\n<br />\n" ;
+        content += card.answer + "\n<br /><br />\n";
+      });
+      contentType = "text/html; charset=utf-8";
+      fileName = "published-flashcards.html";
+    default:
+  }
+  return {content, contentType, fileName}
+}
+
 app.get("/api/export", auth, async (req, res) => {
   //export published flashcards as plain text
   try {
@@ -345,24 +392,11 @@ app.get("/api/export", auth, async (req, res) => {
       .populate("tags", "label")
       .lean();
 
-    // Format the flashcards as plain text
-    let textContent = "EXPORTED FLASHCARDS\n\n";
+    const {content, contentType, fileName} = getExportData(flashcards, req.query.format);
 
-    flashcards.forEach((card, index) => {
-      textContent += `CARD #${index + 1}\n`;
-      textContent += `Author: ${card.author?.username || "Unknown"}\n`;
-      textContent += `Tags: ${card.tags.map((tag) => tag.label).join(", ") || "None"}\n`;
-      textContent += `Question:\n${stripHtml(card.question) || "No question"}\n\n`;
-      textContent += `Answer:\n${stripHtml(card.answer) || "No answer"}\n\n`;
-      textContent += `-------------------------------------------\n\n`;
-    });
-
-    // Set headers for file download
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Content-Disposition", "attachment; filename=published-flashcards.txt");
-
-    // Send the text content
-    res.send(textContent);
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+    res.send(content);
   } catch (err) {
     console.error("Error exporting flashcards:", err);
     res.status(500).json({ message: "Server error" });
@@ -433,11 +467,13 @@ const userFlashcardInfoSchema = new Schema({
 export const UserFlashcardInfoModel = model("UserFlashcardInfo", userFlashcardInfoSchema);
 
 import mongoose from "mongoose";
+
+const mongoURI = process.env.NODE_ENV === 'production' ?
+  `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER}.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority`
+  : 'mongodb://127.0.0.1:27017/flashcards-app'
 mongoose.set("debug", true);
 mongoose.set("strictQuery", true);
-mongoose.connect(
-  `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER}.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority`
-);
+mongoose.connect(mongoURI);
 mongoose.Promise = Promise;
 
 const db = mongoose.connection;

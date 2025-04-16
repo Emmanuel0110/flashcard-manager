@@ -68,7 +68,19 @@ export const fetchTags = () => {
 };
 
 export const fetchPublishedFlashcardsAsText = () => {
-  return fetch(url + "export", { headers: authHeaders() }).catch((err: Error) => {
+  return fetch(url + "export?format=plaintext", { headers: authHeaders() }).catch((err: Error) => {
+    console.log(err);
+  });
+};
+
+export const fetchPublishedFlashcardsAsMarkdown = () => {
+  return fetch(url + "export?format=markdown", { headers: authHeaders() }).catch((err: Error) => {
+    console.log(err);
+  });
+};
+
+export const fetchPublishedFlashcardsAsHtml = () => {
+  return fetch(url + "export?format=html", { headers: authHeaders() }).catch((err: Error) => {
     console.log(err);
   });
 };
