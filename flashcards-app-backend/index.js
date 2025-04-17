@@ -329,6 +329,12 @@ app.post("/api/tags", auth, (req, res) => {
   });
 });
 
+const simplifyPreCodeBlocks = (html) => {
+  return html.replace(/<pre[^>]*>\s*<code[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/gi, (match, codeContent) => {
+    return `<pre>${codeContent}</pre>`;
+  });
+}
+
 const getExportData = (flashcards, format) => {
   let content = "";
   let contentType = "";
@@ -350,15 +356,20 @@ const getExportData = (flashcards, format) => {
       break;
     case "markdown":
       var turndownService = new TurndownService();
-      turndownService.addRule('keep', {
-        filter: ['code'],
+      turndownService.addRule('removeImages', {
+        filter: 'img',
+        replacement: function () {
+          return ''; // return nothing — this removes the image
+        }
+      }).addRule('keep', {
+        filter: ['code','pre'],
         replacement: function (content, node) {
           return node.outerHTML
         }
-      })
+      });
       flashcards.forEach((card) => {
-        content += `== ${turndownService.turndown(card.question)} ==` + "\n\n";
-        content += turndownService.turndown(card.answer) + "\n\n";
+        content += `== ${turndownService.turndown(simplifyPreCodeBlocks(card.question))} ==` + "\n\n";
+        content += turndownService.turndown(simplifyPreCodeBlocks(card.answer)) + "\n\n";
       });
       contentType = "text/plain";
       fileName = "published-flashcards.txt";
